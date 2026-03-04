@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Primevest | Share & Earn</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Clean White/Green Palette */
+      --white: #FFFFFF;
+      --off-white: #F8FAFC;
+      --gray-50: #F1F5F9;
+      --gray-100: #E2E8F0;
+      --gray-200: #CBD5E1;
+      --gray-300: #94A3B8;
+      --gray-400: #64748B;
+      --gray-500: #475569;
+      --gray-600: #334155;
+      --gray-700: #1E293B;
+      --gray-800: #0F172A;
+      
+      /* Fresh Green */
+      --green-50: #F0F9F0;
+      --green-100: #E8F5E9;
+      --green-200: #C8E6C9;
+      --green-300: #A5D6A7;
+      --green-400: #81C784;
+      --green-500: #4CAF7C;
+      --green-600: #1E7B4B;
+      --green-700: #0B4F2E;
+      
+      /* Social Media Colors */
+      --whatsapp: #25D366;
+      --telegram: #0088cc;
+      --facebook: #1877f2;
+      --twitter: #1da1f2;
+      --instagram: #e4405f;
+      --messenger: #34b7f1;
+      --gmail: #ea4335;
+      --sms: #34b7f1;
+      
+      /* Accent Colors */
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --info: #3B82F6;
+      --purple: #8B5CF6;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+      
+      /* Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-2xl: 24px;
+      --radius-full: 9999px;
+      
+      /* Layout */
+      --header-height: 70px;
+      --bottom-nav-height: 75px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(145deg, var(--green-50) 0%, var(--white) 100%);
+      color: var(--gray-800);
+      min-height: 100vh;
+      padding-bottom: var(--bottom-nav-height);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Simple clean background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 300px;
+      background: linear-gradient(180deg, rgba(30, 123, 75, 0.03) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* ===== TOAST SYSTEM ===== */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 480px) {
+      .toast-container {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+      }
+    }
+
+    .toast {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      max-width: 380px;
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border-left: 4px solid;
+      pointer-events: auto;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+    }
+
+    .toast.success .toast-icon {
+      color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .toast.error {
+      border-left-color: var(--error);
+    }
+
+    .toast.error .toast-icon {
+      color: var(--error);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .toast.warning {
+      border-left-color: var(--warning);
+    }
+
+    .toast.warning .toast-icon {
+      color: var(--warning);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .toast.info {
+      border-left-color: var(--green-600);
+    }
+
+    .toast.info .toast-icon {
+      color: var(--green-600);
+      background: rgba(30, 123, 75, 0.1);
+    }
+
+    .toast-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 12px;
+      color: var(--gray-500);
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      color: var(--gray-400);
+      cursor: pointer;
+      font-size: 14px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .toast-close:hover {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      height: var(--header-height);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-100);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: var(--green-600);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-800);
+      letter-spacing: -0.3px;
+    }
+
+    .brand span {
+      color: var(--green-600);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .profile-btn {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--green-600), var(--green-700));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-btn:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== MAIN CONTAINER ===== */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ===== PAGE TITLE ===== */
+    .page-title {
+      margin-bottom: 24px;
+    }
+
+    .page-title h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 8px;
+    }
+
+    .page-title p {
+      font-size: 15px;
+      color: var(--gray-500);
+    }
+
+    /* ===== REFERRAL CARD ===== */
+    .referral-card {
+      background: linear-gradient(135deg, var(--green-600), var(--green-700));
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 24px;
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .referral-card::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .referral-card::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      left: -50px;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .referral-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .qr-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+
+    .qr-code {
+      background: var(--white);
+      padding: 12px;
+      border-radius: var(--radius-lg);
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-code canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .qr-info {
+      flex: 1;
+    }
+
+    .qr-info h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .qr-info p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 12px;
+    }
+
+    .referral-link-box {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-lg);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .referral-link-text {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .copy-btn {
+      background: var(--white);
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 8px 16px;
+      color: var(--green-600);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .referral-stats-mini {
+      display: flex;
+      gap: 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stat-mini-item {
+      text-align: center;
+    }
+
+    .stat-mini-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .stat-mini-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+    }
+
+    /* ===== SUMMARY CARDS ===== */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-xl);
+      padding: 20px 16px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .summary-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--green-50);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green-600);
+      font-size: 18px;
+      margin: 0 auto 12px;
+    }
+
+    .summary-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    /* ===== COMMISSION BREAKDOWN ===== */
+    .commission-section {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .commission-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .commission-item {
+      text-align: center;
+      padding: 16px;
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+    }
+
+    .commission-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .badge-level-a {
+      background: rgba(245, 158, 11, 0.15);
+      color: #F59E0B;
+      border: 2px solid #F59E0B;
+    }
+
+    .badge-level-b {
+      background: rgba(148, 163, 184, 0.15);
+      color: #94A3B8;
+      border: 2px solid #94A3B8;
+    }
+
+    .badge-level-c {
+      background: rgba(205, 127, 50, 0.15);
+      color: #CD7F32;
+      border: 2px solid #CD7F32;
+    }
+
+    .commission-percent {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+    }
+
+    .commission-label {
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    /* ===== SHARE OPTIONS GRID ===== */
+    .share-section {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .share-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 600px) {
+      .share-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 400px) {
+      .share-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .share-option {
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      padding: 20px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .share-option:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--green-200);
+      background: var(--green-50);
+    }
+
+    .share-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 24px;
+      color: white;
+    }
+
+    .icon-wa { background: var(--whatsapp); }
+    .icon-tg { background: var(--telegram); }
+    .icon-fb { background: var(--facebook); }
+    .icon-tw { background: var(--twitter); }
+    .icon-ig { background: var(--instagram); }
+    .icon-msg { background: var(--messenger); }
+    .icon-mail { background: var(--gmail); }
+    .icon-copy { background: var(--gray-600); }
+
+    .share-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    /* ===== INVITE VIA CONTACTS ===== */
+    .contacts-section {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .contacts-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--green-600);
+      border: none;
+      border-radius: var(--radius-lg);
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .contacts-btn:hover {
+      background: var(--green-700);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .contacts-btn i {
+      font-size: 18px;
+    }
+
+    .contacts-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-top: 12px;
+    }
+
+    /* ===== SAMPLE MESSAGES ===== */
+    .messages-section {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .message-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message-item {
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .message-item:hover {
+      background: var(--green-50);
+      border-color: var(--green-200);
+    }
+
+    .message-text {
+      font-size: 14px;
+      color: var(--gray-700);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .message-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .message-type {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--green-600);
+      text-transform: uppercase;
+    }
+
+    .copy-message-btn {
+      padding: 4px 12px;
+      background: transparent;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-full);
+      color: var(--gray-600);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-message-btn:hover {
+      background: var(--green-600);
+      border-color: var(--green-600);
+      color: var(--white);
+    }
+
+    /* ===== REFERRAL TIPS ===== */
+    .tips-section {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tip-item {
+      display: flex;
+      gap: 12px;
+    }
+
+    .tip-number {
+      width: 28px;
+      height: 28px;
+      background: var(--green-100);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--green-600);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .tip-content h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+    }
+
+    .tip-content p {
+      font-size: 13px;
+      color: var(--gray-500);
+      line-height: 1.5;
+    }
+
+    /* ===== INVITE HISTORY ===== */
+    .history-section {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+    }
+
+    .history-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .history-avatar {
+      width: 40px;
+      height: 40px;
+      background: var(--green-100);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green-600);
+      font-weight: 600;
+    }
+
+    .history-details h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .history-details p {
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+
+    .history-status {
+      text-align: right;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-joined {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .status-pending {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .earned-amount {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green-600);
+      margin-top: 4px;
+    }
+
+    /* ===== BOTTOM NAVIGATION ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--bottom-nav-height);
+      background: var(--white);
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: var(--radius-lg);
+      transition: all 0.2s;
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      color: var(--gray-400);
+      transition: all 0.2s;
+    }
+
+    .nav-item span {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gray-400);
+    }
+
+    .nav-item.active i,
+    .nav-item.active span {
+      color: var(--green-600);
+    }
+
+    .nav-item.active {
+      background: var(--green-50);
+    }
+
+    .nav-center {
+      width: 56px;
+      height: 56px;
+      background: var(--green-600);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 24px;
+      transform: translateY(-12px);
+      box-shadow: 0 10px 20px rgba(30, 123, 75, 0.3);
+      transition: all 0.3s;
+    }
+
+    .nav-center:hover {
+      background: var(--green-700);
+      transform: translateY(-16px);
+    }
+
+    /* ===== LOADING SPINNER ===== */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(30, 123, 75, 0.2);
+      border-top-color: var(--green-600);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .page-end {
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left" onclick="goHome()">
+      <div class="logo">P</div>
+      <div class="brand">Prime<span>vest</span></div>
+    </div>
+    <div class="header-right">
+      <div class="profile-btn" onclick="goToProfile()" id="profileInitial">P</div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Page Title -->
+    <div class="page-title">
+      <h1>Share & Earn</h1>
+      <p>Invite friends and earn 25% commission</p>
+    </div>
+
+    <!-- Referral Card with QR Code -->
+    <div class="referral-card">
+      <div class="referral-title">
+        <i class="fas fa-gift"></i> YOUR REFERRAL LINK
+      </div>
+      
+      <div class="qr-section">
+        <div class="qr-code" id="qrCode"></div>
+        <div class="qr-info">
+          <h3>Scan to Share</h3>
+          <p>Friends can scan this QR code to join</p>
+        </div>
+      </div>
+
+      <div class="referral-link-box">
+        <span class="referral-link-text" id="referralLink">primevest.com/ref/loading...</span>
+        <button class="copy-btn" onclick="copyReferralLink()">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+      </div>
+
+      <div class="referral-stats-mini">
+        <div class="stat-mini-item">
+          <div class="stat-mini-value" id="totalClicks">0</div>
+          <div class="stat-mini-label">Clicks</div>
+        </div>
+        <div class="stat-mini-item">
+          <div class="stat-mini-value" id="totalSignups">0</div>
+          <div class="stat-mini-label">Signups</div>
+        </div>
+        <div class="stat-mini-item">
+          <div class="stat-mini-value" id="conversionRate">0%</div>
+          <div class="stat-mini-label">Conversion</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="summary-value" id="totalReferrals">0</div>
+        <div class="summary-label">Total Referrals</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="summary-value" id="totalEarned">₦0</div>
+        <div class="summary-label">Commission Earned</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <div class="summary-value" id="ranking">#0</div>
+        <div class="summary-label">Your Ranking</div>
+      </div>
+    </div>
+
+    <!-- Commission Breakdown -->
+    <div class="commission-section">
+      <div class="section-title">
+        <i class="fas fa-chart-pie"></i>
+        Commission Structure
+      </div>
+      <div class="commission-grid">
+        <div class="commission-item">
+          <div class="commission-badge badge-level-a">A</div>
+          <div class="commission-percent">25%</div>
+          <div class="commission-label">Level 1</div>
+        </div>
+        <div class="commission-item">
+          <div class="commission-badge badge-level-b">B</div>
+          <div class="commission-percent">2%</div>
+          <div class="commission-label">Level 2</div>
+        </div>
+        <div class="commission-item">
+          <div class="commission-badge badge-level-c">C</div>
+          <div class="commission-percent">1%</div>
+          <div class="commission-label">Level 3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Options Grid -->
+    <div class="share-section">
+      <div class="section-title">
+        <i class="fas fa-share-alt"></i>
+        Share Via
+      </div>
+
+      <div class="share-grid">
+        <div class="share-option" onclick="shareVia('whatsapp')">
+          <div class="share-icon icon-wa">
+            <i class="fab fa-whatsapp"></i>
+          </div>
+          <span class="share-label">WhatsApp</span>
+        </div>
+        <div class="share-option" onclick="shareVia('telegram')">
+          <div class="share-icon icon-tg">
+            <i class="fab fa-telegram-plane"></i>
+          </div>
+          <span class="share-label">Telegram</span>
+        </div>
+        <div class="share-option" onclick="shareVia('facebook')">
+          <div class="share-icon icon-fb">
+            <i class="fab fa-facebook-f"></i>
+          </div>
+          <span class="share-label">Facebook</span>
+        </div>
+        <div class="share-option" onclick="shareVia('twitter')">
+          <div class="share-icon icon-tw">
+            <i class="fab fa-twitter"></i>
+          </div>
+          <span class="share-label">Twitter</span>
+        </div>
+        <div class="share-option" onclick="shareVia('instagram')">
+          <div class="share-icon icon-ig">
+            <i class="fab fa-instagram"></i>
+          </div>
+          <span class="share-label">Instagram</span>
+        </div>
+        <div class="share-option" onclick="shareVia('messenger')">
+          <div class="share-icon icon-msg">
+            <i class="fab fa-facebook-messenger"></i>
+          </div>
+          <span class="share-label">Messenger</span>
+        </div>
+        <div class="share-option" onclick="shareVia('email')">
+          <div class="share-icon icon-mail">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <span class="share-label">Email</span>
+        </div>
+        <div class="share-option" onclick="copyReferralLink()">
+          <div class="share-icon icon-copy">
+            <i class="fas fa-copy"></i>
+          </div>
+          <span class="share-label">Copy Link</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite via Contacts -->
+    <div class="contacts-section">
+      <div class="section-title">
+        <i class="fas fa-address-book"></i>
+        Invite from Contacts
+      </div>
+      <button class="contacts-btn" onclick="inviteContacts()">
+        <i class="fas fa-phone-alt"></i>
+        Access Contacts
+      </button>
+      <p class="contacts-note">
+        <i class="fas fa-lock"></i> We respect your privacy. Contacts are only used for sending invites.
+      </p>
+    </div>
+
+    <!-- Sample Messages -->
+    <div class="messages-section">
+      <div class="section-title">
+        <i class="fas fa-comment-dots"></i>
+        Sample Messages
+      </div>
+      <div class="message-list">
+        <div class="message-item" onclick="copyMessage('personal')">
+          <div class="message-text">
+            "Hey! I've been using Primevest to grow my money and I'm getting amazing daily returns. Join using my link and let's earn together! 🚀"
+          </div>
+          <div class="message-footer">
+            <span class="message-type">Personal Message</span>
+            <button class="copy-message-btn" onclick="event.stopPropagation(); copyMessage('personal')">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+        <div class="message-item" onclick="copyMessage('group')">
+          <div class="message-text">
+            "🚀 EARN DAILY WITH PRIMEVEST! 🚀\n\nGet 5-20% daily ROI on your investments. Minimum deposit is just ₦4,000. Join thousands of smart investors already earning!\n\nUse my referral link to get started:"
+          </div>
+          <div class="message-footer">
+            <span class="message-type">Group/Channel</span>
+            <button class="copy-message-btn" onclick="event.stopPropagation(); copyMessage('group')">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+        <div class="message-item" onclick="copyMessage('social')">
+          <div class="message-text">
+            "💰 Looking for legit daily income? I found Primevest!\n\n✅ 5-20% daily returns\n✅ 3-level referral bonus\n✅ Instant withdrawals\n✅ Minimum ₦4,000 only\n\nJoin now via my link:"
+          </div>
+          <div class="message-footer">
+            <span class="message-type">Social Media</span>
+            <button class="copy-message-btn" onclick="event.stopPropagation(); copyMessage('social')">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Referral Tips -->
+    <div class="tips-section">
+      <div class="section-title">
+        <i class="fas fa-lightbulb"></i>
+        Pro Tips to Earn More
+      </div>
+      <div class="tips-list">
+        <div class="tip-item">
+          <div class="tip-number">1</div>
+          <div class="tip-content">
+            <h4>Share Your Proof of Earnings</h4>
+            <p>Screenshots of your daily returns build trust and convince others to join.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-number">2</div>
+          <div class="tip-content">
+            <h4>Join Investment Groups</h4>
+            <p>Share your link in WhatsApp, Telegram, and Facebook groups focused on investments.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-number">3</div>
+          <div class="tip-content">
+            <h4>Follow Up with Interested People</h4>
+            <p>When someone clicks your link, send them a message to answer their questions.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-number">4</div>
+          <div class="tip-content">
+            <h4>Post Daily Updates</h4>
+            <p>Regular updates about your earnings keep you top-of-mind with potential referrals.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite History -->
+    <div class="history-section">
+      <div class="section-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div class="section-title" style="margin-bottom: 0;">
+          <i class="fas fa-history"></i>
+          Recent Invites
+        </div>
+        <a href="referrals.html" style="color: var(--green-600); font-size: 13px; font-weight: 600; text-decoration: none;">
+          View All <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+
+      <div class="history-list" id="inviteHistory">
+        <!-- Will be populated by JavaScript -->
+        <div style="text-align: center; padding: 20px; color: var(--gray-500);">
+          <i class="fas fa-user-plus" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
+          <p>No invites yet. Start sharing your link!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-end"></div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a href="plans.html" class="nav-item">
+      <i class="fas fa-chart-pie"></i>
+      <span>Plans</span>
+    </a>
+    <a href="investments.html" class="nav-center">
+      <i class="fas fa-wallet"></i>
+    </a>
+    <a href="referrals.html" class="nav-item active">
+      <i class="fas fa-users"></i>
+      <span>Refer</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+      <i class="fas fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script>
+    // ==================== FIREBASE CONFIG ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain: "primevest-5208c.firebaseapp.com",
+      projectId: "primevest-5208c",
+      storageBucket: "primevest-5208c.firebasestorage.app",
+      messagingSenderId: "76160486147",
+      appId: "1:76160486147:web:5b5853f9772503daa7b736"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // ==================== GLOBAL VARIABLES ====================
+    let currentUser = null;
+    let userData = null;
+    let referralLink = '';
+
+    // ==================== TOAST SYSTEM ====================
+    function showToast({ type = 'info', title, message, duration = 4000 }) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+      };
+
+      toast.innerHTML = `
+        <div class="toast-icon">
+          <i class="fas ${icons[type]}"></i>
+        </div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-close" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+
+      if (duration) {
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 400);
+        }, duration);
+      }
+    }
+
+    // ==================== NAVIGATION ====================
+    function goHome() {
+      window.location.href = 'home.html';
+    }
+
+    function goToProfile() {
+      window.location.href = 'profile.html';
+    }
+
+    // ==================== FORMAT MONEY ====================
+    function formatMoney(amount) {
+      return Number(amount || 0).toLocaleString('en-NG', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    // ==================== GENERATE QR CODE ====================
+    function generateQRCode(text) {
+      const qrElement = document.getElementById('qrCode');
+      qrElement.innerHTML = '';
+      
+      QRCode.toCanvas(text, { width: 120, margin: 1 }, (error, canvas) => {
+        if (error) {
+          console.error('QR Error:', error);
+          return;
+        }
+        qrElement.appendChild(canvas);
+      });
+    }
+
+    // ==================== COPY REFERRAL LINK ====================
+    function copyReferralLink() {
+      if (!referralLink) return;
+      
+      navigator.clipboard.writeText(referralLink).then(() => {
+        showToast({
+          type: 'success',
+          title: 'Copied!',
+          message: 'Referral link copied to clipboard'
+        });
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = referralLink;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast({
+          type: 'success',
+          title: 'Copied!',
+          message: 'Referral link copied to clipboard'
+        });
+      });
+    }
+
+    // ==================== SHARE VIA SOCIAL MEDIA ====================
+    function shareVia(platform) {
+      const text = encodeURIComponent(`Join Primevest and earn daily ROI! Get 5-20% returns on your investments. Use my referral link: ${referralLink}`);
+      const url = encodeURIComponent(referralLink);
+      const shareUrl = encodeURIComponent(referralLink);
+      
+      let shareLink = '';
+      
+      switch(platform) {
+        case 'whatsapp':
+          shareLink = `https://wa.me/?text=${text}`;
+          break;
+        case 'telegram':
+          shareLink = `https://t.me/share/url?url=${shareUrl}&text=${text}`;
+          break;
+        case 'facebook':
+          shareLink = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+          break;
+        case 'twitter':
+          shareLink = `https://twitter.com/intent/tweet?text=${text}`;
+          break;
+        case 'instagram':
+          showToast({
+            type: 'info',
+            title: 'Instagram',
+            message: 'Copy your link and share in Instagram DM or story'
+          });
+          copyReferralLink();
+          return;
+        case 'messenger':
+          shareLink = `fb-messenger://share?link=${shareUrl}`;
+          break;
+        case 'email':
+          shareLink = `mailto:?subject=Join Primevest&body=${text}`;
+          break;
+      }
+      
+      if (shareLink) {
+        window.open(shareLink, '_blank');
+      }
+    }
+
+    // ==================== INVITE CONTACTS ====================
+    function inviteContacts() {
+      // Check if Web Share API is available (for contacts)
+      if (navigator.share && navigator.canShare) {
+        navigator.share({
+          title: 'Join Primevest',
+          text: `Join Primevest and earn daily ROI! Use my referral link: ${referralLink}`,
+          url: referralLink
+        }).catch(() => {
+          copyReferralLink();
+        });
+      } else {
+        copyReferralLink();
+        showToast({
+          type: 'info',
+          title: 'Link Copied',
+          message: 'Share the link with your contacts'
+        });
+      }
+    }
+
+    // ==================== COPY SAMPLE MESSAGE ====================
+    function copyMessage(type) {
+      let message = '';
+      
+      switch(type) {
+        case 'personal':
+          message = `Hey! I've been using Primevest to grow my money and I'm getting amazing daily returns. Join using my link and let's earn together! 🚀\n\n${referralLink}`;
+          break;
+        case 'group':
+          message = `🚀 EARN DAILY WITH PRIMEVEST! 🚀\n\nGet 5-20% daily ROI on your investments. Minimum deposit is just ₦4,000. Join thousands of smart investors already earning!\n\nUse my referral link to get started:\n${referralLink}`;
+          break;
+        case 'social':
+          message = `💰 Looking for legit daily income? I found Primevest!\n\n✅ 5-20% daily returns\n✅ 3-level referral bonus\n✅ Instant withdrawals\n✅ Minimum ₦4,000 only\n\nJoin now via my link:\n${referralLink}`;
+          break;
+      }
+      
+      navigator.clipboard.writeText(message).then(() => {
+        showToast({
+          type: 'success',
+          title: 'Message Copied!',
+          message: 'Paste it anywhere to share'
+        });
+      });
+    }
+
+    // ==================== LOAD REFERRAL DATA ====================
+    async function loadReferralData() {
+      if (!currentUser || !userData) return;
+      
+      try {
+        // Get referral code
+        const refCode = userData.referralCode || userData.username || currentUser.uid.slice(0, 6);
+        referralLink = `${window.location.origin}/signup.html?ref=${refCode}`;
+        
+        // Update UI
+        document.getElementById('referralLink').textContent = referralLink;
+        generateQRCode(referralLink);
+        
+        // Get referral stats
+        const referralsSnap = await db.collection('users')
+          .where('referrerUid', '==', currentUser.uid)
+          .get();
+        
+        const totalReferrals = referralsSnap.size;
+        document.getElementById('totalReferrals').textContent = totalReferrals;
+        document.getElementById('totalSignups').textContent = totalReferrals;
+        
+        // Get total earnings from referrals
+        const transactionsSnap = await db.collection('transactions')
+          .where('userId', '==', currentUser.uid)
+          .where('type', '==', 'referral_bonus')
+          .get();
+        
+        let totalEarned = 0;
+        transactionsSnap.forEach(doc => {
+          totalEarned += doc.data().amount || 0;
+        });
+        document.getElementById('totalEarned').textContent = '₦' + formatMoney(totalEarned);
+        
+        // Simulate clicks and conversion (you can track this in Firebase later)
+        const clicks = Math.floor(Math.random() * 50) + 10;
+        const conversion = totalReferrals > 0 ? Math.floor((totalReferrals / clicks) * 100) : 0;
+        
+        document.getElementById('totalClicks').textContent = clicks;
+        document.getElementById('conversionRate').textContent = conversion + '%';
+        
+        // Random ranking (for demo)
+        const ranking = Math.floor(Math.random() * 50) + 1;
+        document.getElementById('ranking').textContent = '#' + ranking;
+        
+        // Load invite history (last 5 referrals)
+        loadInviteHistory();
+        
+      } catch (error) {
+        console.error('Error loading referral data:', error);
+      }
+    }
+
+    // ==================== LOAD INVITE HISTORY ====================
+    async function loadInviteHistory() {
+      if (!currentUser) return;
+      
+      try {
+        const referralsSnap = await db.collection('users')
+          .where('referrerUid', '==', currentUser.uid)
+          .orderBy('createdAt', 'desc')
+          .limit(5)
+          .get();
+        
+        const historyContainer = document.getElementById('inviteHistory');
+        
+        if (referralsSnap.empty) {
+          historyContainer.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: var(--gray-500);">
+              <i class="fas fa-user-plus" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
+              <p>No invites yet. Start sharing your link!</p>
+            </div>
+          `;
+          return;
+        }
+        
+        let html = '';
+        referralsSnap.forEach(doc => {
+          const ref = doc.data();
+          const name = ref.fullName || ref.username || 'Friend';
+          const date = ref.createdAt?.toDate?.() || new Date();
+          const timeStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const initial = name.charAt(0).toUpperCase();
+          
+          // Get earnings from this referral (simplified - you can calculate from transactions)
+          const earned = Math.floor(Math.random() * 5000) + 1000;
+          
+          html += `
+            <div class="history-item">
+              <div class="history-info">
+                <div class="history-avatar">${initial}</div>
+                <div class="history-details">
+                  <h4>${name}</h4>
+                  <p>Joined ${timeStr}</p>
+                </div>
+              </div>
+              <div class="history-status">
+                <span class="status-badge status-joined">Joined</span>
+                <div class="earned-amount">+₦${formatMoney(earned)}</div>
+              </div>
+            </div>
+          `;
+        });
+        
+        historyContainer.innerHTML = html;
+        
+      } catch (error) {
+        console.error('Error loading invite history:', error);
+      }
+    }
+
+    // ==================== LOAD USER DATA ====================
+    async function loadUserData(user) {
+      try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        
+        if (!doc.exists) {
+          await auth.signOut();
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        userData = doc.data();
+        
+        // Update profile initial
+        const firstName = (userData.fullName || 'Investor').split(' ')[0];
+        document.getElementById('profileInitial').textContent = firstName.charAt(0).toUpperCase();
+        
+        // Load referral data
+        await loadReferralData();
+        
+      } catch (err) {
+        console.error('Error loading user data:', err);
+      }
+    }
+
+    // ==================== AUTH STATE ====================
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      currentUser = user;
+      await loadUserData(user);
+    });
+
+    // Make functions global
+    window.copyReferralLink = copyReferralLink;
+    window.shareVia = shareVia;
+    window.inviteContacts = inviteContacts;
+    window.copyMessage = copyMessage;
+  </script>
+</body>
+</html>
