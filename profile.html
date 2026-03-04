@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Primevest | My Profile</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Clean White/Green Palette */
+      --white: #FFFFFF;
+      --off-white: #F8FAFC;
+      --gray-50: #F1F5F9;
+      --gray-100: #E2E8F0;
+      --gray-200: #CBD5E1;
+      --gray-300: #94A3B8;
+      --gray-400: #64748B;
+      --gray-500: #475569;
+      --gray-600: #334155;
+      --gray-700: #1E293B;
+      --gray-800: #0F172A;
+      
+      /* Fresh Green */
+      --green-50: #F0F9F0;
+      --green-100: #E8F5E9;
+      --green-200: #C8E6C9;
+      --green-300: #A5D6A7;
+      --green-400: #81C784;
+      --green-500: #4CAF7C;
+      --green-600: #1E7B4B;
+      --green-700: #0B4F2E;
+      
+      /* Accent Colors */
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --info: #3B82F6;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+      
+      /* Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-2xl: 24px;
+      --radius-full: 9999px;
+      
+      /* Layout */
+      --header-height: 70px;
+      --bottom-nav-height: 75px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(145deg, var(--green-50) 0%, var(--white) 100%);
+      color: var(--gray-800);
+      min-height: 100vh;
+      padding-bottom: var(--bottom-nav-height);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Simple clean background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 300px;
+      background: linear-gradient(180deg, rgba(30, 123, 75, 0.03) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* ===== TOAST SYSTEM ===== */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 480px) {
+      .toast-container {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+      }
+    }
+
+    .toast {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      max-width: 380px;
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border-left: 4px solid;
+      pointer-events: auto;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+    }
+
+    .toast.success .toast-icon {
+      color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .toast.error {
+      border-left-color: var(--error);
+    }
+
+    .toast.error .toast-icon {
+      color: var(--error);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .toast.warning {
+      border-left-color: var(--warning);
+    }
+
+    .toast.warning .toast-icon {
+      color: var(--warning);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .toast.info {
+      border-left-color: var(--green-600);
+    }
+
+    .toast.info .toast-icon {
+      color: var(--green-600);
+      background: rgba(30, 123, 75, 0.1);
+    }
+
+    .toast-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 12px;
+      color: var(--gray-500);
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      color: var(--gray-400);
+      cursor: pointer;
+      font-size: 14px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .toast-close:hover {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      height: var(--header-height);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-100);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: var(--green-600);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-800);
+      letter-spacing: -0.3px;
+    }
+
+    .brand span {
+      color: var(--green-600);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .profile-btn {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--green-600), var(--green-700));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-btn:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== MAIN CONTAINER ===== */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ===== PROFILE HEADER ===== */
+    .profile-header {
+      background: linear-gradient(135deg, var(--green-600), var(--green-700));
+      border-radius: var(--radius-2xl);
+      padding: 32px 24px;
+      margin-bottom: 24px;
+      color: var(--white);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-header::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .profile-header::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      left: -50px;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      background: var(--white);
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--green-600);
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-phone {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-balance {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-full);
+      padding: 8px 24px;
+      display: inline-block;
+      font-size: 20px;
+      font-weight: 700;
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-balance span {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-right: 8px;
+    }
+
+    /* ===== QUICK ACTIONS ===== */
+    .quick-actions-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 16px;
+      padding-left: 8px;
+    }
+
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .quick-action-card {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-xl);
+      padding: 16px 12px;
+      text-align: center;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .quick-action-card:hover {
+      border-color: var(--green-300);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .quick-action-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--green-50);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      color: var(--green-600);
+      font-size: 20px;
+    }
+
+    .quick-action-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    /* ===== MENU SECTIONS ===== */
+    .menu-section {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 8px 0;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--gray-100);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .menu-item:hover {
+      background: var(--green-50);
+    }
+
+    .menu-item-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--green-50);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green-600);
+      font-size: 18px;
+    }
+
+    .menu-icon.red {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    .menu-icon.blue {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--info);
+    }
+
+    .menu-icon.purple {
+      background: rgba(139, 92, 246, 0.1);
+      color: #8B5CF6;
+    }
+
+    .menu-icon.orange {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .menu-content {
+      flex: 1;
+    }
+
+    .menu-title {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+    }
+
+    .menu-subtitle {
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    .menu-right {
+      color: var(--gray-400);
+      font-size: 14px;
+    }
+
+    .menu-badge {
+      background: var(--green-600);
+      color: var(--white);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* ===== LOGOUT BUTTON ===== */
+    .logout-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: rgba(239, 68, 68, 0.05);
+      border-radius: var(--radius-xl);
+      margin-top: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .logout-item:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .logout-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--error);
+      font-size: 20px;
+    }
+
+    .logout-text {
+      flex: 1;
+    }
+
+    .logout-text h4 {
+      font-weight: 600;
+      color: var(--error);
+      margin-bottom: 4px;
+    }
+
+    .logout-text p {
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    /* ===== BOTTOM NAVIGATION ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--bottom-nav-height);
+      background: var(--white);
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: var(--radius-lg);
+      transition: all 0.2s;
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      color: var(--gray-400);
+      transition: all 0.2s;
+    }
+
+    .nav-item span {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gray-400);
+    }
+
+    .nav-item.active i,
+    .nav-item.active span {
+      color: var(--green-600);
+    }
+
+    .nav-item.active {
+      background: var(--green-50);
+    }
+
+    .nav-center {
+      width: 56px;
+      height: 56px;
+      background: var(--green-600);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 24px;
+      transform: translateY(-12px);
+      box-shadow: 0 10px 20px rgba(30, 123, 75, 0.3);
+      transition: all 0.3s;
+    }
+
+    .nav-center:hover {
+      background: var(--green-700);
+      transform: translateY(-16px);
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-card {
+      background: var(--white);
+      border-radius: var(--radius-2xl);
+      width: 90%;
+      max-width: 340px;
+      padding: 24px;
+      box-shadow: var(--shadow-xl);
+      transform: scale(0.9);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.show .modal-card {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .modal-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      color: var(--error);
+      font-size: 28px;
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-800);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .modal-text {
+      font-size: 14px;
+      color: var(--gray-500);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-danger {
+      background: var(--error);
+      color: var(--white);
+    }
+
+    .modal-btn-danger:hover {
+      background: #DC2626;
+    }
+
+    .modal-btn-secondary {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    .modal-btn-secondary:hover {
+      background: var(--gray-200);
+    }
+
+    /* ===== LOADING SPINNER ===== */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(30, 123, 75, 0.2);
+      border-top-color: var(--green-600);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .page-end {
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Logout Confirmation Modal -->
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal-card">
+      <div class="modal-icon">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <h3 class="modal-title">Logout</h3>
+      <p class="modal-text">Are you sure you want to logout from your account?</p>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-danger" onclick="confirmLogout()">Yes, Logout</button>
+        <button class="modal-btn modal-btn-secondary" onclick="closeLogoutModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left" onclick="goHome()">
+      <div class="logo">P</div>
+      <div class="brand">Prime<span>vest</span></div>
+    </div>
+    <div class="header-right">
+      <div class="profile-btn" onclick="goToProfile()" id="profileInitial">P</div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar">P</div>
+      <h2 class="profile-name" id="profileFullName">Loading...</h2>
+      <div class="profile-phone" id="profilePhone">Loading...</div>
+      <div class="profile-balance">
+        <span>Balance</span>
+        <span id="profileBalance">₦0</span>
+      </div>
+    </div>
+
+    <!-- Quick Actions Title (Farm Quick Actions) -->
+    <h3 class="quick-actions-title">Farm Quick Actions</h3>
+
+    <!-- Quick Actions Grid -->
+    <div class="quick-actions-grid">
+      <div class="quick-action-card" onclick="navigateTo('invite')">
+        <div class="quick-action-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="quick-action-label">Invite Team</div>
+      </div>
+      <div class="quick-action-card" onclick="navigateTo('team')">
+        <div class="quick-action-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="quick-action-label">Farm Team</div>
+      </div>
+      <div class="quick-action-card" onclick="navigateTo('gift')">
+        <div class="quick-action-icon">
+          <i class="fas fa-gift"></i>
+        </div>
+        <div class="quick-action-label">Daily Gift</div>
+      </div>
+    </div>
+
+    <!-- Menu Section 1 - Team & Records -->
+    <div class="menu-section">
+      <div class="menu-item" onclick="navigateTo('my-team')">
+        <div class="menu-item-left">
+          <div class="menu-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="menu-content">
+            <div class="menu-title">My Team</div>
+            <div class="menu-subtitle">View your downlines</div>
+          </div>
+        </div>
+        <div class="menu-right">
+          <span id="teamCount">0</span>
+          <i class="fas fa-chevron-right" style="margin-left: 8px;"></i>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="navigateTo('product-records')">
+        <div class="menu-item-left">
+          <div class="menu-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="menu-content">
+            <div class="menu-title">Product Records</div>
+            <div class="menu-subtitle">Your investment history</div>
+          </div>
+        </div>
+        <div class="menu-right">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="navigateTo('recharge-history')">
+        <div class="menu-item-left">
+          <div class="menu-icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <div class="menu-content">
+            <div class="menu-title">Recharge History</div>
+            <div class="menu-subtitle">Deposit transactions</div>
+          </div>
+        </div>
+        <div class="menu-right">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="navigateTo('withdrawal-history')">
+        <div class="menu-item-left">
+          <div class="menu-icon">
+            <i class="fas fa-arrow-up"></i>
+          </div>
+          <div class="menu-content">
+            <div class="menu-title">Withdrawal History</div>
+            <div class="menu-subtitle">Your withdrawals</div>
+          </div>
+        </div>
+        <div class="menu-right">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Section 2 - App & Support -->
+    <div class="menu-section">
+      <div class="menu-item" onclick="navigateTo('share-app')">
+        <div class="menu-item-left">
+          <div class="menu-icon blue">
+            <i class="fas fa-share-alt"></i>
+          </div>
+          <div class="menu-content">
+            <div class="menu-title">Share App</div>
+            <div class="menu-subtitle">Invite friends & earn</div>
+          </div>
+        </div>
+        <div class="menu-right">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="navigateTo('bank-details')">
+        <div class="menu-item-left">
+          <div class="menu-icon purple">
+            <i class="fas fa-university"></i>
+          </div>
+          <div class="menu-content">
+            <div class="menu-title">Bank Details</div>
+            <div class="menu-subtitle">Manage withdrawal accounts</div>
+          </div>
+        </div>
+        <div class="menu-right">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="navigateTo('telegram')">
+        <div class="menu-item-left">
+          <div class="menu-icon blue">
+            <i class="fab fa-telegram-plane"></i>
+          </div>
+          <div class="menu-content">
+            <div class="menu-title">Telegram Group</div>
+            <div class="menu-subtitle">Join our community</div>
+          </div>
+        </div>
+        <div class="menu-right">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="logout-item" onclick="showLogoutModal()">
+      <div class="logout-icon">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <div class="logout-text">
+        <h4>Logout</h4>
+        <p>Sign out from your account</p>
+      </div>
+    </div>
+
+    <div class="page-end"></div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a href="plans.html" class="nav-item">
+      <i class="fas fa-chart-pie"></i>
+      <span>Plans</span>
+    </a>
+    <a href="investments.html" class="nav-center">
+      <i class="fas fa-wallet"></i>
+    </a>
+    <a href="referrals.html" class="nav-item">
+      <i class="fas fa-users"></i>
+      <span>Refer</span>
+    </a>
+    <a href="profile.html" class="nav-item active">
+      <i class="fas fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script>
+    // ==================== FIREBASE CONFIG ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain: "primevest-5208c.firebaseapp.com",
+      projectId: "primevest-5208c",
+      storageBucket: "primevest-5208c.firebasestorage.app",
+      messagingSenderId: "76160486147",
+      appId: "1:76160486147:web:5b5853f9772503daa7b736"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // ==================== TOAST SYSTEM ====================
+    function showToast({ type = 'info', title, message, duration = 4000 }) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+      };
+
+      toast.innerHTML = `
+        <div class="toast-icon">
+          <i class="fas ${icons[type]}"></i>
+        </div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-close" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+
+      if (duration) {
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 400);
+        }, duration);
+      }
+    }
+
+    // ==================== NAVIGATION ====================
+    function goHome() {
+      window.location.href = 'home.html';
+    }
+
+    function goToProfile() {
+      window.location.href = 'profile.html';
+    }
+
+    function navigateTo(page) {
+      switch(page) {
+        case 'invite':
+          window.location.href = 'referrals.html';
+          break;
+        case 'team':
+        case 'my-team':
+          window.location.href = 'referrals.html';
+          break;
+        case 'gift':
+          showToast({
+            type: 'info',
+            title: 'Daily Gift',
+            message: 'Coming soon!'
+          });
+          break;
+        case 'product-records':
+          window.location.href = 'investments.html';
+          break;
+        case 'recharge-history':
+        case 'withdrawal-history':
+          showToast({
+            type: 'info',
+            title: 'History',
+            message: 'Coming soon!'
+          });
+          break;
+        case 'share-app':
+          shareApp();
+          break;
+        case 'bank-details':
+          showToast({
+            type: 'info',
+            title: 'Bank Details',
+            message: 'Coming soon!'
+          });
+          break;
+        case 'telegram':
+          window.open('https://t.me/primevest', '_blank');
+          break;
+        default:
+          showToast({
+            type: 'info',
+            title: 'Coming Soon',
+            message: 'This feature is under development'
+          });
+      }
+    }
+
+    window.navigateTo = navigateTo;
+
+    // ==================== SHARE APP ====================
+    function shareApp() {
+      const shareData = {
+        title: 'Primevest',
+        text: 'Join Primevest and start earning daily ROI on your investments!',
+        url: window.location.origin
+      };
+
+      if (navigator.share) {
+        navigator.share(shareData);
+      } else {
+        // Fallback
+        navigator.clipboard.writeText(window.location.origin);
+        showToast({
+          type: 'success',
+          title: 'Link Copied!',
+          message: 'Share link copied to clipboard'
+        });
+      }
+    }
+
+    // ==================== LOGOUT MODAL ====================
+    function showLogoutModal() {
+      document.getElementById('logoutModal').classList.add('show');
+    }
+
+    function closeLogoutModal() {
+      document.getElementById('logoutModal').classList.remove('show');
+    }
+
+    async function confirmLogout() {
+      closeLogoutModal();
+      
+      showToast({
+        type: 'info',
+        title: 'Logging out...',
+        message: 'Please wait'
+      });
+
+      try {
+        await auth.signOut();
+        window.location.href = 'login.html';
+      } catch (error) {
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to logout'
+        });
+      }
+    }
+
+    window.showLogoutModal = showLogoutModal;
+    window.closeLogoutModal = closeLogoutModal;
+    window.confirmLogout = confirmLogout;
+
+    // ==================== FORMAT MONEY ====================
+    function formatMoney(amount) {
+      return '₦' + Number(amount || 0).toLocaleString('en-NG', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    // ==================== LOAD USER DATA ====================
+    async function loadUserData(user) {
+      try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        
+        if (!doc.exists) {
+          await auth.signOut();
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        const data = doc.data();
+        
+        // Update profile
+        const fullName = data.fullName || 'Primevest User';
+        const firstName = fullName.split(' ')[0];
+        const phone = data.phone || 'Not provided';
+        const balance = data.balance || 0;
+        const initial = firstName.charAt(0).toUpperCase();
+        
+        document.getElementById('profileFullName').textContent = fullName;
+        document.getElementById('profilePhone').textContent = phone;
+        document.getElementById('profileBalance').textContent = formatMoney(balance);
+        document.getElementById('profileAvatar').textContent = initial;
+        document.getElementById('profileInitial').textContent = initial;
+        
+        // Get team count
+        const teamSnapshot = await db.collection('users')
+          .where('referrerUid', '==', user.uid)
+          .get();
+        
+        document.getElementById('teamCount').textContent = teamSnapshot.size;
+        
+      } catch (err) {
+        console.error('Error loading user data:', err);
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to load profile data'
+        });
+      }
+    }
+
+    // ==================== AUTH STATE ====================
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      await loadUserData(user);
+    });
+  </script>
+</body>
+</html>

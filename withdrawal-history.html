@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Primevest | Withdrawal History</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Clean White/Green Palette */
+      --white: #FFFFFF;
+      --off-white: #F8FAFC;
+      --gray-50: #F1F5F9;
+      --gray-100: #E2E8F0;
+      --gray-200: #CBD5E1;
+      --gray-300: #94A3B8;
+      --gray-400: #64748B;
+      --gray-500: #475569;
+      --gray-600: #334155;
+      --gray-700: #1E293B;
+      --gray-800: #0F172A;
+      
+      /* Fresh Green */
+      --green-50: #F0F9F0;
+      --green-100: #E8F5E9;
+      --green-200: #C8E6C9;
+      --green-300: #A5D6A7;
+      --green-400: #81C784;
+      --green-500: #4CAF7C;
+      --green-600: #1E7B4B;
+      --green-700: #0B4F2E;
+      
+      /* Accent Colors */
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --info: #3B82F6;
+      --purple: #8B5CF6;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+      
+      /* Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-2xl: 24px;
+      --radius-full: 9999px;
+      
+      /* Layout */
+      --header-height: 70px;
+      --bottom-nav-height: 75px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(145deg, var(--green-50) 0%, var(--white) 100%);
+      color: var(--gray-800);
+      min-height: 100vh;
+      padding-bottom: var(--bottom-nav-height);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Simple clean background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 300px;
+      background: linear-gradient(180deg, rgba(30, 123, 75, 0.03) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* ===== TOAST SYSTEM ===== */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 480px) {
+      .toast-container {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+      }
+    }
+
+    .toast {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      max-width: 380px;
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border-left: 4px solid;
+      pointer-events: auto;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+    }
+
+    .toast.success .toast-icon {
+      color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .toast.error {
+      border-left-color: var(--error);
+    }
+
+    .toast.error .toast-icon {
+      color: var(--error);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .toast.warning {
+      border-left-color: var(--warning);
+    }
+
+    .toast.warning .toast-icon {
+      color: var(--warning);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .toast.info {
+      border-left-color: var(--green-600);
+    }
+
+    .toast.info .toast-icon {
+      color: var(--green-600);
+      background: rgba(30, 123, 75, 0.1);
+    }
+
+    .toast-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 12px;
+      color: var(--gray-500);
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      color: var(--gray-400);
+      cursor: pointer;
+      font-size: 14px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .toast-close:hover {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      height: var(--header-height);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-100);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: var(--green-600);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-800);
+      letter-spacing: -0.3px;
+    }
+
+    .brand span {
+      color: var(--green-600);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .profile-btn {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--green-600), var(--green-700));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-btn:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== MAIN CONTAINER ===== */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ===== PAGE HEADER ===== */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .page-title h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+    }
+
+    .page-title p {
+      font-size: 14px;
+      color: var(--gray-500);
+    }
+
+    .new-withdrawal-btn {
+      padding: 12px 24px;
+      background: var(--green-600);
+      border: none;
+      border-radius: var(--radius-lg);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .new-withdrawal-btn:hover {
+      background: var(--green-700);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== SUMMARY CARDS ===== */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-xl);
+      padding: 20px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .summary-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--green-50);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green-600);
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .summary-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* ===== FILTER TABS ===== */
+    .filter-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tab {
+      padding: 8px 20px;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-600);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .filter-tab:hover {
+      border-color: var(--green-400);
+      color: var(--green-600);
+    }
+
+    .filter-tab.active {
+      background: var(--green-600);
+      border-color: var(--green-600);
+      color: var(--white);
+    }
+
+    /* ===== DATE RANGE PICKER ===== */
+    .date-range {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-xl);
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .date-input {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-input label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-600);
+    }
+
+    .date-input input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .apply-btn {
+      padding: 8px 20px;
+      background: var(--green-50);
+      border: 1px solid var(--green-200);
+      border-radius: var(--radius-md);
+      color: var(--green-600);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .apply-btn:hover {
+      background: var(--green-100);
+    }
+
+    /* ===== WITHDRAWAL LIST ===== */
+    .withdrawal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .withdrawal-item {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 16px;
+      transition: all 0.2s;
+    }
+
+    .withdrawal-item:hover {
+      border-color: var(--green-300);
+      box-shadow: var(--shadow-md);
+    }
+
+    .withdrawal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .withdrawal-method {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .method-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .method-icon.bank {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--info);
+    }
+
+    .method-icon.card {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--purple);
+    }
+
+    .method-icon.crypto {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .method-icon.wallet {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .method-name {
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .withdrawal-status {
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .status-pending {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .status-processing {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--info);
+    }
+
+    .status-failed {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    .withdrawal-details {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--gray-100);
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .detail-group {
+      text-align: left;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      color: var(--gray-500);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .detail-value small {
+      font-size: 10px;
+      color: var(--gray-400);
+      margin-left: 2px;
+    }
+
+    .bank-details {
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+
+    .bank-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .bank-label {
+      font-weight: 600;
+      color: var(--gray-600);
+      min-width: 80px;
+    }
+
+    .bank-value {
+      color: var(--gray-800);
+      font-weight: 500;
+    }
+
+    .withdrawal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .transaction-id {
+      font-size: 11px;
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .transaction-id span {
+      font-family: monospace;
+      background: var(--gray-50);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      color: var(--gray-600);
+    }
+
+    .receipt-btn {
+      padding: 6px 16px;
+      background: transparent;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      color: var(--gray-600);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .receipt-btn:hover {
+      background: var(--green-50);
+      border-color: var(--green-300);
+      color: var(--green-600);
+    }
+
+    .cancel-btn {
+      padding: 6px 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-md);
+      color: var(--error);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .cancel-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .pagination-btn {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      border-color: var(--green-400);
+      color: var(--green-600);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-numbers {
+      display: flex;
+      gap: 4px;
+    }
+
+    .page-number {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      color: var(--gray-600);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page-number:hover {
+      border-color: var(--green-400);
+      color: var(--green-600);
+    }
+
+    .page-number.active {
+      background: var(--green-600);
+      border-color: var(--green-600);
+      color: var(--white);
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--gray-50);
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+      color: var(--gray-400);
+    }
+
+    .empty-state h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      color: var(--gray-500);
+      margin-bottom: 24px;
+    }
+
+    .empty-state-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      background: var(--green-600);
+      border: none;
+      border-radius: var(--radius-lg);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .empty-state-btn:hover {
+      background: var(--green-700);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== LOADING STATE ===== */
+    .loading-state {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius-2xl);
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .spinner-large {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--gray-200);
+      border-top-color: var(--green-600);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== BOTTOM NAVIGATION ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--bottom-nav-height);
+      background: var(--white);
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: var(--radius-lg);
+      transition: all 0.2s;
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      color: var(--gray-400);
+      transition: all 0.2s;
+    }
+
+    .nav-item span {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gray-400);
+    }
+
+    .nav-item.active i,
+    .nav-item.active span {
+      color: var(--green-600);
+    }
+
+    .nav-item.active {
+      background: var(--green-50);
+    }
+
+    .nav-center {
+      width: 56px;
+      height: 56px;
+      background: var(--green-600);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 24px;
+      transform: translateY(-12px);
+      box-shadow: 0 10px 20px rgba(30, 123, 75, 0.3);
+      transition: all 0.3s;
+    }
+
+    .nav-center:hover {
+      background: var(--green-700);
+      transform: translateY(-16px);
+    }
+
+    .page-end {
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Cancel Withdrawal Modal -->
+  <div class="modal-overlay" id="cancelModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 10000;">
+    <div class="modal-card" style="background: var(--white); border-radius: var(--radius-2xl); width: 90%; max-width: 340px; padding: 24px;">
+      <div class="modal-icon" style="width: 60px; height: 60px; background: rgba(239,68,68,0.1); border-radius: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--error); font-size: 28px;">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <h3 class="modal-title" style="font-family: 'Outfit',sans-serif; font-size: 20px; font-weight: 700; color: var(--gray-800); text-align: center; margin-bottom: 8px;">Cancel Withdrawal</h3>
+      <p class="modal-text" style="font-size: 14px; color: var(--gray-500); text-align: center; margin-bottom: 24px;" id="cancelModalText">Are you sure you want to cancel this withdrawal request?</p>
+      <div class="modal-actions" style="display: flex; gap: 12px;">
+        <button class="modal-btn modal-btn-danger" style="flex: 1; padding: 14px; border: none; border-radius: var(--radius-lg); font-size: 14px; font-weight: 600; cursor: pointer; background: var(--error); color: var(--white);" onclick="confirmCancel()">Yes, Cancel</button>
+        <button class="modal-btn modal-btn-secondary" style="flex: 1; padding: 14px; border: none; border-radius: var(--radius-lg); font-size: 14px; font-weight: 600; cursor: pointer; background: var(--gray-100); color: var(--gray-700);" onclick="closeCancelModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left" onclick="goHome()">
+      <div class="logo">P</div>
+      <div class="brand">Prime<span>vest</span></div>
+    </div>
+    <div class="header-right">
+      <div class="profile-btn" onclick="goToProfile()" id="profileInitial">P</div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Withdrawal History</h1>
+        <p>View all your withdrawal transactions</p>
+      </div>
+      <button class="new-withdrawal-btn" onclick="newWithdrawal()">
+        <i class="fas fa-arrow-up"></i>
+        New Withdrawal
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="summary-value" id="totalWithdrawn">₦0</div>
+        <div class="summary-label">Total Withdrawn</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="summary-value" id="successfulCount">0</div>
+        <div class="summary-label">Successful</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="summary-value" id="pendingCount">0</div>
+        <div class="summary-label">Pending</div>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <div class="filter-tab active" onclick="filterWithdrawals('all')" id="filterAll">All</div>
+      <div class="filter-tab" onclick="filterWithdrawals('successful')" id="filterSuccessful">Successful</div>
+      <div class="filter-tab" onclick="filterWithdrawals('pending')" id="filterPending">Pending</div>
+      <div class="filter-tab" onclick="filterWithdrawals('processing')" id="filterProcessing">Processing</div>
+      <div class="filter-tab" onclick="filterWithdrawals('failed')" id="filterFailed">Failed</div>
+      <div class="filter-tab" onclick="filterWithdrawals('today')" id="filterToday">Today</div>
+      <div class="filter-tab" onclick="filterWithdrawals('week')" id="filterWeek">This Week</div>
+      <div class="filter-tab" onclick="filterWithdrawals('month')" id="filterMonth">This Month</div>
+    </div>
+
+    <!-- Date Range Picker -->
+    <div class="date-range">
+      <div class="date-input">
+        <label>From:</label>
+        <input type="date" id="startDate" onchange="validateDates()">
+      </div>
+      <div class="date-input">
+        <label>To:</label>
+        <input type="date" id="endDate" onchange="validateDates()">
+      </div>
+      <button class="apply-btn" onclick="applyDateFilter()">Apply</button>
+      <button class="apply-btn" onclick="resetDateFilter()">Reset</button>
+    </div>
+
+    <!-- Withdrawal List -->
+    <div id="withdrawalContainer">
+      <!-- Loading State -->
+      <div class="loading-state" id="loadingState">
+        <div class="spinner-large"></div>
+        <p>Loading your withdrawal history...</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination" style="display: none;">
+      <button class="pagination-btn" onclick="changePage('prev')" id="prevPage">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div class="pagination-numbers" id="pageNumbers"></div>
+      <button class="pagination-btn" onclick="changePage('next')" id="nextPage">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="page-end"></div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a href="plans.html" class="nav-item">
+      <i class="fas fa-chart-pie"></i>
+      <span>Plans</span>
+    </a>
+    <a href="investments.html" class="nav-center">
+      <i class="fas fa-wallet"></i>
+    </a>
+    <a href="referrals.html" class="nav-item">
+      <i class="fas fa-users"></i>
+      <span>Refer</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+      <i class="fas fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script>
+    // ==================== FIREBASE CONFIG ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain: "primevest-5208c.firebaseapp.com",
+      projectId: "primevest-5208c",
+      storageBucket: "primevest-5208c.firebasestorage.app",
+      messagingSenderId: "76160486147",
+      appId: "1:76160486147:web:5b5853f9772503daa7b736"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const FieldValue = firebase.firestore.FieldValue;
+
+    // ==================== GLOBAL VARIABLES ====================
+    let currentUser = null;
+    let allWithdrawals = [];
+    let filteredWithdrawals = [];
+    let currentFilter = 'all';
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let startDateFilter = null;
+    let endDateFilter = null;
+    let selectedWithdrawalId = null;
+
+    // ==================== TOAST SYSTEM ====================
+    function showToast({ type = 'info', title, message, duration = 4000 }) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+      };
+
+      toast.innerHTML = `
+        <div class="toast-icon">
+          <i class="fas ${icons[type]}"></i>
+        </div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-close" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+
+      if (duration) {
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 400);
+        }, duration);
+      }
+    }
+
+    // ==================== NAVIGATION ====================
+    function goHome() {
+      window.location.href = 'home.html';
+    }
+
+    function goToProfile() {
+      window.location.href = 'profile.html';
+    }
+
+    function newWithdrawal() {
+      window.location.href = 'withdrawal.html';
+    }
+
+    // ==================== FORMAT MONEY ====================
+    function formatMoney(amount) {
+      return '₦' + Number(amount || 0).toLocaleString('en-NG', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    // ==================== FORMAT DATE ====================
+    function formatDate(timestamp) {
+      if (!timestamp) return 'N/A';
+      
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      if (date >= today) {
+        return 'Today, ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if (date >= yesterday) {
+        return 'Yesterday, ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else {
+        return date.toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    }
+
+    // ==================== GET STATUS CLASS ====================
+    function getStatusClass(status) {
+      switch(status) {
+        case 'successful': return 'status-success';
+        case 'pending': return 'status-pending';
+        case 'processing': return 'status-processing';
+        case 'failed': return 'status-failed';
+        default: return '';
+      }
+    }
+
+    // ==================== GET METHOD ICON ====================
+    function getMethodIcon(method) {
+      switch(method?.toLowerCase()) {
+        case 'bank transfer':
+        case 'bank':
+          return { icon: 'fa-university', class: 'bank' };
+        case 'card':
+        case 'credit card':
+          return { icon: 'fa-credit-card', class: 'card' };
+        case 'crypto':
+        case 'bitcoin':
+        case 'usdt':
+          return { icon: 'fa-bitcoin', class: 'crypto' };
+        default:
+          return { icon: 'fa-wallet', class: 'wallet' };
+      }
+    }
+
+    // ==================== VALIDATE DATES ====================
+    function validateDates() {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      
+      if (start && end && new Date(start) > new Date(end)) {
+        showToast({
+          type: 'error',
+          title: 'Invalid Date Range',
+          message: 'Start date cannot be after end date'
+        });
+        document.getElementById('endDate').value = '';
+      }
+    }
+
+    // ==================== APPLY DATE FILTER ====================
+    function applyDateFilter() {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      
+      if (!start || !end) {
+        showToast({
+          type: 'warning',
+          title: 'Select Dates',
+          message: 'Please select both start and end dates'
+        });
+        return;
+      }
+      
+      startDateFilter = new Date(start);
+      startDateFilter.setHours(0, 0, 0, 0);
+      
+      endDateFilter = new Date(end);
+      endDateFilter.setHours(23, 59, 59, 999);
+      
+      applyFilter();
+    }
+
+    function resetDateFilter() {
+      startDateFilter = null;
+      endDateFilter = null;
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      applyFilter();
+    }
+
+    // ==================== FILTER WITHDRAWALS ====================
+    function filterWithdrawals(filter) {
+      currentFilter = filter;
+      currentPage = 1;
+      
+      // Update active tab
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      const filterId = 'filter' + filter.charAt(0).toUpperCase() + filter.slice(1);
+      const filterElement = document.getElementById(filterId);
+      if (filterElement) filterElement.classList.add('active');
+      
+      applyFilter();
+    }
+
+    function applyFilter() {
+      let filtered = [...allWithdrawals];
+      
+      // Apply status filter
+      if (currentFilter !== 'all') {
+        if (currentFilter === 'today') {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          
+          filtered = filtered.filter(w => {
+            const date = w.createdAt?.toDate?.() || new Date(w.createdAt);
+            return date >= today && date < tomorrow;
+          });
+        } else if (currentFilter === 'week') {
+          const now = new Date();
+          const startOfWeek = new Date(now);
+          startOfWeek.setDate(now.getDate() - now.getDay());
+          startOfWeek.setHours(0, 0, 0, 0);
+          
+          filtered = filtered.filter(w => {
+            const date = w.createdAt?.toDate?.() || new Date(w.createdAt);
+            return date >= startOfWeek;
+          });
+        } else if (currentFilter === 'month') {
+          const now = new Date();
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          
+          filtered = filtered.filter(w => {
+            const date = w.createdAt?.toDate?.() || new Date(w.createdAt);
+            return date >= startOfMonth;
+          });
+        } else {
+          filtered = filtered.filter(w => w.status === currentFilter);
+        }
+      }
+      
+      // Apply date range filter
+      if (startDateFilter && endDateFilter) {
+        filtered = filtered.filter(w => {
+          const date = w.createdAt?.toDate?.() || new Date(w.createdAt);
+          return date >= startDateFilter && date <= endDateFilter;
+        });
+      }
+      
+      filteredWithdrawals = filtered;
+      renderWithdrawals();
+      updatePagination();
+    }
+
+    // ==================== RENDER WITHDRAWALS ====================
+    function renderWithdrawals() {
+      const container = document.getElementById('withdrawalContainer');
+      const loadingState = document.getElementById('loadingState');
+      
+      if (loadingState) loadingState.style.display = 'none';
+      
+      if (filteredWithdrawals.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-arrow-up"></i>
+            </div>
+            <h3>No Withdrawal History</h3>
+            <p>You haven't made any withdrawals yet.</p>
+            <a href="withdrawal.html" class="empty-state-btn">Make a Withdrawal</a>
+          </div>
+        `;
+        document.getElementById('pagination').style.display = 'none';
+        return;
+      }
+      
+      // Pagination
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, filteredWithdrawals.length);
+      const pageItems = filteredWithdrawals.slice(startIndex, endIndex);
+      
+      let html = '<div class="withdrawal-list">';
+      
+      pageItems.forEach(withdrawal => {
+        const method = getMethodIcon(withdrawal.method);
+        const statusClass = getStatusClass(withdrawal.status);
+        const statusText = withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1);
+        
+        html += `
+          <div class="withdrawal-item">
+            <div class="withdrawal-header">
+              <div class="withdrawal-method">
+                <div class="method-icon ${method.class}">
+                  <i class="fas ${method.icon}"></i>
+                </div>
+                <div>
+                  <div class="method-name">${withdrawal.method || 'Bank Transfer'}</div>
+                  <div style="font-size: 11px; color: var(--gray-500);">${formatDate(withdrawal.createdAt)}</div>
+                </div>
+              </div>
+              <div class="withdrawal-status ${statusClass}">${statusText}</div>
+            </div>
+            
+            <div class="withdrawal-details">
+              <div class="detail-group">
+                <div class="detail-label">Amount</div>
+                <div class="detail-value">${formatMoney(withdrawal.amount)}</div>
+              </div>
+              <div class="detail-group">
+                <div class="detail-label">Fee</div>
+                <div class="detail-value">${formatMoney(withdrawal.fee || 0)}</div>
+              </div>
+              <div class="detail-group">
+                <div class="detail-label">Net Amount</div>
+                <div class="detail-value">${formatMoney((withdrawal.amount || 0) - (withdrawal.fee || 0))}</div>
+              </div>
+              <div class="detail-group">
+                <div class="detail-label">Reference</div>
+                <div class="detail-value"><small>${withdrawal.reference?.slice(-8) || 'N/A'}</small></div>
+              </div>
+            </div>
+            
+            ${withdrawal.bankDetails ? `
+              <div class="bank-details">
+                <div class="bank-row">
+                  <span class="bank-label">Account Name:</span>
+                  <span class="bank-value">${withdrawal.bankDetails.accountName || 'N/A'}</span>
+                </div>
+                <div class="bank-row">
+                  <span class="bank-label">Account Number:</span>
+                  <span class="bank-value">${withdrawal.bankDetails.accountNumber || 'N/A'}</span>
+                </div>
+                <div class="bank-row">
+                  <span class="bank-label">Bank:</span>
+                  <span class="bank-value">${withdrawal.bankDetails.bankName || 'N/A'}</span>
+                </div>
+              </div>
+            ` : ''}
+            
+            <div class="withdrawal-footer">
+              <div class="transaction-id">
+                <i class="fas fa-hashtag"></i>
+                <span>${withdrawal.transactionId || withdrawal.id.slice(-12)}</span>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                ${withdrawal.status === 'pending' ? `
+                  <button class="cancel-btn" onclick="cancelWithdrawal('${withdrawal.id}')">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                  </button>
+                ` : ''}
+                ${withdrawal.status === 'successful' ? `
+                  <button class="receipt-btn" onclick="viewReceipt('${withdrawal.id}')">
+                    <i class="fas fa-receipt"></i>
+                    Receipt
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      container.innerHTML = html;
+      
+      // Show pagination if needed
+      if (filteredWithdrawals.length > itemsPerPage) {
+        document.getElementById('pagination').style.display = 'flex';
+      } else {
+        document.getElementById('pagination').style.display = 'none';
+      }
+    }
+
+    // ==================== UPDATE PAGINATION ====================
+    function updatePagination() {
+      const totalPages = Math.ceil(filteredWithdrawals.length / itemsPerPage);
+      const pageNumbers = document.getElementById('pageNumbers');
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      
+      if (!pageNumbers || !prevBtn || !nextBtn) return;
+      
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages;
+      
+      let pagesHtml = '';
+      for (let i = 1; i <= totalPages; i++) {
+        pagesHtml += `
+          <button class="page-number ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+            ${i}
+          </button>
+        `;
+      }
+      pageNumbers.innerHTML = pagesHtml;
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderWithdrawals();
+      updatePagination();
+    }
+
+    function changePage(direction) {
+      const totalPages = Math.ceil(filteredWithdrawals.length / itemsPerPage);
+      if (direction === 'prev' && currentPage > 1) {
+        currentPage--;
+      } else if (direction === 'next' && currentPage < totalPages) {
+        currentPage++;
+      } else {
+        return;
+      }
+      renderWithdrawals();
+      updatePagination();
+    }
+
+    // ==================== VIEW RECEIPT ====================
+    function viewReceipt(withdrawalId) {
+      showToast({
+        type: 'info',
+        title: 'Receipt',
+        message: 'Receipt feature coming soon!'
+      });
+    }
+
+    // ==================== CANCEL WITHDRAWAL ====================
+    function cancelWithdrawal(withdrawalId) {
+      selectedWithdrawalId = withdrawalId;
+      const modal = document.getElementById('cancelModal');
+      modal.style.display = 'flex';
+    }
+
+    function closeCancelModal() {
+      const modal = document.getElementById('cancelModal');
+      modal.style.display = 'none';
+      selectedWithdrawalId = null;
+    }
+
+    async function confirmCancel() {
+      if (!selectedWithdrawalId || !currentUser) return;
+      
+      closeCancelModal();
+      
+      showToast({
+        type: 'info',
+        title: 'Processing',
+        message: 'Cancelling withdrawal...'
+      });
+      
+      try {
+        const withdrawalRef = db.collection('withdrawals').doc(selectedWithdrawalId);
+        const withdrawalDoc = await withdrawalRef.get();
+        
+        if (!withdrawalDoc.exists) {
+          throw new Error('Withdrawal not found');
+        }
+        
+        const withdrawal = withdrawalDoc.data();
+        
+        // Update withdrawal status
+        await withdrawalRef.update({
+          status: 'cancelled',
+          cancelledAt: FieldValue.serverTimestamp()
+        });
+        
+        // Refund the amount to user's balance
+        await db.collection('users').doc(currentUser.uid).update({
+          balance: FieldValue.increment(withdrawal.amount || 0)
+        });
+        
+        // Create refund transaction
+        await db.collection('transactions').add({
+          userId: currentUser.uid,
+          type: 'refund',
+          amount: withdrawal.amount,
+          withdrawalId: selectedWithdrawalId,
+          createdAt: FieldValue.serverTimestamp(),
+          note: 'Withdrawal cancelled - funds refunded'
+        });
+        
+        showToast({
+          type: 'success',
+          title: 'Cancelled',
+          message: 'Withdrawal has been cancelled and funds refunded'
+        });
+        
+        // Reload withdrawals
+        await loadWithdrawals(currentUser.uid);
+        
+      } catch (error) {
+        console.error('Error cancelling withdrawal:', error);
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to cancel withdrawal'
+        });
+      }
+    }
+
+    // ==================== UPDATE SUMMARY CARDS ====================
+    function updateSummaryCards() {
+      let totalWithdrawn = 0;
+      let successfulCount = 0;
+      let pendingCount = 0;
+      
+      allWithdrawals.forEach(withdrawal => {
+        if (withdrawal.status === 'successful') {
+          totalWithdrawn += withdrawal.amount || 0;
+          successfulCount++;
+        } else if (withdrawal.status === 'pending' || withdrawal.status === 'processing') {
+          pendingCount++;
+        }
+      });
+      
+      document.getElementById('totalWithdrawn').textContent = formatMoney(totalWithdrawn);
+      document.getElementById('successfulCount').textContent = successfulCount;
+      document.getElementById('pendingCount').textContent = pendingCount;
+    }
+
+    // ==================== LOAD WITHDRAWALS ====================
+    async function loadWithdrawals(userId) {
+      try {
+        const withdrawalsRef = db.collection('withdrawals')
+          .where('userId', '==', userId)
+          .orderBy('createdAt', 'desc');
+        
+        const snapshot = await withdrawalsRef.get();
+        
+        allWithdrawals = [];
+        snapshot.forEach(doc => {
+          allWithdrawals.push({
+            id: doc.id,
+            ...doc.data()
+          });
+        });
+        
+        // Update summary cards
+        updateSummaryCards();
+        
+        // Apply current filter
+        applyFilter();
+        
+      } catch (error) {
+        console.error('Error loading withdrawals:', error);
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Failed to load withdrawal history'
+        });
+        
+        document.getElementById('withdrawalContainer').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>Failed to Load Data</h3>
+            <p>Please refresh the page to try again</p>
+            <button class="empty-state-btn" onclick="location.reload()">
+              Refresh Page
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    // ==================== LOAD USER DATA ====================
+    async function loadUserData(user) {
+      try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        
+        if (!doc.exists) {
+          await auth.signOut();
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        const data = doc.data();
+        const firstName = (data.fullName || 'Investor').split(' ')[0];
+        document.getElementById('profileInitial').textContent = firstName.charAt(0).toUpperCase();
+        
+        // Load withdrawals
+        await loadWithdrawals(user.uid);
+        
+      } catch (err) {
+        console.error('Error loading user data:', err);
+      }
+    }
+
+    // ==================== AUTH STATE ====================
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      currentUser = user;
+      await loadUserData(user);
+    });
+
+    // Make functions global
+    window.filterWithdrawals = filterWithdrawals;
+    window.validateDates = validateDates;
+    window.applyDateFilter = applyDateFilter;
+    window.resetDateFilter = resetDateFilter;
+    window.goToPage = goToPage;
+    window.changePage = changePage;
+    window.viewReceipt = viewReceipt;
+    window.cancelWithdrawal = cancelWithdrawal;
+    window.closeCancelModal = closeCancelModal;
+    window.confirmCancel = confirmCancel;
+    window.newWithdrawal = newWithdrawal;
+  </script>
+</body>
+</html>
