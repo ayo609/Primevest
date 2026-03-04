@@ -824,7 +824,7 @@ async function handleLogin() {
 
     // Redirect to dashboard
     setTimeout(() => {
-      window.location.href = 'dashboard.html';
+      window.location.href = 'home.html';
     }, 1500);
 
   } catch (err) {
@@ -874,8 +874,8 @@ auth.onAuthStateChanged(user => {
   if (user) {
     // Check if we're not already redirecting
     const currentPath = window.location.pathname;
-    if (!currentPath.includes('dashboard.html')) {
-      window.location.href = 'dashboard.html';
+    if (!currentPath.includes('home.html')) {
+      window.location.href = 'home.html';
     }
   }
 });
