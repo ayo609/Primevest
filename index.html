@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Primevest – Next-Gen Investment Platform</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1E7B4B;
+      --primary-dark: #0B4F2E;
+      --primary-light: #4CAF7C;
+      --primary-glow: rgba(30, 123, 75, 0.3);
+      --accent: #2DD4BF;
+      --accent-glow: rgba(45, 212, 191, 0.3);
+      --white: #FFFFFF;
+      --black: #0A0F0D;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+      --neon-shadow: 0 0 20px var(--primary-glow);
+      
+      --gradient-1: linear-gradient(135deg, #1E7B4B, #2DD4BF);
+      --gradient-2: linear-gradient(45deg, #0B4F2E, #1E7B4B);
+      
+      --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+      --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+      
+      --radius-sm: 12px;
+      --radius-md: 20px;
+      --radius-lg: 32px;
+      --radius-xl: 40px;
+      --radius-full: 9999px;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #0A0F0D;
+      color: var(--white);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated Background */
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.4;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--primary);
+      top: -200px;
+      right: -200px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent);
+      bottom: -200px;
+      left: -200px;
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: #4CAF7C;
+      top: 50%;
+      left: 30%;
+      animation-delay: -10s;
+    }
+
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    /* Glassmorphism Navbar */
+    .navbar {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      background: rgba(10, 15, 13, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 60px;
+      padding: 12px 24px;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--gradient-1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      box-shadow: 0 0 30px var(--primary-glow);
+      animation: pulse 3s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 30px var(--primary-glow); }
+      50% { box-shadow: 0 0 50px var(--primary-glow); }
+    }
+
+    .logo-text {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, #a0a0a0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-1);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-glass {
+      padding: 12px 28px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-glass:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(30,123,75,0.3);
+    }
+
+    .btn-primary {
+      padding: 12px 28px;
+      background: var(--gradient-1);
+      border: none;
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px var(--primary-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--primary-glow);
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Main Content */
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 24px 60px;
+      position: relative;
+    }
+
+    .hero-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .hero-content {
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      background: rgba(30,123,75,0.2);
+      border: 1px solid rgba(30,123,75,0.3);
+      border-radius: 40px;
+      color: var(--primary-light);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-content h1 {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #fff, #4CAF7C, #2DD4BF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 200%;
+      animation: gradientFlow 8s ease infinite;
+    }
+
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .hero-content p {
+      font-size: 18px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin-bottom: 40px;
+      max-width: 500px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+    }
+
+    .stat-item {
+      text-align: left;
+    }
+
+    .stat-number {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .hero-visual {
+      position: relative;
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 40px;
+      padding: 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .investment-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .preview-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+
+    .preview-item:hover {
+      background: rgba(255,255,255,0.06);
+      transform: translateX(10px);
+    }
+
+    .preview-icon {
+      width: 50px;
+      height: 50px;
+      background: var(--gradient-1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .preview-info {
+      flex: 1;
+    }
+
+    .preview-info h4 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .preview-info p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .preview-amount {
+      font-weight: 700;
+      color: var(--primary-light);
+    }
+
+    .floating-element {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      background: rgba(30,123,75,0.1);
+      border-radius: 50%;
+      filter: blur(30px);
+      z-index: -1;
+    }
+
+    .float-1 {
+      top: -30px;
+      right: -30px;
+      background: var(--primary);
+    }
+
+    .float-2 {
+      bottom: -30px;
+      left: -30px;
+      background: var(--accent);
+    }
+
+    /* Features Section */
+    .section {
+      padding: 100px 24px;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 60px;
+    }
+
+    .section-header h2 {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .section-header p {
+      font-size: 18px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .features-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 32px;
+      padding: 40px 30px;
+      transition: all 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(30,123,75,0.1), rgba(45,212,191,0.1));
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: rgba(30,123,75,0.3);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(30,123,75,0.2);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: var(--primary-light);
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card h3 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card p {
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Testimonials Section */
+    .testimonials {
+      padding: 100px 24px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .testimonials-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .swiper {
+      width: 100%;
+      padding: 20px 0 60px;
+    }
+
+    .swiper-slide {
+      height: auto;
+    }
+
+    .testimonial-card {
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 32px;
+      padding: 40px 30px;
+      height: 100%;
+      transition: all 0.3s;
+    }
+
+    .testimonial-card:hover {
+      border-color: rgba(30,123,75,0.3);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .testimonial-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .testimonial-avatar {
+      width: 60px;
+      height: 60px;
+      background: var(--gradient-1);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .testimonial-info h4 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .testimonial-info p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .testimonial-rating {
+      color: #FFD700;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .testimonial-text {
+      font-size: 16px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.7;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .testimonial-location {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .swiper-pagination-bullet {
+      background: rgba(255,255,255,0.3);
+      width: 10px;
+      height: 10px;
+    }
+
+    .swiper-pagination-bullet-active {
+      background: var(--primary);
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+      color: var(--primary);
+      background: rgba(255,255,255,0.1);
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+      backdrop-filter: blur(10px);
+    }
+
+    .swiper-button-next:after,
+    .swiper-button-prev:after {
+      font-size: 20px;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 100px 24px;
+      position: relative;
+    }
+
+    .cta-glass {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 60px;
+      padding: 80px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-glass::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(30,123,75,0.1), transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .cta-glass h2 {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-glass p {
+      font-size: 18px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 40px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Footer */
+    .footer {
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 60px 24px 30px;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .footer-logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--gradient-1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .footer-about p {
+      color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .social-links a {
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: all 0.3s;
+    }
+
+    .social-links a:hover {
+      background: var(--gradient-1);
+      transform: translateY(-3px);
+      border-color: transparent;
+    }
+
+    .footer-links h4 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .footer-links ul {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary-light);
+    }
+
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 40px auto 0;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .hero-content h1 {
+        font-size: 56px;
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 992px) {
+      .nav-links {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero-stats {
+        justify-content: center;
+      }
+
+      .hero-content p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .footer-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-content h1 {
+        font-size: 42px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-container {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-glass h2 {
+        font-size: 32px;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .section-header h2 {
+        font-size: 36px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-stats {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .nav-buttons {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="background">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Glassmorphism Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <span class="logo-text">Primevest</span>
+      </div>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#plans">Plans</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#testimonials">Testimonials</a>
+      </div>
+
+      <div class="nav-buttons">
+        <a href="login.html" class="btn-glass">Login</a>
+        <a href="signup.html" class="btn-primary">Get Started</a>
+      </div>
+
+      <div class="mobile-menu-btn">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-container">
+        <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
+          <div class="hero-badge">
+            <i class="fas fa-rocket"></i> Next-Gen Investment Platform
+          </div>
+          <h1>
+            Grow Your<br>
+            <span class="gradient-text">Wealth Exponentially</span><br>
+            Every Single Day
+          </h1>
+          <p>Join over 50,000+ smart investors earning consistent daily returns with our revolutionary investment platform.</p>
+          
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-number">50k+</div>
+              <div class="stat-label">Active Investors</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">₦150M+</div>
+              <div class="stat-label">Total Paid</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">20%</div>
+              <div class="stat-label">Max Daily ROI</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+          <div class="glass-card">
+            <div class="investment-preview">
+              <div class="preview-item">
+                <div class="preview-icon">
+                  <i class="fas fa-bolt"></i>
+                </div>
+                <div class="preview-info">
+                  <h4>Instant Deposit</h4>
+                  <p>Processed in seconds</p>
+                </div>
+                <div class="preview-amount">₦4,000+</div>
+              </div>
+
+              <div class="preview-item">
+                <div class="preview-icon">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="preview-info">
+                  <h4>Daily Returns</h4>
+                  <p>Up to 20% ROI</p>
+                </div>
+                <div class="preview-amount">₦200 - ₦3,500</div>
+              </div>
+
+              <div class="preview-item">
+                <div class="preview-icon">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="preview-info">
+                  <h4>Referral Bonus</h4>
+                  <p>25% - 2% - 1%</p>
+                </div>
+                <div class="preview-amount">₦50k+</div>
+              </div>
+
+              <div class="preview-item">
+                <div class="preview-icon">
+                  <i class="fas fa-gift"></i>
+                </div>
+                <div class="preview-info">
+                  <h4>Welcome Bonus</h4>
+                  <p>For new investors</p>
+                </div>
+                <div class="preview-amount">₦500</div>
+              </div>
+            </div>
+          </div>
+          <div class="floating-element float-1"></div>
+          <div class="floating-element float-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+      <div class="section-header" data-aos="fade-up">
+        <h2>Why Choose <span class="gradient-text">Primevest</span></h2>
+        <p>Experience the future of investment with our cutting-edge platform</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card" data-aos="fade-up" data-aos-duration="800">
+          <div class="feature-icon">
+            <i class="fas fa-robot"></i>
+          </div>
+          <h3>Automated Trading</h3>
+          <p>Our advanced algorithms work 24/7 to maximize your returns with minimal risk.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3>Bank-Level Security</h3>
+          <p>Your funds are protected with military-grade encryption and multi-layer security.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+          <div class="feature-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3>24/7 Support</h3>
+          <p>Our dedicated support team is always available to assist you anytime, anywhere.</p>
+        </div>
+
+        <div class="feature-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+          <div class="feature-icon">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <h3>Diverse Portfolio</h3>
+          <p>Choose from multiple investment plans tailored to your financial goals.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section with Auto-Slider -->
+    <section class="testimonials" id="testimonials">
+      <div class="testimonials-container">
+        <div class="section-header" data-aos="fade-up">
+          <h2>Trusted by <span class="gradient-text">Thousands</span></h2>
+          <p>Real stories from real investors across Nigeria</p>
+        </div>
+
+        <div class="swiper testimonialSwiper" data-aos="fade-up">
+          <div class="swiper-wrapper" id="testimonialsWrapper">
+            <!-- Testimonials will be populated by JavaScript -->
+          </div>
+          <div class="swiper-pagination"></div>
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+      <div class="cta-glass" data-aos="zoom-in">
+        <h2>Ready to Start Your Journey?</h2>
+        <p>Join thousands of smart investors already growing their wealth with Primevest</p>
+        <div class="cta-buttons">
+          <a href="signup.html" class="btn-primary" style="padding: 16px 40px;">Create Free Account</a>
+          <a href="plans.html" class="btn-glass" style="padding: 16px 40px;">View Investment Plans</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-about">
+        <div class="footer-logo">
+          <div class="footer-logo-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <span class="logo-text">Primevest</span>
+        </div>
+        <p>The next-generation investment platform helping Nigerians achieve financial freedom through smart daily returns.</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-telegram"></i></a>
+          <a href="#"><i class="fab fa-whatsapp"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-x-twitter"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#plans">Investment Plans</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#testimonials">Testimonials</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Support</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Contact</h4>
+        <ul>
+          <li><i class="fas fa-envelope"></i> support@primevest.com</li>
+          <li><i class="fas fa-phone"></i> +234 916 737 8733</li>
+          <li><i class="fas fa-map-marker"></i> Lagos, Nigeria</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 Primevest. All rights reserved. | Empowering financial freedom through smart investments.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script>
+    // Initialize AOS
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 100
+    });
+
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain: "primevest-5208c.firebaseapp.com",
+      projectId: "primevest-5208c",
+      storageBucket: "primevest-5208c.firebasestorage.app",
+      messagingSenderId: "76160486147",
+      appId: "1:76160486147:web:5b5853f9772503daa7b736"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+    // 40+ Testimonials Data
+    const testimonials = [
+      // Lagos State (10 testimonials)
+      { name: "Tunde Adebayo", location: "Lagos", avatar: "TA", text: "Primevest has completely transformed my investment journey. The daily returns are consistent and withdrawals are always on time. I've already recommended it to all my friends!", amount: "₦4.2M earned" },
+      { name: "Chioma Okonkwo", location: "Lagos", avatar: "CO", text: "I started with ₦10,000 and within 6 months, I've made over ₦200,000 in profits. The referral program is incredible!", amount: "₦200k+ earned" },
+      { name: "Femi Akinwale", location: "Lagos", avatar: "FA", text: "Best investment platform in Nigeria. Period. The customer support is amazing and withdrawals are instant.", amount: "₦1.5M earned" },
+      { name: "Yetunde Balogun", location: "Lagos", avatar: "YB", text: "I was skeptical at first, but after receiving my first payout, I knew this was legit. Now I tell everyone about Primevest!", amount: "₦850k earned" },
+      { name: "Kayode Martins", location: "Lagos", avatar: "KM", text: "The compound interest is real! My money works for me while I sleep. Best decision of 2025.", amount: "₦2.1M earned" },
+      { name: "Ngozi Eze", location: "Lagos", avatar: "NE", text: "As a single mother, Primevest has given me financial independence. I can now afford my children's school fees comfortably.", amount: "₦1.8M earned" },
+      { name: "Segun Ogunleye", location: "Lagos", avatar: "SO", text: "I've tried several platforms, but Primevest stands out. Professional, reliable, and profitable.", amount: "₦3.2M earned" },
+      { name: "Funke Adeosun", location: "Lagos", avatar: "FA", text: "The daily ROI notifications are my favorite part. Waking up to earnings every morning is amazing!", amount: "₦950k earned" },
+      { name: "Wale Thompson", location: "Lagos", avatar: "WT", text: "From ₦50k to ₦500k in 3 months. The growth is real and sustainable.", amount: "₦450k profit" },
+      { name: "Bisi Alabi", location: "Lagos", avatar: "BA", text: "The transparency and security give me peace of mind. I've recommended over 20 friends!", amount: "₦1.2M earned from referrals" },
+
+      // Abuja (8 testimonials)
+      { name: "Musa Ahmed", location: "Abuja", avatar: "MA", text: "As a civil servant, this has become my primary source of passive income. Absolutely life-changing!", amount: "₦3.5M earned" },
+      { name: "Hauwa Yusuf", location: "Abuja", avatar: "HY", text: "The platform is so easy to use. I love how I can track my investments in real-time.", amount: "₦780k earned" },
+      { name: "Ibrahim Danjuma", location: "Abuja", avatar: "ID", text: "Finally a platform I can trust with my money. 6 months and counting, never missed a payment.", amount: "₦2.8M earned" },
+      { name: "Fatima Garba", location: "Abuja", avatar: "FG", text: "The 3-level referral system is genius. I earn from my network while they earn from their investments!", amount: "₦1.5M from referrals" },
+      { name: "Usman Bello", location: "Abuja", avatar: "UB", text: "I started with the starter plan and now I'm on Elite. The growth potential is unlimited.", amount: "₦4.1M earned" },
+      { name: "Aisha Mohammed", location: "Abuja", avatar: "AM", text: "Customer support responds within minutes. Very impressed with the professionalism.", amount: "₦620k earned" },
+      { name: "Yakubu Sani", location: "Abuja", avatar: "YS", text: "The best investment decision I've made. My only regret is not starting earlier!", amount: "₦2.3M earned" },
+      { name: "Zainab Abubakar", location: "Abuja", avatar: "ZA", text: "I love the daily payouts. It gives me cash flow to handle daily expenses.", amount: "₦980k earned" },
+
+      // Port Harcourt (6 testimonials)
+      { name: "Chibuzor Nwosu", location: "Port Harcourt", avatar: "CN", text: "Rivers State representing! This platform has helped me grow my small business capital.", amount: "₦2.7M earned" },
+      { name: "Amara Dike", location: "Port Harcourt", avatar: "AD", text: "The returns are consistent and withdrawals are processed within hours. Amazing!", amount: "₦1.3M earned" },
+      { name: "Emeka Okoro", location: "Port Harcourt", avatar: "EO", text: "I've been with Primevest for 8 months and I've already doubled my investment.", amount: "₦3.8M earned" },
+      { name: "Nkechi Amadi", location: "Port Harcourt", avatar: "NA", text: "Finally a legitimate platform. No delays, no excuses. Just pure profit.", amount: "₦1.1M earned" },
+      { name: "Chidi Okafor", location: "Port Harcourt", avatar: "CO", text: "The compound interest calculator helps me plan my future. Already planning to buy a car!", amount: "₦2.5M earned" },
+      { name: "Adaeze Obi", location: "Port Harcourt", avatar: "AO", text: "My friends thought I was joking when I told them about daily returns. Now they're all joining!", amount: "₦890k earned" },
+
+      // Kano (5 testimonials)
+      { name: "Aminu Kabir", location: "Kano", avatar: "AK", text: "Northern Nigeria needs platforms like this. I'm so grateful for Primevest!", amount: "₦1.9M earned" },
+      { name: "Hadiza Suleiman", location: "Kano", avatar: "HS", text: "The platform is available in Hausa-friendly interface. Makes it easy for locals to invest.", amount: "₦750k earned" },
+      { name: "Sani Musa", location: "Kano", avatar: "SM", text: "I've introduced over 50 people from my community. We're all earning together!", amount: "₦3.2M earned" },
+      { name: "Aisha Bello", location: "Kano", avatar: "AB", text: "The customer support explained everything to me in Hausa. Very helpful team.", amount: "₦540k earned" },
+      { name: "Ibrahim Abdullahi", location: "Kano", avatar: "IA", text: "From Kano with love! This platform is changing lives across the North.", amount: "₦1.6M earned" },
+
+      // Ibadan (5 testimonials)
+      { name: "Oluwaseun Adeyemi", location: "Ibadan", avatar: "OA", text: "Ibadan people, this one na real deal! My money dey work for me 24/7.", amount: "₦2.2M earned" },
+      { name: "Folasade Ojo", location: "Ibadan", avatar: "FO", text: "The referral bonuses are insane. I earn more from referrals than my day job!", amount: "₦1.8M from referrals" },
+      { name: "Adebayo Ola", location: "Ibadan", avatar: "AO", text: "I started with just ₦4,000 to test. Now I'm fully invested and never looking back.", amount: "₦4.5M earned" },
+      { name: "Titilayo Adeniran", location: "Ibadan", avatar: "TA", text: "My husband was skeptical, but now he's my downline! Best decision ever.", amount: "₦2.9M earned" },
+      { name: "Olumide Fashina", location: "Ibadan", avatar: "OF", text: "The platform is so smooth and easy to use. Even my grandmother can navigate it!", amount: "₦1.2M earned" },
+
+      // Benin (3 testimonials)
+      { name: "Osaro Eghosa", location: "Benin", avatar: "OE", text: "Benin City representing! Primevest has helped me save for my wedding.", amount: "₦1.7M earned" },
+      { name: "Iyare Omoregie", location: "Benin", avatar: "IO", text: "I love the instant withdrawals. When I need money, it's always there.", amount: "₦890k earned" },
+      { name: "Omotola Edokpolo", location: "Benin", avatar: "OE", text: "The best investment platform in the South-South. Highly recommended!", amount: "₦2.3M earned" },
+
+      // Onitsha (3 testimonials)
+      { name: "Chukwudi Okeke", location: "Onitsha", avatar: "CO", text: "Onitsha market people, this one na real deal. My capital don multiply!", amount: "₦3.4M earned" },
+      { name: "Ngozi Ezeilo", location: "Onitsha", avatar: "NE", text: "I use my daily returns to restock my shop. Game changer for business owners.", amount: "₦1.5M earned" },
+      { name: "Ifeanyi Okafor", location: "Onitsha", avatar: "IO", text: "The interest rates are unmatched. Best platform in Anambra!", amount: "₦2.8M earned" }
+    ];
+
+    // Render Testimonials
+    function renderTestimonials() {
+      const wrapper = document.getElementById('testimonialsWrapper');
+      
+      testimonials.forEach(t => {
+        const stars = '★'.repeat(5);
+        
+        wrapper.innerHTML += `
+          <div class="swiper-slide">
+            <div class="testimonial-card">
+              <div class="testimonial-header">
+                <div class="testimonial-avatar">${t.avatar}</div>
+                <div class="testimonial-info">
+                  <h4>${t.name}</h4>
+                  <p><i class="fas fa-map-marker-alt"></i> ${t.location}</p>
+                </div>
+              </div>
+              <div class="testimonial-rating">${stars}</div>
+              <p class="testimonial-text">"${t.text}"</p>
+              <div class="testimonial-location">
+                <i class="fas fa-trophy" style="color: var(--primary-light);"></i>
+                <span>${t.amount}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // Initialize Swiper after testimonials are loaded
+    renderTestimonials();
+
+    new Swiper('.testimonialSwiper', {
+      slidesPerView: 1,
+      spaceBetween: 24,
+      loop: true,
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true
+      },
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      breakpoints: {
+        640: {
+          slidesPerView: 2,
+        },
+        1024: {
+          slidesPerView: 3,
+        },
+      },
+    });
+  </script>
+</body>
+</html>
