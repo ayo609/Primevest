@@ -47,6 +47,7 @@
       --warning: #F59E0B;
       --error: #EF4444;
       --info: #3B82F6;
+      --purple: #8B5CF6;
       
       --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
       --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
@@ -403,6 +404,119 @@
       color: var(--gray-500);
     }
 
+    /* Quick Actions Grid - Updated for 6 items */
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .quick-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .quick-actions-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .quick-action-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--gray-100);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quick-action-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
+    }
+
+    .quick-action-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .quick-action-card:hover::before {
+      opacity: 1;
+    }
+
+    .quick-action-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--primary-soft);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 24px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+
+    .quick-action-card:hover .quick-action-icon {
+      transform: scale(1.1);
+      background: var(--primary);
+      color: white;
+    }
+
+    .quick-action-content h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+    }
+
+    .quick-action-content p {
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-bottom: 12px;
+    }
+
+    .quick-action-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--warning);
+      color: white;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .quick-action-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+
+    .quick-action-stats span {
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
     /* Charts Row */
     .charts-row {
       display: grid;
@@ -457,66 +571,6 @@
     .chart-container {
       height: 300px;
       position: relative;
-    }
-
-    /* Quick Actions */
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .quick-action-card {
-      background: var(--white);
-      border-radius: var(--radius-xl);
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid var(--gray-100);
-    }
-
-    .quick-action-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-      border-color: var(--primary);
-    }
-
-    .quick-action-icon {
-      width: 44px;
-      height: 44px;
-      background: var(--primary-soft);
-      border-radius: var(--radius-lg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-      font-size: 20px;
-    }
-
-    .quick-action-content h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--gray-800);
-      margin-bottom: 2px;
-    }
-
-    .quick-action-content p {
-      font-size: 11px;
-      color: var(--gray-500);
-    }
-
-    .quick-action-badge {
-      margin-left: auto;
-      background: var(--warning);
-      color: white;
-      padding: 2px 8px;
-      border-radius: var(--radius-full);
-      font-size: 11px;
-      font-weight: 600;
     }
 
     /* Recent Activity */
@@ -587,6 +641,8 @@
     .activity-icon.withdrawal { background: rgba(245,158,11,0.1); color: var(--warning); }
     .activity-icon.user { background: rgba(59,130,246,0.1); color: var(--info); }
     .activity-icon.investment { background: rgba(139,92,246,0.1); color: #8B5CF6; }
+    .activity-icon.proof { background: rgba(30,123,75,0.1); color: var(--primary); }
+    .activity-icon.referral { background: rgba(245,158,11,0.1); color: var(--warning); }
 
     .activity-details h4 {
       font-size: 14px;
@@ -605,6 +661,32 @@
       color: var(--gray-400);
     }
 
+    /* Platform Stats */
+    .platform-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .platform-stat-item {
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .platform-stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .platform-stat-label {
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+
     /* Responsive */
     @media (max-width: 1024px) {
       .stats-grid {
@@ -613,6 +695,10 @@
       
       .charts-row {
         grid-template-columns: 1fr;
+      }
+      
+      .platform-stats {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
@@ -640,10 +726,6 @@
       .date-badge {
         display: none;
       }
-      
-      .quick-actions {
-        grid-template-columns: 1fr;
-      }
     }
 
     @media (max-width: 480px) {
@@ -665,6 +747,10 @@
       
       .logout-btn {
         padding: 8px 12px;
+      }
+      
+      .platform-stats {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -876,6 +962,11 @@
         <span>Withdrawals</span>
         <span class="badge" id="pendingWithdrawalsBadge">0</span>
       </a>
+      <a href="admin-withdrawal-proofs.html" class="nav-item">
+        <i class="fas fa-image"></i>
+        <span>Proof Gallery</span>
+        <span class="badge" id="pendingProofsBadge">0</span>
+      </a>
       <a href="admin-investments.html" class="nav-item">
         <i class="fas fa-chart-pie"></i>
         <span>Investments</span>
@@ -896,6 +987,10 @@
         <i class="fas fa-history"></i>
         <span>Transactions</span>
       </a>
+      <a href="admin-gift-codes.html" class="nav-item">
+        <i class="fas fa-ticket"></i>
+        <span>Gift Codes</span>
+      </a>
     </div>
 
     <div class="nav-section">
@@ -907,6 +1002,10 @@
       <a href="admin-logs.html" class="nav-item">
         <i class="fas fa-clipboard-list"></i>
         <span>Activity Logs</span>
+      </a>
+      <a href="admin-reports.html" class="nav-item">
+        <i class="fas fa-file-pdf"></i>
+        <span>Reports</span>
       </a>
     </div>
   </aside>
@@ -925,7 +1024,7 @@
         <div class="date-badge" id="currentDateTime"></div>
         <button class="notification-btn" onclick="showNotifications()">
           <i class="fas fa-bell"></i>
-          <span class="notification-badge" id="notificationBadge" style="display: none;">2</span>
+          <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
         </button>
         <button class="logout-btn" onclick="showLogoutModal()">
           <i class="fas fa-sign-out-alt"></i>
@@ -941,7 +1040,7 @@
         <div class="stat-card">
           <div class="stat-header">
             <div class="stat-icon"><i class="fas fa-users"></i></div>
-            <span class="stat-badge">+12%</span>
+            <span class="stat-badge" id="userGrowth">+0%</span>
           </div>
           <div class="stat-value" id="totalUsers">0</div>
           <div class="stat-label">Total Users</div>
@@ -950,7 +1049,7 @@
         <div class="stat-card">
           <div class="stat-header">
             <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-            <span class="stat-badge">+8%</span>
+            <span class="stat-badge" id="investmentGrowth">+0%</span>
           </div>
           <div class="stat-value" id="totalInvestments">₦0</div>
           <div class="stat-label">Total Invested</div>
@@ -975,39 +1074,56 @@
         </div>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="quick-actions">
+      <!-- Quick Actions Grid - Updated with all new features -->
+      <div class="quick-actions-grid">
         <div class="quick-action-card" onclick="window.location.href='admin-deposits.html'">
-          <div class="quick-action-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="quick-action-icon"><i class="fas fa-arrow-down"></i></div>
           <div class="quick-action-content">
-            <h4>Approve Deposits</h4>
-            <p>Review pending deposit requests</p>
+            <h4>Deposits</h4>
+            <p>Review pending deposits</p>
+            <span class="quick-action-badge" id="quickDepositBadge">0</span>
           </div>
-          <div class="quick-action-badge" id="quickDepositBadge">0</div>
         </div>
 
         <div class="quick-action-card" onclick="window.location.href='admin-withdrawals.html'">
-          <div class="quick-action-icon"><i class="fas fa-clock"></i></div>
+          <div class="quick-action-icon"><i class="fas fa-arrow-up"></i></div>
           <div class="quick-action-content">
-            <h4>Process Withdrawals</h4>
-            <p>Handle withdrawal requests</p>
+            <h4>Withdrawals</h4>
+            <p>Process withdrawals</p>
+            <span class="quick-action-badge" id="quickWithdrawalBadge">0</span>
           </div>
-          <div class="quick-action-badge" id="quickWithdrawalBadge">0</div>
+        </div>
+
+        <div class="quick-action-card" onclick="window.location.href='admin-withdrawal-proofs.html'">
+          <div class="quick-action-icon"><i class="fas fa-image"></i></div>
+          <div class="quick-action-content">
+            <h4>Proof Gallery</h4>
+            <p>Review proof submissions</p>
+            <span class="quick-action-badge" id="quickProofBadge">0</span>
+          </div>
         </div>
 
         <div class="quick-action-card" onclick="window.location.href='admin-users.html'">
-          <div class="quick-action-icon"><i class="fas fa-user-plus"></i></div>
+          <div class="quick-action-icon"><i class="fas fa-users"></i></div>
           <div class="quick-action-content">
-            <h4>New Users</h4>
-            <p>Today's registrations</p>
+            <h4>Users</h4>
+            <p>Manage users</p>
+            <span class="quick-action-badge" id="quickUsersBadge">0</span>
           </div>
-          <div class="quick-action-badge" id="newUsersCount">0</div>
+        </div>
+
+        <div class="quick-action-card" onclick="window.location.href='admin-gift-codes.html'">
+          <div class="quick-action-icon"><i class="fas fa-ticket"></i></div>
+          <div class="quick-action-content">
+            <h4>Gift Codes</h4>
+            <p>Create & manage codes</p>
+          </div>
         </div>
 
         <div class="quick-action-card" onclick="window.location.href='admin-reports.html'">
           <div class="quick-action-icon"><i class="fas fa-file-pdf"></i></div>
           <div class="quick-action-content">
-            <h4>Generate Report</h4>
+            <h4>Reports</h4>
             <p>Export financial reports</p>
           </div>
         </div>
@@ -1060,18 +1176,22 @@
         <div class="section-header">
           <h3><i class="fas fa-chart-bar" style="color: var(--primary);"></i> Platform Statistics</h3>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-          <div style="text-align: center;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="activeInvestments">0</div>
-            <div style="font-size: 12px; color: var(--gray-500);">Active Investments</div>
+        <div class="platform-stats">
+          <div class="platform-stat-item">
+            <div class="platform-stat-value" id="activeInvestments">0</div>
+            <div class="platform-stat-label">Active Investments</div>
           </div>
-          <div style="text-align: center;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="totalReferrals">0</div>
-            <div style="font-size: 12px; color: var(--gray-500);">Total Referrals</div>
+          <div class="platform-stat-item">
+            <div class="platform-stat-value" id="totalReferrals">0</div>
+            <div class="platform-stat-label">Total Referrals</div>
           </div>
-          <div style="text-align: center;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="feesCollected">₦0</div>
-            <div style="font-size: 12px; color: var(--gray-500);">Fees Collected</div>
+          <div class="platform-stat-item">
+            <div class="platform-stat-value" id="feesCollected">₦0</div>
+            <div class="platform-stat-label">Fees Collected</div>
+          </div>
+          <div class="platform-stat-item">
+            <div class="platform-stat-value" id="totalProofs">0</div>
+            <div class="platform-stat-label">Proofs Submitted</div>
           </div>
         </div>
       </div>
@@ -1197,15 +1317,17 @@
         const totalUsers = usersSnap.size;
         document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
 
-        // Get new users today
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Calculate growth (last 7 days)
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        
         const newUsersSnap = await db.collection('users')
-          .where('createdAt', '>=', today)
+          .where('createdAt', '>=', weekAgo)
           .get();
-        document.getElementById('newUsersCount').textContent = newUsersSnap.size;
+        const growth = ((newUsersSnap.size / totalUsers) * 100).toFixed(1);
+        document.getElementById('userGrowth').textContent = `+${growth}%`;
 
-        // Get pending deposits
+        // Get pending counts
         const pendingDepositsSnap = await db.collection('deposits')
           .where('status', '==', 'pending')
           .get();
@@ -1214,7 +1336,6 @@
         document.getElementById('pendingDepositsCount').textContent = pendingDeposits;
         document.getElementById('quickDepositBadge').textContent = pendingDeposits;
 
-        // Get pending withdrawals
         const pendingWithdrawalsSnap = await db.collection('withdrawals')
           .where('status', '==', 'pending')
           .get();
@@ -1223,13 +1344,30 @@
         document.getElementById('pendingWithdrawalsCount').textContent = pendingWithdrawals;
         document.getElementById('quickWithdrawalBadge').textContent = pendingWithdrawals;
 
+        // Get pending proofs
+        const pendingProofsSnap = await db.collection('withdrawalProofs')
+          .where('status', '==', 'pending')
+          .get();
+        const pendingProofs = pendingProofsSnap.size;
+        document.getElementById('pendingProofsBadge').textContent = pendingProofs;
+        document.getElementById('quickProofBadge').textContent = pendingProofs;
+
+        // Get new users today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayUsersSnap = await db.collection('users')
+          .where('createdAt', '>=', today)
+          .get();
+        document.getElementById('quickUsersBadge').textContent = todayUsersSnap.size;
+
         // Calculate totals
         let totalDeposits = 0;
         let totalWithdrawals = 0;
         let totalInvestments = 0;
         let feesCollected = 0;
+        let totalProofs = 0;
 
-        // Get all deposits
+        // Get all approved deposits
         const depositsSnap = await db.collection('deposits')
           .where('status', '==', 'approved')
           .get();
@@ -1237,7 +1375,7 @@
           totalDeposits += doc.data().amount || 0;
         });
 
-        // Get all withdrawals
+        // Get all approved withdrawals
         const withdrawalsSnap = await db.collection('withdrawals')
           .where('status', '==', 'approved')
           .get();
@@ -1253,6 +1391,10 @@
           totalInvestments += doc.data().amount || 0;
         });
 
+        // Get all proofs
+        const proofsSnap = await db.collection('withdrawalProofs').get();
+        totalProofs = proofsSnap.size;
+
         // Get active investments
         const activeInvestmentsSnap = await db.collection('investments')
           .where('status', '==', 'active')
@@ -1264,6 +1406,7 @@
         document.getElementById('totalWithdrawals').textContent = '₦' + formatMoney(totalWithdrawals);
         document.getElementById('totalInvestments').textContent = '₦' + formatMoney(totalInvestments);
         document.getElementById('feesCollected').textContent = '₦' + formatMoney(feesCollected);
+        document.getElementById('totalProofs').textContent = totalProofs;
 
         // Get total referrals
         let totalReferrals = 0;
@@ -1272,6 +1415,16 @@
           .get();
         totalReferrals = usersWithRefSnap.size;
         document.getElementById('totalReferrals').textContent = totalReferrals.toLocaleString();
+
+        // Update notification badge
+        const totalPending = pendingDeposits + pendingWithdrawals + pendingProofs;
+        const notifBadge = document.getElementById('notificationBadge');
+        if (totalPending > 0) {
+          notifBadge.style.display = 'flex';
+          notifBadge.textContent = totalPending;
+        } else {
+          notifBadge.style.display = 'none';
+        }
 
         // Load recent activity
         await loadRecentActivity();
@@ -1294,27 +1447,14 @@
       const container = document.getElementById('recentActivity');
       
       try {
-        // Get recent deposits
+        // Get recent activities from all collections
+        const activities = [];
+
+        // Recent deposits
         const depositsSnap = await db.collection('deposits')
           .orderBy('createdAt', 'desc')
-          .limit(3)
+          .limit(2)
           .get();
-
-        // Get recent withdrawals
-        const withdrawalsSnap = await db.collection('withdrawals')
-          .orderBy('createdAt', 'desc')
-          .limit(3)
-          .get();
-
-        // Get recent users
-        const usersSnap = await db.collection('users')
-          .orderBy('createdAt', 'desc')
-          .limit(3)
-          .get();
-
-        // Combine and sort activities
-        let activities = [];
-
         depositsSnap.forEach(doc => {
           const d = doc.data();
           activities.push({
@@ -1327,6 +1467,11 @@
           });
         });
 
+        // Recent withdrawals
+        const withdrawalsSnap = await db.collection('withdrawals')
+          .orderBy('createdAt', 'desc')
+          .limit(2)
+          .get();
         withdrawalsSnap.forEach(doc => {
           const w = doc.data();
           activities.push({
@@ -1339,6 +1484,28 @@
           });
         });
 
+        // Recent proofs
+        const proofsSnap = await db.collection('withdrawalProofs')
+          .orderBy('createdAt', 'desc')
+          .limit(2)
+          .get();
+        proofsSnap.forEach(doc => {
+          const p = doc.data();
+          activities.push({
+            type: 'proof',
+            icon: 'fa-image',
+            title: 'Proof Submitted',
+            description: `${p.userName || 'User'} shared withdrawal proof`,
+            time: p.createdAt?.toDate?.() || new Date(),
+            status: p.status
+          });
+        });
+
+        // Recent users
+        const usersSnap = await db.collection('users')
+          .orderBy('createdAt', 'desc')
+          .limit(2)
+          .get();
         usersSnap.forEach(doc => {
           const u = doc.data();
           activities.push({
@@ -1353,7 +1520,7 @@
 
         // Sort by time (newest first)
         activities.sort((a, b) => b.time - a.time);
-        activities = activities.slice(0, 5); // Show only 5 most recent
+        activities.slice(0, 8); // Show 8 most recent
 
         if (activities.length === 0) {
           container.innerHTML = `
@@ -1499,10 +1666,14 @@
 
     // ==================== NOTIFICATIONS ====================
     function showNotifications() {
+      const pendingDeposits = document.getElementById('pendingDepositsBadge').textContent;
+      const pendingWithdrawals = document.getElementById('pendingWithdrawalsBadge').textContent;
+      const pendingProofs = document.getElementById('pendingProofsBadge').textContent;
+      
       showToast({
         type: 'info',
-        title: 'Notifications',
-        message: `${document.getElementById('pendingDepositsBadge').textContent} pending deposits, ${document.getElementById('pendingWithdrawalsBadge').textContent} pending withdrawals`
+        title: 'Pending Items',
+        message: `Deposits: ${pendingDeposits} | Withdrawals: ${pendingWithdrawals} | Proofs: ${pendingProofs}`
       });
     }
 
