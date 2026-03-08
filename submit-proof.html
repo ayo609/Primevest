@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    /* Your existing styles remain exactly the same */
     * {
       margin: 0;
       padding: 0;
@@ -817,7 +818,7 @@
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Success Modal (hidden by default) -->
+  <!-- Success Modal -->
   <div class="modal-overlay" id="successModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 10000;">
     <div class="modal-card" style="background: white; border-radius: var(--radius-2xl); width: 90%; max-width: 380px; padding: 32px 24px; box-shadow: var(--shadow-xl); text-align: center;">
       <div class="modal-icon" style="width: 70px; height: 70px; background: rgba(16,185,129,0.1); border-radius: 35px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; color: var(--success);">
@@ -943,8 +944,7 @@
 
         <!-- Submit Button -->
         <button class="submit-btn" id="submitBtn" onclick="submitProof()" disabled>
-          <i class="fas fa-paper-plane"></i>
-          Submit for Review
+          <i class="fas fa-paper-plane"></i> Submit for Review
         </button>
       </div>
     </div>
@@ -1079,12 +1079,16 @@
     // ==================== FORMAT DATE ====================
     function formatDate(timestamp) {
       if (!timestamp) return 'N/A';
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
+      try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+      } catch (e) {
+        return 'N/A';
+      }
     }
 
     // ==================== LOAD USER DATA ====================
@@ -1112,33 +1116,54 @@
       const container = document.getElementById('withdrawalsContainer');
 
       try {
-        // Get user's paid withdrawals
+        console.log('Loading withdrawals for user:', currentUser.uid);
+        
+        // Get all user withdrawals (both approved and paid)
         const withdrawalsSnap = await db.collection('withdrawals')
           .where('userId', '==', currentUser.uid)
-          .where('status', '==', 'paid')
-          .orderBy('paidAt', 'desc')
+          .orderBy('createdAt', 'desc')
           .get();
 
-        // Check which ones already have proofs submitted
+        console.log('Withdrawals found:', withdrawalsSnap.size);
+
+        // Get all proofs submitted by user
         const proofsSnap = await db.collection('withdrawalProofs')
           .where('userId', '==', currentUser.uid)
           .get();
 
+        console.log('Proofs found:', proofsSnap.size);
+
         const submittedWithdrawalIds = new Set();
         proofsSnap.forEach(doc => {
-          submittedWithdrawalIds.add(doc.data().withdrawalId);
+          const data = doc.data();
+          if (data.withdrawalId) {
+            submittedWithdrawalIds.add(data.withdrawalId);
+          }
         });
 
-        // Filter out withdrawals that already have proofs
+        console.log('Submitted withdrawal IDs:', Array.from(submittedWithdrawalIds));
+
+        // Filter withdrawals that are approved/paid AND not yet proven
         completedWithdrawals = [];
         withdrawalsSnap.forEach(doc => {
           const withdrawal = doc.data();
           withdrawal.id = doc.id;
-          if (!submittedWithdrawalIds.has(doc.id)) {
+          
+          // Check if withdrawal is approved or paid
+          const isCompleted = withdrawal.status === 'approved' || withdrawal.status === 'paid' || withdrawal.status === 'completed';
+          
+          // Check if proof already exists
+          const hasProof = submittedWithdrawalIds.has(doc.id);
+          
+          console.log(`Withdrawal ${doc.id}: status=${withdrawal.status}, hasProof=${hasProof}`);
+          
+          if (isCompleted && !hasProof) {
             completedWithdrawals.push(withdrawal);
           }
         });
 
+        console.log('Completed withdrawals without proof:', completedWithdrawals.length);
+        
         renderWithdrawals();
 
       } catch (error) {
@@ -1149,7 +1174,7 @@
               <i class="fas fa-exclamation-triangle" style="color: var(--error);"></i>
             </div>
             <h3>Failed to Load Withdrawals</h3>
-            <p>Please refresh the page to try again</p>
+            <p>Error: ${error.message}</p>
             <button onclick="location.reload()" class="empty-state-btn">Refresh</button>
           </div>
         `;
@@ -1167,7 +1192,7 @@
               <i class="fas fa-check-circle"></i>
             </div>
             <h3>No Withdrawals to Prove</h3>
-            <p>You don't have any paid withdrawals that need proof. Once you receive a payment, you can share it here!</p>
+            <p>You don't have any approved withdrawals that need proof. Once you receive a payment, you can share it here!</p>
             <a href="withdrawal.html" class="empty-state-btn">Request Withdrawal</a>
           </div>
         `;
@@ -1178,8 +1203,13 @@
       let html = '<div class="withdrawals-list">';
       
       completedWithdrawals.forEach(withdrawal => {
-        const date = withdrawal.paidAt?.toDate?.() || new Date(withdrawal.createdAt?.toDate?.() || new Date());
-        const dateStr = formatDate(date);
+        let dateStr = 'N/A';
+        if (withdrawal.createdAt) {
+          dateStr = formatDate(withdrawal.createdAt);
+        }
+        
+        const transactionId = withdrawal.transactionId || withdrawal.id;
+        const shortId = transactionId.slice(-8);
         
         html += `
           <div class="withdrawal-item" onclick="selectWithdrawal('${withdrawal.id}')" id="withdrawal-${withdrawal.id}">
@@ -1187,7 +1217,7 @@
               <i class="fas fa-check-circle"></i>
             </div>
             <div class="withdrawal-info">
-              <h4>Withdrawal #${withdrawal.transactionId?.slice(-8) || withdrawal.id.slice(-8)}</h4>
+              <h4>Withdrawal #${shortId}</h4>
               <p>${withdrawal.bankDetails?.bankName || 'Bank Transfer'} • ${dateStr}</p>
             </div>
             <div class="withdrawal-amount">₦${formatMoney(withdrawal.amount)}</div>
@@ -1221,11 +1251,18 @@
         
         // Update selected withdrawal display
         const display = document.getElementById('selectedWithdrawalDisplay');
-        document.getElementById('selectedWithdrawalName').textContent = 
-          `Withdrawal #${selectedWithdrawal.transactionId?.slice(-8) || selectedWithdrawal.id.slice(-8)}`;
+        
+        const transactionId = selectedWithdrawal.transactionId || selectedWithdrawal.id;
+        const shortId = transactionId.slice(-8);
+        
+        document.getElementById('selectedWithdrawalName').textContent = `Withdrawal #${shortId}`;
         document.getElementById('selectedWithdrawalAmount').textContent = '₦' + formatMoney(selectedWithdrawal.amount);
-        document.getElementById('selectedWithdrawalDate').textContent = 
-          formatDate(selectedWithdrawal.paidAt || selectedWithdrawal.createdAt);
+        
+        let dateStr = 'N/A';
+        if (selectedWithdrawal.createdAt) {
+          dateStr = formatDate(selectedWithdrawal.createdAt);
+        }
+        document.getElementById('selectedWithdrawalDate').textContent = dateStr;
         
         display.style.display = 'block';
 
@@ -1306,7 +1343,14 @@
 
     // ==================== SUBMIT PROOF ====================
     async function submitProof() {
-      if (!selectedWithdrawal || !selectedFile) return;
+      if (!selectedWithdrawal || !selectedFile || !currentUser) {
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: 'Please select a withdrawal and upload a file'
+        });
+        return;
+      }
 
       const caption = document.getElementById('caption').value.trim();
       const submitBtn = document.getElementById('submitBtn');
@@ -1400,7 +1444,7 @@
       try {
         const snapshot = await db.collection('withdrawalProofs')
           .where('status', '==', 'approved')
-          .orderBy('approvedAt', 'desc')
+          .orderBy('createdAt', 'desc')
           .limit(9)
           .get();
 
@@ -1417,7 +1461,10 @@
         let html = '';
         snapshot.forEach(doc => {
           const proof = doc.data();
-          const date = proof.approvedAt?.toDate?.() || new Date(proof.createdAt?.toDate?.() || new Date());
+          let date = new Date();
+          if (proof.createdAt) {
+            date = proof.createdAt.toDate ? proof.createdAt.toDate() : new Date(proof.createdAt);
+          }
           const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
           const name = proof.userName || 'Investor';
           const displayName = name.length > 15 ? name.substring(0, 12) + '...' : name;
