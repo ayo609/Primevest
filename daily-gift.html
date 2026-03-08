@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Primevest | Daily Gift</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1E7B4B;
+      --primary-dark: #0B4F2E;
+      --primary-light: #4CAF7C;
+      --primary-soft: #E8F5E9;
+      --accent: #2DD4BF;
+      --white: #FFFFFF;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --gray-900: #111827;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --info: #3B82F6;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-2xl: 24px;
+      --radius-full: 9999px;
+      
+      --header-height: 70px;
+      --bottom-nav-height: 75px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(145deg, var(--primary-soft) 0%, var(--white) 100%);
+      color: var(--gray-800);
+      min-height: 100vh;
+      padding-bottom: var(--bottom-nav-height);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Toast System */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 480px) {
+      .toast-container {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+      }
+    }
+
+    .toast {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      max-width: 380px;
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border-left: 4px solid;
+      pointer-events: auto;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+    }
+
+    .toast.success .toast-icon {
+      color: var(--success);
+      background: rgba(16,185,129,0.1);
+    }
+
+    .toast.error {
+      border-left-color: var(--error);
+    }
+
+    .toast.error .toast-icon {
+      color: var(--error);
+      background: rgba(239,68,68,0.1);
+    }
+
+    .toast.warning {
+      border-left-color: var(--warning);
+    }
+
+    .toast.warning .toast-icon {
+      color: var(--warning);
+      background: rgba(245,158,11,0.1);
+    }
+
+    .toast.info {
+      border-left-color: var(--primary);
+    }
+
+    .toast.info .toast-icon {
+      color: var(--primary);
+      background: rgba(30,123,75,0.1);
+    }
+
+    .toast-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 12px;
+      color: var(--gray-500);
+      line-height: 1.4;
+    }
+
+    .toast-close {
+      color: var(--gray-400);
+      cursor: pointer;
+      font-size: 14px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toast-close:hover {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    /* Header */
+    .header {
+      height: var(--header-height);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .brand span {
+      color: var(--primary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .profile-btn {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Hero Card */
+    .hero-card {
+      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+      border-radius: var(--radius-2xl);
+      padding: 32px 24px;
+      margin-bottom: 24px;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 250px;
+      height: 250px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -80px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .hero-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero-card h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-card p {
+      font-size: 16px;
+      opacity: 0.9;
+      max-width: 400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Balance Card */
+    .balance-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin-bottom: 24px;
+      border: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+    }
+
+    .balance-info h3 {
+      font-size: 14px;
+      color: var(--gray-500);
+      margin-bottom: 4px;
+    }
+
+    .balance-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .balance-amount span {
+      font-size: 16px;
+      color: var(--gray-400);
+      margin-right: 4px;
+    }
+
+    .gift-tag {
+      background: var(--primary-soft);
+      border-radius: var(--radius-full);
+      padding: 8px 16px;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 16px 12px;
+      border: 1px solid var(--gray-200);
+      text-align: center;
+    }
+
+    .stat-icon {
+      font-size: 24px;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+
+    /* Gift Card */
+    .gift-card {
+      background: var(--white);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--gray-200);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .gift-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gift-title i {
+      color: var(--primary);
+    }
+
+    .code-display {
+      background: linear-gradient(145deg, var(--primary-soft), var(--white));
+      border: 2px dashed var(--primary);
+      border-radius: var(--radius-2xl);
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .code-label {
+      font-size: 12px;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .code-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+    }
+
+    .code-amount {
+      background: var(--success);
+      color: white;
+      display: inline-block;
+      padding: 8px 24px;
+      border-radius: var(--radius-full);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .code-timer {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--gray-500);
+    }
+
+    .timer-highlight {
+      color: var(--warning);
+      font-weight: 700;
+    }
+
+    /* Form */
+    .redeem-form {
+      background: var(--gray-50);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .form-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 8px;
+    }
+
+    .form-label i {
+      color: var(--primary);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix {
+      position: absolute;
+      left: 16px;
+      color: var(--gray-400);
+      font-size: 18px;
+      z-index: 2;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 16px 16px 16px 50px;
+      background: var(--white);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      font-size: 18px;
+      font-family: inherit;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(30,123,75,0.1);
+    }
+
+    .form-input.error {
+      border-color: var(--error);
+    }
+
+    .form-input.success {
+      border-color: var(--success);
+    }
+
+    .redeem-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: var(--radius-lg);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s;
+    }
+
+    .redeem-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .redeem-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Gift History */
+    .gift-history {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-header h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--gray-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .view-all-link {
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+    }
+
+    .history-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--primary-soft);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    .history-info {
+      flex: 1;
+    }
+
+    .history-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .history-info p {
+      font-size: 11px;
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .history-amount {
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .history-date {
+      color: var(--gray-400);
+    }
+
+    .success-badge {
+      background: var(--success);
+      color: white;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--bottom-nav-height);
+      background: var(--white);
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-decoration: none;
+      padding: 6px 8px;
+      border-radius: var(--radius-lg);
+      flex: 1;
+      max-width: 64px;
+      color: var(--gray-400);
+      font-size: 10px;
+    }
+
+    .nav-item i {
+      font-size: 18px;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-center {
+      width: 48px;
+      height: 48px;
+      background: var(--primary);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      transform: translateY(-8px);
+      box-shadow: 0 4px 12px rgba(30,123,75,0.3);
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(30,123,75,0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--gray-500);
+    }
+
+    .empty-state i {
+      font-size: 40px;
+      color: var(--gray-300);
+      margin-bottom: 12px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .hero-card h1 {
+        font-size: 24px;
+      }
+
+      .code-value {
+        font-size: 24px;
+        letter-spacing: 2px;
+      }
+
+      .code-amount {
+        font-size: 20px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" id="successModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 10000;">
+    <div class="modal-card" style="background: white; border-radius: var(--radius-2xl); width: 90%; max-width: 380px; padding: 32px 24px; box-shadow: var(--shadow-xl); text-align: center;">
+      <div class="modal-icon" style="width: 70px; height: 70px; background: rgba(16,185,129,0.1); border-radius: 35px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; color: var(--success);">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h3 class="modal-title" style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 12px;">Gift Redeemed! 🎉</h3>
+      <p class="modal-text" style="font-size: 15px; color: var(--gray-500); margin-bottom: 20px;">Your gift has been successfully redeemed and credited to your wallet.</p>
+      <div class="modal-details" style="background: var(--gray-50); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 20px; text-align: left;">
+        <div class="modal-detail-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <span style="color: var(--gray-500);">Gift Code</span>
+          <span style="font-weight: 700; color: var(--gray-800);" id="successCode">-</span>
+        </div>
+        <div class="modal-detail-row" style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="color: var(--gray-500);">Amount</span>
+          <span style="font-weight: 700; color: var(--success);" id="successAmount">₦0</span>
+        </div>
+      </div>
+      <button class="modal-btn modal-btn-primary" onclick="closeModal()" style="width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: var(--radius-lg); color: white; font-weight: 600; cursor: pointer;">Awesome!</button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left" onclick="goHome()">
+      <div class="logo">P</div>
+      <div class="brand">Prime<span>vest</span></div>
+    </div>
+    <div class="header-right">
+      <div class="profile-btn" onclick="goToProfile()" id="profileInitial">P</div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Hero Card -->
+    <div class="hero-card">
+      <div class="hero-icon">
+        <i class="fas fa-gift"></i>
+      </div>
+      <h1>Daily Gift</h1>
+      <p>Redeem special gift codes and get free cash credited directly to your wallet!</p>
+    </div>
+
+    <!-- Balance Card -->
+    <div class="balance-card">
+      <div class="balance-info">
+        <h3>Your Balance</h3>
+        <div class="balance-amount">
+          <span>₦</span><span id="userBalance">0</span>
+        </div>
+      </div>
+      <div class="gift-tag">
+        <i class="fas fa-gift"></i> Gifts
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-gift"></i></div>
+        <div class="stat-value" id="giftsRedeemed">0</div>
+        <div class="stat-label">Gifts Redeemed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-coins"></i></div>
+        <div class="stat-value" id="totalGiftAmount">₦0</div>
+        <div class="stat-label">Total Gifts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-calendar"></i></div>
+        <div class="stat-value" id="streakDays">0</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+    </div>
+
+    <!-- Daily Gift Card -->
+    <div class="gift-card" id="dailyGiftCard">
+      <div class="gift-title">
+        <i class="fas fa-star"></i>
+        <span>Today's Special Gift</span>
+      </div>
+
+      <div class="code-display">
+        <div class="code-label">Gift Code</div>
+        <div class="code-value" id="dailyGiftCode">GIFT-XXXX-XXXX</div>
+        <div class="code-amount" id="dailyGiftAmount">₦1,000</div>
+        <div class="code-timer" id="giftTimer">
+          <span>⏰ Code expires in: <span class="timer-highlight" id="timerDisplay">23:59:59</span></span>
+        </div>
+      </div>
+
+      <div class="redeem-form">
+        <div class="form-title">
+          <i class="fas fa-key"></i>
+          <span>Redeem Gift Code</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-tag"></i>
+            Enter Gift Code
+          </label>
+          <div class="input-wrapper">
+            <span class="input-prefix"><i class="fas fa-gift"></i></span>
+            <input 
+              type="text" 
+              class="form-input" 
+              id="giftCodeInput" 
+              placeholder="GIFT-XXXX-XXXX"
+              oninput="validateCode()"
+            >
+          </div>
+        </div>
+
+        <button class="redeem-btn" id="redeemBtn" onclick="redeemGift()" disabled>
+          <i class="fas fa-gift"></i>
+          Redeem Gift
+        </button>
+      </div>
+    </div>
+
+    <!-- Gift History -->
+    <div class="gift-history">
+      <div class="section-header">
+        <h2>
+          <i class="fas fa-history"></i>
+          Gift History
+        </h2>
+        <a href="#" class="view-all-link">View All</a>
+      </div>
+
+      <div class="history-list" id="giftHistory">
+        <!-- Will be populated by JavaScript -->
+        <div class="empty-state">
+          <i class="fas fa-gift"></i>
+          <p>No gifts redeemed yet</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </a>
+    <a href="plans.html" class="nav-item">
+      <i class="fas fa-chart-pie"></i>
+      <span>Plans</span>
+    </a>
+    <a href="investments.html" class="nav-center">
+      <i class="fas fa-wallet"></i>
+    </a>
+    <a href="referrals.html" class="nav-item">
+      <i class="fas fa-users"></i>
+      <span>Refer</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+      <i class="fas fa-user"></i>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script>
+    // ==================== FIREBASE CONFIG ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain: "primevest-5208c.firebaseapp.com",
+      projectId: "primevest-5208c",
+      storageBucket: "primevest-5208c.firebasestorage.app",
+      messagingSenderId: "76160486147",
+      appId: "1:76160486147:web:5b5853f9772503daa7b736"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const FieldValue = firebase.firestore.FieldValue;
+
+    // ==================== GLOBAL VARIABLES ====================
+    let currentUser = null;
+    let userData = null;
+    let dailyGift = null;
+    let timerInterval = null;
+
+    // ==================== TOAST SYSTEM ====================
+    function showToast({ type = 'info', title, message, duration = 4000 }) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+      };
+
+      toast.innerHTML = `
+        <div class="toast-icon">
+          <i class="fas ${icons[type]}"></i>
+        </div>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-close" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </div>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+
+      if (duration) {
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 400);
+        }, duration);
+      }
+    }
+
+    // ==================== MODAL FUNCTIONS ====================
+    function openModal() {
+      document.getElementById('successModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('successModal').style.display = 'none';
+    }
+
+    // ==================== NAVIGATION ====================
+    function goHome() {
+      window.location.href = 'home.html';
+    }
+
+    function goToProfile() {
+      window.location.href = 'profile.html';
+    }
+
+    // ==================== FORMAT MONEY ====================
+    function formatMoney(amount) {
+      return Number(amount || 0).toLocaleString('en-NG', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    // ==================== GENERATE DAILY GIFT ====================
+    function generateDailyGift() {
+      // Generate random gift code
+      const prefixes = ['GIFT', 'BONUS', 'CASH', 'GOLD', 'STAR'];
+      const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+      const part1 = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const part2 = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const code = `${prefix}-${part1}-${part2}`;
+
+      // Generate random amount (₦100 - ₦5000)
+      const amounts = [500, 1000, 2000, 3000, 5000];
+      const amount = amounts[Math.floor(Math.random() * amounts.length)];
+
+      // Set expiry time (24 hours from now)
+      const now = new Date();
+      const expiry = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+      dailyGift = {
+        code: code,
+        amount: amount,
+        expiry: expiry
+      };
+
+      // Update UI
+      document.getElementById('dailyGiftCode').textContent = code;
+      document.getElementById('dailyGiftAmount').textContent = '₦' + formatMoney(amount);
+
+      // Start timer
+      startTimer(expiry);
+    }
+
+    // ==================== START TIMER ====================
+    function startTimer(expiryTime) {
+      if (timerInterval) clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        const now = new Date();
+        const diff = expiryTime - now;
+
+        if (diff <= 0) {
+          // Gift expired, generate new one
+          generateDailyGift();
+          return;
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('timerDisplay').textContent = 
+          `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    // ==================== VALIDATE CODE ====================
+    function validateCode() {
+      const input = document.getElementById('giftCodeInput');
+      const redeemBtn = document.getElementById('redeemBtn');
+      const code = input.value.trim().toUpperCase();
+
+      if (code.length >= 8) {
+        redeemBtn.disabled = false;
+        input.classList.add('success');
+        input.classList.remove('error');
+      } else {
+        redeemBtn.disabled = true;
+        input.classList.remove('success');
+      }
+    }
+
+    // ==================== REDEEM GIFT ====================
+    async function redeemGift() {
+      if (!currentUser || !userData) return;
+
+      const enteredCode = document.getElementById('giftCodeInput').value.trim().toUpperCase();
+      
+      // Check if code matches daily gift
+      if (enteredCode !== dailyGift.code) {
+        document.getElementById('giftCodeInput').classList.add('error');
+        showToast({
+          type: 'error',
+          title: 'Invalid Code',
+          message: 'The gift code you entered is invalid or expired'
+        });
+        return;
+      }
+
+      // Check if code is expired
+      const now = new Date();
+      if (now > dailyGift.expiry) {
+        showToast({
+          type: 'error',
+          title: 'Code Expired',
+          message: 'This gift code has expired. A new code has been generated.'
+        });
+        generateDailyGift();
+        document.getElementById('giftCodeInput').value = '';
+        return;
+      }
+
+      // Check if user has already redeemed this code
+      const redeemedSnap = await db.collection('giftRedemptions')
+        .where('userId', '==', currentUser.uid)
+        .where('code', '==', enteredCode)
+        .get();
+
+      if (!redeemedSnap.empty) {
+        showToast({
+          type: 'error',
+          title: 'Already Redeemed',
+          message: 'You have already redeemed this gift code'
+        });
+        return;
+      }
+
+      const redeemBtn = document.getElementById('redeemBtn');
+      redeemBtn.disabled = true;
+      redeemBtn.innerHTML = '<span class="spinner"></span> Redeeming...';
+
+      try {
+        // Create redemption record
+        await db.collection('giftRedemptions').add({
+          userId: currentUser.uid,
+          userName: userData.fullName || userData.username || 'User',
+          code: enteredCode,
+          amount: dailyGift.amount,
+          redeemedAt: FieldValue.serverTimestamp(),
+          expiresAt: dailyGift.expiry
+        });
+
+        // Credit user's wallet
+        await db.collection('users').doc(currentUser.uid).update({
+          balance: FieldValue.increment(dailyGift.amount),
+          totalGiftsRedeemed: FieldValue.increment(1),
+          totalGiftAmount: FieldValue.increment(dailyGift.amount)
+        });
+
+        // Create transaction record
+        await db.collection('transactions').add({
+          userId: currentUser.uid,
+          userName: userData.fullName || userData.username || 'User',
+          type: 'gift',
+          amount: dailyGift.amount,
+          code: enteredCode,
+          note: 'Daily gift redemption',
+          createdAt: FieldValue.serverTimestamp()
+        });
+
+        // Update local user data
+        userData.balance = (userData.balance || 0) + dailyGift.amount;
+        userData.totalGiftsRedeemed = (userData.totalGiftsRedeemed || 0) + 1;
+        userData.totalGiftAmount = (userData.totalGiftAmount || 0) + dailyGift.amount;
+
+        // Update UI
+        document.getElementById('userBalance').textContent = formatMoney(userData.balance);
+        document.getElementById('giftsRedeemed').textContent = userData.totalGiftsRedeemed || 0;
+        document.getElementById('totalGiftAmount').textContent = '₦' + formatMoney(userData.totalGiftAmount || 0);
+
+        // Show success modal
+        document.getElementById('successCode').textContent = enteredCode;
+        document.getElementById('successAmount').textContent = '₦' + formatMoney(dailyGift.amount);
+        openModal();
+
+        // Clear input and generate new gift
+        document.getElementById('giftCodeInput').value = '';
+        generateDailyGift();
+
+        // Load gift history
+        loadGiftHistory();
+
+      } catch (error) {
+        console.error('Error redeeming gift:', error);
+        showToast({
+          type: 'error',
+          title: 'Redemption Failed',
+          message: error.message || 'Please try again'
+        });
+      }
+
+      redeemBtn.disabled = false;
+      redeemBtn.innerHTML = '<i class="fas fa-gift"></i> Redeem Gift';
+    }
+
+    // ==================== LOAD GIFT HISTORY ====================
+    async function loadGiftHistory() {
+      if (!currentUser) return;
+
+      try {
+        const snapshot = await db.collection('giftRedemptions')
+          .where('userId', '==', currentUser.uid)
+          .orderBy('redeemedAt', 'desc')
+          .limit(5)
+          .get();
+
+        const historyEl = document.getElementById('giftHistory');
+
+        if (snapshot.empty) {
+          historyEl.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-gift"></i>
+              <p>No gifts redeemed yet</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        snapshot.forEach(doc => {
+          const gift = doc.data();
+          const date = gift.redeemedAt?.toDate?.() || new Date();
+          const dateStr = date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          html += `
+            <div class="history-item">
+              <div class="history-icon">
+                <i class="fas fa-gift"></i>
+              </div>
+              <div class="history-info">
+                <h4>${gift.code}</h4>
+                <p>
+                  <span class="history-amount">₦${formatMoney(gift.amount)}</span>
+                  <span class="history-date">${dateStr}</span>
+                </p>
+              </div>
+              <div class="success-badge">Redeemed</div>
+            </div>
+          `;
+        });
+
+        historyEl.innerHTML = html;
+
+      } catch (error) {
+        console.error('Error loading gift history:', error);
+      }
+    }
+
+    // ==================== LOAD USER DATA ====================
+    async function loadUserData() {
+      if (!currentUser) return;
+
+      try {
+        const doc = await db.collection('users').doc(currentUser.uid).get();
+        
+        if (!doc.exists) {
+          await auth.signOut();
+          window.location.href = 'login.html';
+          return;
+        }
+
+        userData = doc.data();
+
+        const firstName = (userData.fullName || 'User').split(' ')[0];
+        document.getElementById('profileInitial').textContent = firstName.charAt(0).toUpperCase();
+        document.getElementById('userBalance').textContent = formatMoney(userData.balance || 0);
+        document.getElementById('giftsRedeemed').textContent = userData.totalGiftsRedeemed || 0;
+        document.getElementById('totalGiftAmount').textContent = '₦' + formatMoney(userData.totalGiftAmount || 0);
+        document.getElementById('streakDays').textContent = userData.giftStreak || 1;
+
+        // Load gift history
+        await loadGiftHistory();
+
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    }
+
+    // ==================== UPDATE STREAK ====================
+    async function updateStreak() {
+      if (!currentUser || !userData) return;
+
+      try {
+        const lastGiftDate = userData.lastGiftDate?.toDate?.() || null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (!lastGiftDate) {
+          // First gift ever
+          await db.collection('users').doc(currentUser.uid).update({
+            giftStreak: 1,
+            lastGiftDate: today
+          });
+          document.getElementById('streakDays').textContent = 1;
+        } else {
+          const lastDate = new Date(lastGiftDate);
+          lastDate.setHours(0, 0, 0, 0);
+          
+          const diffTime = today - lastDate;
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+          if (diffDays === 1) {
+            // Consecutive day
+            const newStreak = (userData.giftStreak || 1) + 1;
+            await db.collection('users').doc(currentUser.uid).update({
+              giftStreak: newStreak,
+              lastGiftDate: today
+            });
+            document.getElementById('streakDays').textContent = newStreak;
+          } else if (diffDays > 1) {
+            // Streak broken
+            await db.collection('users').doc(currentUser.uid).update({
+              giftStreak: 1,
+              lastGiftDate: today
+            });
+            document.getElementById('streakDays').textContent = 1;
+          }
+        }
+      } catch (error) {
+        console.error('Error updating streak:', error);
+      }
+    }
+
+    // ==================== AUTH STATE ====================
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      currentUser = user;
+      await loadUserData();
+      
+      // Generate daily gift
+      generateDailyGift();
+      
+      // Update streak
+      await updateStreak();
+    });
+
+    // Clean up timer on page unload
+    window.addEventListener('beforeunload', () => {
+      if (timerInterval) clearInterval(timerInterval);
+    });
+
+    // Make functions global
+    window.validateCode = validateCode;
+    window.redeemGift = redeemGift;
+    window.closeModal = closeModal;
+  </script>
+</body>
+</html>
