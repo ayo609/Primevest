@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    /* Your existing styles remain the same */
     * {
       margin: 0;
       padding: 0;
@@ -897,7 +898,8 @@
           class="form-input" 
           id="senderName" 
           placeholder="Enter the name used for transfer"
-          onkeyup="checkFormValidity()"
+          onkeyup="validateForm()"
+          oninput="validateForm()"
         >
       </div>
 
@@ -1125,7 +1127,7 @@
       document.getElementById('previewPlan').textContent = plan;
       
       // Check form validity
-      checkFormValidity();
+      validateForm();
     }
 
     // ==================== HANDLE CUSTOM AMOUNT ====================
@@ -1161,7 +1163,7 @@
         document.getElementById('amountPreview').classList.remove('show');
       }
 
-      checkFormValidity();
+      validateForm();
     }
 
     // ==================== FILE UPLOAD ====================
@@ -1210,18 +1212,18 @@
         </div>
       `;
 
-      checkFormValidity();
+      validateForm();
     }
 
     function removeFile() {
       selectedFile = null;
       document.getElementById('fileInput').value = '';
       document.getElementById('fileInfo').style.display = 'none';
-      checkFormValidity();
+      validateForm();
     }
 
-    // ==================== CHECK FORM VALIDITY ====================
-    function checkFormValidity() {
+    // ==================== VALIDATE FORM ====================
+    function validateForm() {
       const senderName = document.getElementById('senderName').value.trim();
       const hasAmount = selectedAmount >= 4000;
       const hasName = senderName.length >= 3;
@@ -1231,6 +1233,8 @@
 
       const submitBtn = document.getElementById('submitBtn');
       const btnText = document.getElementById('submitBtnText');
+
+      console.log('Validation:', { hasAmount, hasName, hasFile, senderName, isValid });
 
       if (isValid) {
         submitBtn.classList.add('active');
@@ -1281,9 +1285,9 @@
         
         console.log('Uploading to:', filePath);
         
-        // Upload with progress tracking
-        const uploadTask = await fileRef.put(selectedFile);
-        console.log('Upload complete:', uploadTask);
+        // Upload file
+        await fileRef.put(selectedFile);
+        console.log('Upload complete');
         
         const fileUrl = await fileRef.getDownloadURL();
         console.log('File URL:', fileUrl);
@@ -1306,8 +1310,8 @@
 
         console.log('Saving deposit data:', depositData);
 
-        const docRef = await db.collection('deposits').add(depositData);
-        console.log('Deposit saved with ID:', docRef.id);
+        await db.collection('deposits').add(depositData);
+        console.log('Deposit saved successfully');
 
         showToast({
           type: 'success',
@@ -1326,7 +1330,7 @@
         document.getElementById('senderSection').style.display = 'none';
         document.getElementById('amountPreview').classList.remove('show');
         
-        checkFormValidity();
+        validateForm();
         loadDepositHistory();
 
       } catch (error) {
@@ -1335,10 +1339,8 @@
         let errorMessage = error.message;
         if (error.code === 'storage/unauthorized') {
           errorMessage = 'Storage permission denied. Please check Firebase Storage rules.';
-        } else if (error.code === 'storage/canceled') {
-          errorMessage = 'Upload was canceled';
-        } else if (error.code === 'storage/unknown') {
-          errorMessage = 'An unknown error occurred during upload';
+        } else if (error.code === 'permission-denied') {
+          errorMessage = 'Database permission denied. Please check Firestore rules.';
         }
         
         showToast({
@@ -1426,8 +1428,6 @@
           document.getElementById('balanceAmount').textContent = formatMoney(userData.balance || 0);
           const firstName = (userData.fullName || 'User').split(' ')[0];
           document.getElementById('profileInitial').textContent = firstName.charAt(0).toUpperCase();
-        } else {
-          console.log('User document not found');
         }
       } catch (error) {
         console.error('Error loading user data:', error);
@@ -1458,7 +1458,7 @@
     window.triggerFileUpload = triggerFileUpload;
     window.handleFileSelect = handleFileSelect;
     window.removeFile = removeFile;
-    window.checkFormValidity = checkFormValidity;
+    window.validateForm = validateForm;
     window.submitDeposit = submitDeposit;
   </script>
 </body>
