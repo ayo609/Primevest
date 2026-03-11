@@ -17,6 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    /* Keep all your existing styles exactly as they were */
     * {
       margin: 0;
       padding: 0;
@@ -1240,16 +1241,16 @@
           const downline = doc.data();
           downline.id = doc.id;
           
-          // Get downline's total investments from transactions
-          const investmentsSnap = await db.collection('transactions')
+          // Get downline's total investments from deposits collection
+          // This is more reliable and works with your rules
+          const depositsSnap = await db.collection('deposits')
             .where('userId', '==', doc.id)
-            .where('type', '==', 'deposit')
             .where('status', '==', 'approved')
             .get();
           
           let totalInvested = 0;
-          investmentsSnap.forEach(inv => {
-            totalInvested += inv.data().amount || 0;
+          depositsSnap.forEach(deposit => {
+            totalInvested += deposit.data().amount || 0;
           });
           
           downline.totalInvested = totalInvested;
@@ -1281,16 +1282,15 @@
             bDownline.id = bDoc.id;
             bDownline.referredBy = aDownline.fullName || aDownline.username || 'Referrer';
             
-            // Get investments
-            const bInvestmentsSnap = await db.collection('transactions')
+            // Get investments from deposits
+            const bDepositsSnap = await db.collection('deposits')
               .where('userId', '==', bDoc.id)
-              .where('type', '==', 'deposit')
               .where('status', '==', 'approved')
               .get();
             
             let totalInvested = 0;
-            bInvestmentsSnap.forEach(inv => {
-              totalInvested += inv.data().amount || 0;
+            bDepositsSnap.forEach(deposit => {
+              totalInvested += deposit.data().amount || 0;
             });
             
             bDownline.totalInvested = totalInvested;
@@ -1323,16 +1323,15 @@
             cDownline.id = cDoc.id;
             cDownline.referredBy = bDownline.fullName || bDownline.username || 'Referrer';
             
-            // Get investments
-            const cInvestmentsSnap = await db.collection('transactions')
+            // Get investments from deposits
+            const cDepositsSnap = await db.collection('deposits')
               .where('userId', '==', cDoc.id)
-              .where('type', '==', 'deposit')
               .where('status', '==', 'approved')
               .get();
             
             let totalInvested = 0;
-            cInvestmentsSnap.forEach(inv => {
-              totalInvested += inv.data().amount || 0;
+            cDepositsSnap.forEach(deposit => {
+              totalInvested += deposit.data().amount || 0;
             });
             
             cDownline.totalInvested = totalInvested;
@@ -1365,11 +1364,21 @@
         
       } catch (error) {
         console.error('Error loading referral data:', error);
-        showToast({
-          type: 'error',
-          title: 'Error',
-          message: 'Failed to load referral data: ' + error.message
-        });
+        
+        // Check for specific permission errors
+        if (error.code === 'permission-denied') {
+          showToast({
+            type: 'error',
+            title: 'Permission Error',
+            message: 'Please check Firestore rules for deposits collection'
+          });
+        } else {
+          showToast({
+            type: 'error',
+            title: 'Error',
+            message: 'Failed to load referral data: ' + error.message
+          });
+        }
       }
     }
 
