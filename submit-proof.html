@@ -327,7 +327,7 @@
 
     <!-- Gallery -->
     <div class="gallery-section">
-      <div class="section-title"><i class="fas fa-images"></i> Recent Approved Proofs</div>
+      <div class="section-title"><i class="fas fa-images"></i> Recent Withdrawal Proofs</div>
       <div class="preview-grid" id="proofsGallery">
         <div class="loading-state" style="grid-column:1/-1;"><div class="spinner-lg"></div><p>Loading gallery...</p></div>
       </div>
@@ -797,34 +797,57 @@
       gallery.innerHTML = '<div class="loading-state" style="grid-column:1/-1;"><div class="spinner-lg"></div><p>Loading gallery...</p></div>';
 
       try {
-        const snap = await db.collection('withdrawalProofs')
-          .where('status', '==', 'approved')
-          .orderBy('createdAt', 'desc')
-          .limit(9)
-          .get();
+        // NO orderBy — avoids needing a composite Firestore index.
+        // We fetch all proofs (any status) and sort in JS.
+        const snap = await db.collection('withdrawalProofs').limit(30).get();
 
         if (snap.empty) {
-          gallery.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray-500);">
-            <i class="fas fa-images" style="font-size:40px;margin-bottom:12px;opacity:0.4;display:block;"></i>
-            <p>No approved proofs yet. Be the first to share!</p>
-          </div>`;
+          gallery.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray-500);">
+              <i class="fas fa-images" style="font-size:40px;margin-bottom:12px;opacity:0.4;display:block;"></i>
+              <p>No proofs yet. Be the first to share!</p>
+            </div>`;
           return;
         }
 
+        // Collect all docs, sort newest first in JS
+        const docs = [];
+        snap.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+        docs.sort((a, b) => {
+          const ta = a.createdAt?.toDate?.() ?? new Date(0);
+          const tb = b.createdAt?.toDate?.() ?? new Date(0);
+          return tb - ta;
+        });
+
+        // Show up to 9
+        const toShow = docs.slice(0, 9);
+
         let html = '';
-        snap.forEach(doc => {
-          const p    = doc.data();
-          const name = (p.userName || 'Investor').substring(0, 12);
-          const date = fmtDate(p.createdAt);
-          // Only use as img src if it's a URL (not base64, to keep gallery clean)
-          const imgSrc = p.proofType === 'base64'
-            ? 'https://placehold.co/150x100/E8F5E9/1E7B4B?text=Proof'
-            : (p.proofImage || 'https://placehold.co/150x100/E8F5E9/1E7B4B?text=Proof');
+        toShow.forEach(p => {
+          const name    = (p.userName || 'Investor').substring(0, 12);
+          const date    = fmtDate(p.createdAt);
+          const isApproved = p.status === 'approved';
+          const isPending  = p.status === 'pending';
+
+          // Badge colour
+          const badgeColor = isApproved ? 'var(--success)' : isPending ? 'var(--warning)' : 'var(--gray-400)';
+          const badgeLabel = isApproved ? 'Approved' : isPending ? 'Pending' : p.status || 'Submitted';
+
+          // Image src — use placeholder for base64 to keep gallery fast
+          const imgSrc = (p.proofType === 'base64' || !p.proofImage || p.proofImage.startsWith('data:'))
+            ? 'https://placehold.co/150x100/E8F5E9/1E7B4B?text=Proof+Image'
+            : p.proofImage;
 
           html += `
-            <div class="preview-card" onclick="window.open('${p.proofImage}','_blank')">
-              <img src="${imgSrc}" alt="Withdrawal proof" loading="lazy"
-                   onerror="this.src='https://placehold.co/150x100/E8F5E9/1E7B4B?text=Proof'">
+            <div class="preview-card" onclick="window.open('${p.proofImage || '#'}','_blank')">
+              <div style="position:relative;">
+                <img src="${imgSrc}" alt="Withdrawal proof" loading="lazy"
+                     onerror="this.src='https://placehold.co/150x100/E8F5E9/1E7B4B?text=Proof'">
+                <span style="position:absolute;top:5px;right:5px;background:${badgeColor};color:white;
+                             font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">
+                  ${badgeLabel}
+                </span>
+              </div>
               <div class="preview-info">
                 <span class="pname">${esc(name)}</span>
                 <span class="pamount">₦${fmt(p.withdrawalAmount)}</span>
@@ -832,14 +855,16 @@
               </div>
             </div>`;
         });
+
         gallery.innerHTML = html;
 
       } catch (err) {
         console.error('Gallery error:', err);
-        gallery.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--error);">
-          <i class="fas fa-exclamation-circle" style="font-size:32px;margin-bottom:10px;display:block;"></i>
-          <p>Failed to load gallery.</p>
-        </div>`;
+        gallery.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--error);">
+            <i class="fas fa-exclamation-circle" style="font-size:32px;margin-bottom:10px;display:block;"></i>
+            <p style="font-size:13px;">Gallery failed to load.<br><small style="color:var(--gray-500);">${esc(err.message)}</small></p>
+          </div>`;
       }
     }
 
