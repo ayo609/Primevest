@@ -1474,87 +1474,180 @@
       const progressText = document.getElementById('progressText');
       progressWrap.classList.add('show');
 
-      const reference   = 'DEP' + Date.now() + Math.random().toString(36).substr(2, 8).toUpperCase();
-      const timestamp   = Date.now();
+      const reference    = 'DEP' + Date.now() + Math.random().toString(36).substr(2, 8).toUpperCase();
+      const timestamp    = Date.now();
       const safeFileName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const filePath    = `deposits/${currentUser.uid}/${timestamp}_${safeFileName}`;
+      const filePath     = `deposits/${currentUser.uid}/${timestamp}_${safeFileName}`;
+
+      let fileUrl = null;
 
       try {
-        // ---- UPLOAD FILE WITH PROGRESS ----
+        // ======= STEP 1: UPLOAD FILE TO STORAGE =======
+        console.log('[DEPOSIT] Starting file upload to:', filePath);
+
         const fileRef    = storage.ref().child(filePath);
         const uploadTask = fileRef.put(selectedFile);
 
-        const fileUrl = await new Promise((resolve, reject) => {
+        fileUrl = await new Promise((resolve, reject) => {
           uploadTask.on(
             'state_changed',
             (snapshot) => {
               const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
               progressBar.style.width = pct + '%';
               progressText.textContent = pct + '%';
+              if (pct === 100) {
+                btn.innerHTML = '<span class="spinner"></span> Processing...';
+              }
             },
-            (error) => reject(error),
+            (err) => {
+              console.error('[DEPOSIT] Storage upload error:', err.code, err.message);
+              reject(err);
+            },
             async () => {
-              const url = await uploadTask.snapshot.ref.getDownloadURL();
-              resolve(url);
+              try {
+                const url = await uploadTask.snapshot.ref.getDownloadURL();
+                console.log('[DEPOSIT] Upload complete. URL:', url);
+                resolve(url);
+              } catch (urlErr) {
+                console.error('[DEPOSIT] Failed to get download URL:', urlErr);
+                reject(urlErr);
+              }
             }
           );
         });
 
-        btn.innerHTML = '<span class="spinner"></span> Saving request...';
+        // ======= STEP 2: SAVE TO FIRESTORE =======
+        btn.innerHTML = '<span class="spinner"></span> Submitting to admin...';
+        console.log('[DEPOSIT] Saving to Firestore. User:', currentUser.uid);
 
-        // ---- SAVE TO FIRESTORE ----
         const depositData = {
           userId:        currentUser.uid,
-          userName:      userData?.fullName || userData?.username || 'User',
-          userEmail:     userData?.email || currentUser.email || '',
-          amount:        selectedAmount,
-          planName:      selectedPlan,
+          userName:      (userData && (userData.fullName || userData.username)) || currentUser.displayName || 'User',
+          userEmail:     (userData && userData.email) || currentUser.email || '',
+          amount:        Number(selectedAmount),
+          planName:      selectedPlan || '',
           senderName:    senderName,
           reference:     reference,
           proofUrl:      fileUrl,
           proofPath:     filePath,
           proofFileName: selectedFile.name,
           status:        'pending',
-          createdAt:     firebase.firestore.FieldValue.serverTimestamp()
+          createdAt:     firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt:     firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        await db.collection('deposits').add(depositData);
+        console.log('[DEPOSIT] Deposit data to save:', JSON.stringify({
+          ...depositData,
+          createdAt: 'serverTimestamp',
+          updatedAt: 'serverTimestamp'
+        }));
 
-        // ---- SUCCESS ----
+        const docRef = await db.collection('deposits').add(depositData);
+        console.log('[DEPOSIT] ✅ Successfully saved to Firestore. Doc ID:', docRef.id);
+
+        // ======= STEP 3: SUCCESS =======
         showToast({
           type:    'success',
           title:   '🎉 Deposit Submitted!',
-          message: 'Your deposit is under review. Balance updates after admin approval.'
+          message: 'Your deposit request is now pending admin approval.'
         });
 
         resetForm();
         loadDepositHistory();
 
       } catch (error) {
-        console.error('Deposit error:', error);
+        console.error('[DEPOSIT] ❌ Error details:');
+        console.error('  code:', error.code);
+        console.error('  message:', error.message);
+        console.error('  full error:', error);
 
         let msg = 'Something went wrong. Please try again.';
-        if (error.code === 'storage/unauthorized')   msg = 'Upload failed: Storage permission denied. Contact support.';
-        else if (error.code === 'storage/canceled')  msg = 'Upload was cancelled. Please try again.';
-        else if (error.code === 'permission-denied') msg = 'Database permission denied. Contact support.';
-        else if (error.code === 'storage/unknown')   msg = 'Network error during upload. Check your connection.';
-        else if (error.message)                      msg = error.message;
+
+        // Storage errors
+        if (error.code === 'storage/unauthorized') {
+          msg = 'Storage permission denied. Go to Firebase Console → Storage → Rules and allow authenticated users to write.';
+        } else if (error.code === 'storage/canceled') {
+          msg = 'Upload was cancelled. Please try again.';
+        } else if (error.code === 'storage/unknown') {
+          msg = 'Network error during upload. Check your internet connection and try again.';
+        } else if (error.code === 'storage/quota-exceeded') {
+          msg = 'Storage quota exceeded. Contact support.';
+        }
+        // Firestore errors
+        else if (error.code === 'permission-denied' || error.message?.includes('permission')) {
+          msg = 'Firestore permission denied. Go to Firebase Console → Firestore → Rules and allow authenticated users to create deposits.';
+        } else if (error.code === 'unavailable') {
+          msg = 'Network unavailable. Check your connection and try again.';
+        } else if (error.code === 'deadline-exceeded') {
+          msg = 'Request timed out. Check your connection and try again.';
+        } else if (error.message) {
+          msg = error.message;
+        }
 
         showToast({ type: 'error', title: 'Submission Failed', message: msg });
 
-        // Attempt to clean up orphaned file
-        try {
-          await storage.ref().child(filePath).delete();
-        } catch (_) { /* ignore cleanup error */ }
+        // Show persistent error box so user can see full error
+        showErrorBox(error.code || 'unknown', error.message || 'No message');
+
+        // Clean up orphaned uploaded file if Firestore failed
+        if (fileUrl) {
+          try {
+            await storage.ref().child(filePath).delete();
+            console.log('[DEPOSIT] Cleaned up orphaned file.');
+          } catch (_) {}
+        }
 
       } finally {
-        // ALWAYS reset button & progress regardless of success or failure
         isSubmitting = false;
         progressWrap.classList.remove('show');
         progressBar.style.width = '0%';
         progressText.textContent = '0%';
-        validateForm(); // restores button to correct state
+        validateForm();
       }
+    }
+
+    // ==================== ERROR BOX ====================
+    function showErrorBox(code, message) {
+      // Remove existing error box
+      const existing = document.getElementById('errorBox');
+      if (existing) existing.remove();
+
+      const box = document.createElement('div');
+      box.id = 'errorBox';
+      box.style.cssText = `
+        background: #FEF2F2;
+        border: 2px solid #EF4444;
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: #374151;
+      `;
+      box.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#EF4444;margin-bottom:8px;">
+          <i class="fas fa-exclamation-circle"></i>
+          Submission Error — Share this with support
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:10px;font-family:monospace;font-size:12px;word-break:break-all;">
+          <strong>Code:</strong> ${escapeHtml(String(code))}<br>
+          <strong>Message:</strong> ${escapeHtml(String(message))}
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:#6B7280;">
+          Fix: Go to <strong>Firebase Console → Firestore → Rules</strong> and add:<br>
+          <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;">allow create: if request.auth != null;</code>
+          under <code style="background:#f3f4f6;padding:2px 6px;border-radius:4px;">match /deposits/{doc}</code>
+        </div>
+        <div style="text-align:right;margin-top:8px;">
+          <span onclick="document.getElementById('errorBox').remove()" 
+            style="cursor:pointer;color:#EF4444;font-size:12px;font-weight:600;">
+            Dismiss ✕
+          </span>
+        </div>
+      `;
+
+      // Insert before submit button
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.parentNode.insertBefore(box, submitBtn);
     }
 
     // ==================== RESET FORM ====================
