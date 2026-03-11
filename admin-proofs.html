@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    /* Keep all your existing styles exactly as they were */
     * {
       margin: 0;
       padding: 0;
@@ -1217,14 +1218,18 @@
     // ==================== FORMAT DATE ====================
     function formatDate(timestamp) {
       if (!timestamp) return 'N/A';
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      try {
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch (e) {
+        return 'N/A';
+      }
     }
 
     // ==================== LOAD PROOFS ====================
@@ -1426,9 +1431,9 @@
       btn.innerHTML = '<span class="spinner"></span> Processing...';
 
       try {
-        // Run in a transaction
+        // Run in a transaction to ensure data consistency
         await db.runTransaction(async (transaction) => {
-          // Get the proof document
+          // 1. Get and verify the proof document
           const proofRef = db.collection('withdrawalProofs').doc(proofId);
           const proofDoc = await transaction.get(proofRef);
           
@@ -1437,37 +1442,43 @@
             throw new Error('This proof has already been processed');
           }
 
-          // Update proof status
+          // 2. Update proof status to approved
           transaction.update(proofRef, {
             status: 'approved',
             approvedAt: FieldValue.serverTimestamp(),
             approvedBy: currentAdmin?.uid || 'admin'
           });
 
-          // Get user's wallet
+          // 3. Get user's document to credit balance
           const userRef = db.collection('users').doc(proof.userId);
           const userDoc = await transaction.get(userRef);
           
-          if (userDoc.exists) {
-            // Update user's wallet with ₦50 reward
-            transaction.update(userRef, {
-              'wallet.balance': FieldValue.increment(50),
-              'wallet.totalEarned': FieldValue.increment(50),
-              'wallet.lastUpdated': FieldValue.serverTimestamp()
-            });
-
-            // Add transaction record
-            const transactionRef = db.collection('transactions').doc();
-            transaction.set(transactionRef, {
-              userId: proof.userId,
-              type: 'reward',
-              amount: 50,
-              description: 'Withdrawal proof approval reward',
-              status: 'completed',
-              reference: `PROOF_${proofId}`,
-              createdAt: FieldValue.serverTimestamp()
-            });
+          if (!userDoc.exists) {
+            throw new Error('User not found');
           }
+
+          // 4. Update user's balance with ₦50 reward
+          transaction.update(userRef, {
+            balance: FieldValue.increment(50),
+            totalEarned: FieldValue.increment(50),
+            lastUpdated: FieldValue.serverTimestamp()
+          });
+
+          // 5. Create transaction record
+          const transactionRef = db.collection('transactions').doc();
+          transaction.set(transactionRef, {
+            userId: proof.userId,
+            userName: proof.userName || 'User',
+            type: 'proof_reward',
+            amount: 50,
+            description: 'Withdrawal proof approval reward',
+            status: 'completed',
+            reference: `PROOF_${proofId}`,
+            proofId: proofId,
+            adminId: currentAdmin?.uid || 'admin',
+            adminName: document.getElementById('adminName').textContent || 'Admin',
+            createdAt: FieldValue.serverTimestamp()
+          });
         });
 
         // Update local data
@@ -1535,13 +1546,40 @@
       btn.innerHTML = '<span class="spinner"></span> Processing...';
 
       try {
-        // Update proof status
-        const proofRef = db.collection('withdrawalProofs').doc(currentRejectId);
-        await proofRef.update({
-          status: 'rejected',
-          rejectionReason: reason,
-          rejectedAt: FieldValue.serverTimestamp(),
-          rejectedBy: currentAdmin?.uid || 'admin'
+        // Use transaction for consistency
+        await db.runTransaction(async (transaction) => {
+          const proofRef = db.collection('withdrawalProofs').doc(currentRejectId);
+          const proofDoc = await transaction.get(proofRef);
+          
+          if (!proofDoc.exists) throw new Error('Proof not found');
+          if (proofDoc.data().status !== 'pending') {
+            throw new Error('This proof has already been processed');
+          }
+
+          // Update proof status to rejected
+          transaction.update(proofRef, {
+            status: 'rejected',
+            rejectionReason: reason,
+            rejectedAt: FieldValue.serverTimestamp(),
+            rejectedBy: currentAdmin?.uid || 'admin'
+          });
+
+          // Create transaction record for rejection
+          const transactionRef = db.collection('transactions').doc();
+          transaction.set(transactionRef, {
+            userId: proof.userId,
+            userName: proof.userName || 'User',
+            type: 'proof_rejected',
+            amount: 0,
+            description: 'Withdrawal proof rejected',
+            status: 'rejected',
+            reference: `PROOF_${currentRejectId}`,
+            proofId: currentRejectId,
+            rejectionReason: reason,
+            adminId: currentAdmin?.uid || 'admin',
+            adminName: document.getElementById('adminName').textContent || 'Admin',
+            createdAt: FieldValue.serverTimestamp()
+          });
         });
 
         // Update local data
@@ -1590,26 +1628,21 @@
       if (!currentAdmin) return;
 
       try {
-        const adminDoc = await db.collection('admins').doc(currentAdmin.uid).get();
-        if (adminDoc.exists) {
+        const adminDoc = await db.collection('users').doc(currentAdmin.uid).get();
+        if (adminDoc.exists && adminDoc.data().isAdmin) {
           const adminData = adminDoc.data();
           document.getElementById('adminName').textContent = adminData.fullName || 'Admin';
           document.getElementById('adminAvatar').textContent = (adminData.fullName || 'A').charAt(0).toUpperCase();
         } else {
-          // If not in admins collection, check if user is admin by email
-          if (currentAdmin.email === 'admin@primevest.com' || currentAdmin.email.includes('admin')) {
-            document.getElementById('adminName').textContent = 'Admin User';
-          } else {
-            // Not an admin - redirect
-            showToast({
-              type: 'error',
-              title: 'Access Denied',
-              message: 'You do not have admin privileges'
-            });
-            setTimeout(() => {
-              window.location.href = 'home.html';
-            }, 2000);
-          }
+          // Not an admin - redirect
+          showToast({
+            type: 'error',
+            title: 'Access Denied',
+            message: 'You do not have admin privileges'
+          });
+          setTimeout(() => {
+            window.location.href = 'home.html';
+          }, 2000);
         }
       } catch (error) {
         console.error('Error loading admin data:', error);
