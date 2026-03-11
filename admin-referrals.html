@@ -71,30 +71,37 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: var(--gray-50);
       color: var(--gray-800);
-      display: flex;
+      min-height: 100vh;
       overflow-x: hidden;
     }
 
     /* ===== SIDEBAR ===== */
     .sidebar {
-      width: var(--sidebar-width);
-      background: linear-gradient(180deg, var(--white), var(--gray-50));
-      border-right: 1px solid var(--gray-200);
-      height: 100vh;
       position: fixed;
-      left: 0;
       top: 0;
-      overflow-y: auto;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: var(--white);
+      border-right: 1px solid var(--gray-200);
       padding: 24px 16px;
-      z-index: 100;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+      z-index: 1000;
     }
 
-    .sidebar-logo {
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding: 0 8px;
+    }
+
+    .logo-area {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 0 12px;
-      margin-bottom: 32px;
     }
 
     .logo-icon {
@@ -110,77 +117,126 @@
     }
 
     .logo-text {
-      font-size: 20px;
       font-weight: 700;
+      font-size: 18px;
       color: var(--gray-800);
     }
+    .logo-text span { color: var(--primary); }
 
-    .logo-text span {
-      color: var(--primary);
+    .close-sidebar {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      background: var(--gray-100);
+      border: none;
+      color: var(--gray-600);
+      cursor: pointer;
+      font-size: 16px;
     }
 
-    .sidebar-menu {
-      list-style: none;
-    }
-
-    .menu-item {
-      margin-bottom: 8px;
-    }
-
-    .menu-link {
+    .admin-profile {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 16px;
+      padding: 16px 8px;
+      background: var(--primary-soft);
+      border-radius: var(--radius-xl);
+      margin-bottom: 24px;
+    }
+
+    .admin-avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .admin-info h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .admin-info p {
+      font-size: 12px;
+      color: var(--gray-500);
+    }
+
+    .nav-section {
+      margin-bottom: 24px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--gray-400);
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
       border-radius: var(--radius-lg);
       color: var(--gray-600);
       text-decoration: none;
       transition: all 0.2s;
-      font-weight: 500;
+      margin-bottom: 4px;
     }
 
-    .menu-link i {
-      width: 22px;
-      font-size: 18px;
-    }
-
-    .menu-link:hover {
-      background: var(--primary-soft);
+    .nav-item:hover {
+      background: var(--gray-50);
       color: var(--primary);
     }
 
-    .menu-link.active {
-      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
-      color: white;
-      box-shadow: 0 4px 12px rgba(30,123,75,0.2);
+    .nav-item.active {
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 600;
     }
 
-    .menu-divider {
-      height: 1px;
-      background: var(--gray-200);
-      margin: 20px 0;
+    .nav-item i {
+      width: 20px;
+      font-size: 18px;
     }
 
-    .menu-badge {
+    .nav-item .badge {
       margin-left: auto;
       background: var(--error);
       color: white;
-      font-size: 11px;
       padding: 2px 8px;
       border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
     }
 
     /* ===== MAIN CONTENT ===== */
     .main-content {
-      flex: 1;
       margin-left: var(--sidebar-width);
+      transition: margin-left 0.3s ease;
       min-height: 100vh;
     }
 
-    /* ===== TOP BAR ===== */
-    .top-bar {
+    .main-content.expanded {
+      margin-left: 0;
+    }
+
+    /* Header */
+    .header {
       height: var(--header-height);
-      background: white;
+      background: var(--white);
       border-bottom: 1px solid var(--gray-200);
       padding: 0 24px;
       display: flex;
@@ -188,67 +244,73 @@
       justify-content: space-between;
       position: sticky;
       top: 0;
-      z-index: 90;
+      z-index: 100;
     }
 
-    .page-title h1 {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--gray-800);
-    }
-
-    .page-title span {
-      color: var(--primary);
-      font-size: 14px;
-      font-weight: 400;
-      margin-left: 12px;
-    }
-
-    .top-bar-right {
+    .header-left {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
     }
 
-    .admin-profile {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .admin-avatar {
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
+    .menu-toggle {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--gray-100);
+      border: none;
+      color: var(--gray-600);
+      cursor: pointer;
       font-size: 18px;
+      display: none;
     }
 
-    .admin-info {
-      line-height: 1.4;
-    }
-
-    .admin-name {
+    .page-title {
+      font-size: 20px;
       font-weight: 600;
       color: var(--gray-800);
     }
 
-    .admin-role {
-      font-size: 12px;
-      color: var(--gray-500);
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
 
-    /* ===== CONTENT AREA ===== */
+    .date-badge {
+      background: var(--gray-100);
+      border-radius: var(--radius-full);
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-600);
+    }
+
+    .logout-btn {
+      padding: 8px 20px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: var(--radius-full);
+      color: var(--error);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239,68,68,0.15);
+    }
+
+    /* Content Area */
     .content-area {
       padding: 24px;
     }
 
-    /* ===== STATS CARDS ===== */
+    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -257,81 +319,51 @@
     }
 
     .stat-card {
-      background: white;
+      background: var(--white);
       border-radius: var(--radius-xl);
       padding: 20px;
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--gray-100);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-header {
       display: flex;
       align-items: center;
-      gap: 16px;
+      justify-content: space-between;
+      margin-bottom: 12px;
     }
 
     .stat-icon {
-      width: 54px;
-      height: 54px;
+      width: 48px;
+      height: 48px;
       background: var(--primary-soft);
-      border-radius: 18px;
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--primary);
-      font-size: 24px;
+      font-size: 22px;
     }
 
-    .stat-info h3 {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--gray-500);
-      margin-bottom: 4px;
-    }
-
-    .stat-number {
+    .stat-value {
       font-size: 28px;
       font-weight: 700;
       color: var(--gray-800);
-      line-height: 1.2;
+      margin-bottom: 4px;
     }
 
     .stat-label {
-      font-size: 12px;
-      color: var(--gray-400);
+      font-size: 13px;
+      color: var(--gray-500);
     }
 
-    /* ===== CHARTS ROW ===== */
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 24px;
-    }
-
-    .chart-card {
-      background: white;
-      border-radius: var(--radius-xl);
-      padding: 20px;
-      border: 1px solid var(--gray-100);
-    }
-
-    .chart-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .chart-header h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--gray-700);
-    }
-
-    .chart-container {
-      height: 250px;
-      position: relative;
-    }
-
-    /* ===== COMMISSION BANNER ===== */
+    /* Commission Banner */
     .commission-banner {
       background: linear-gradient(145deg, var(--primary), var(--primary-dark));
       border-radius: var(--radius-xl);
@@ -386,78 +418,42 @@
       opacity: 0.7;
     }
 
-    /* ===== FILTER BAR ===== */
-    .filter-bar {
-      background: white;
+    /* Charts Row */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: var(--white);
       border-radius: var(--radius-xl);
       padding: 20px;
-      margin-bottom: 24px;
       border: 1px solid var(--gray-100);
+    }
+
+    .chart-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
+      margin-bottom: 16px;
     }
 
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--gray-50);
-      border-radius: var(--radius-full);
-      padding: 8px 16px;
-      border: 1px solid var(--gray-200);
-      flex: 1;
-      max-width: 300px;
+    .chart-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--gray-700);
     }
 
-    .search-box i {
-      color: var(--gray-400);
+    .chart-container {
+      height: 250px;
+      position: relative;
     }
 
-    .search-box input {
-      border: none;
-      background: none;
-      outline: none;
-      font-size: 14px;
-      width: 100%;
-    }
-
-    .search-box input::placeholder {
-      color: var(--gray-400);
-    }
-
-    .filter-buttons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .filter-btn {
-      padding: 8px 16px;
-      border-radius: var(--radius-full);
-      background: var(--gray-100);
-      color: var(--gray-600);
-      font-weight: 500;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
-
-    .filter-btn:hover {
-      background: var(--gray-200);
-    }
-
-    .filter-btn.active {
-      background: var(--primary);
-      color: white;
-    }
-
-    /* ===== TOP REFERRERS ===== */
+    /* Top Referrers */
     .top-referrers {
-      background: white;
+      background: var(--white);
       border-radius: var(--radius-xl);
       padding: 20px;
       margin-bottom: 24px;
@@ -527,6 +523,19 @@
       color: white;
     }
 
+    .top-referrer-avatar {
+      width: 44px;
+      height: 44px;
+      background: var(--primary-soft);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 18px;
+    }
+
     .top-referrer-info {
       flex: 1;
     }
@@ -557,31 +566,98 @@
       color: var(--success);
     }
 
-    /* ===== USERS REFERRAL TABLE ===== */
-    .users-table-container {
-      background: white;
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin-bottom: 24px;
+      border: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gray-50);
+      border-radius: var(--radius-full);
+      padding: 8px 16px;
+      border: 1px solid var(--gray-200);
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .search-box i {
+      color: var(--gray-400);
+    }
+
+    .search-box input {
+      border: none;
+      background: none;
+      outline: none;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      background: var(--gray-100);
+      color: var(--gray-600);
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .filter-btn:hover {
+      background: var(--gray-200);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Users Table */
+    .table-container {
+      background: var(--white);
       border-radius: var(--radius-xl);
       padding: 20px;
       border: 1px solid var(--gray-100);
       overflow-x: auto;
     }
 
-    .users-table {
+    table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1000px;
+      min-width: 1200px;
     }
 
-    .users-table th {
+    th {
       text-align: left;
       padding: 16px 12px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       border-bottom: 1px solid var(--gray-200);
     }
 
-    .users-table td {
+    td {
       padding: 16px 12px;
       font-size: 14px;
       border-bottom: 1px solid var(--gray-100);
@@ -617,14 +693,8 @@
       color: var(--gray-500);
     }
 
-    .level-badges {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
     .level-badge-small {
-      padding: 2px 8px;
+      padding: 4px 8px;
       border-radius: var(--radius-full);
       font-size: 11px;
       font-weight: 600;
@@ -670,7 +740,47 @@
       color: white;
     }
 
-    /* ===== REFERRAL TREE MODAL ===== */
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .page-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      color: var(--gray-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .page-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Modal */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -682,7 +792,8 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 10000;
+      padding: 20px;
     }
 
     .modal-overlay.show {
@@ -690,13 +801,12 @@
     }
 
     .modal-card {
-      background: white;
+      background: var(--white);
       border-radius: var(--radius-2xl);
       width: 90%;
       max-width: 900px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: var(--shadow-xl);
     }
 
     .modal-header {
@@ -945,40 +1055,7 @@
       margin-bottom: 16px;
     }
 
-    /* ===== PAGINATION ===== */
-    .pagination {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 24px;
-    }
-
-    .page-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: white;
-      border: 1px solid var(--gray-200);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .page-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .page-btn.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-    }
-
-    /* ===== TOAST ===== */
+    /* Toast */
     .toast-container {
       position: fixed;
       top: 20px;
@@ -987,10 +1064,11 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      pointer-events: none;
     }
 
     .toast {
-      background: white;
+      background: var(--white);
       border-radius: var(--radius-lg);
       padding: 14px 18px;
       box-shadow: var(--shadow-lg);
@@ -1000,8 +1078,9 @@
       min-width: 300px;
       max-width: 380px;
       transform: translateX(120%);
-      transition: transform 0.3s;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       border-left: 4px solid;
+      pointer-events: auto;
     }
 
     .toast.show {
@@ -1021,35 +1100,19 @@
       align-items: center;
       justify-content: center;
       font-size: 18px;
+      flex-shrink: 0;
     }
 
-    .toast.success .toast-icon {
-      background: rgba(16,185,129,0.1);
-      color: var(--success);
-    }
+    .toast.success .toast-icon { background: rgba(16,185,129,0.1); color: var(--success); }
+    .toast.error .toast-icon { background: rgba(239,68,68,0.1); color: var(--error); }
+    .toast.warning .toast-icon { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .toast.info .toast-icon { background: rgba(30,123,75,0.1); color: var(--primary); }
 
-    .toast-content {
-      flex: 1;
-    }
+    .toast-content { flex: 1; }
+    .toast-title { font-weight: 600; font-size: 14px; color: var(--gray-800); }
+    .toast-message { font-size: 12px; color: var(--gray-500); }
+    .toast-close { color: var(--gray-400); cursor: pointer; padding: 4px; }
 
-    .toast-title {
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--gray-800);
-      margin-bottom: 2px;
-    }
-
-    .toast-message {
-      font-size: 12px;
-      color: var(--gray-500);
-    }
-
-    .toast-close {
-      color: var(--gray-400);
-      cursor: pointer;
-    }
-
-    /* Loading Spinner */
     .spinner {
       width: 18px;
       height: 18px;
@@ -1073,46 +1136,46 @@
       color: var(--gray-500);
     }
 
-    /* ===== RESPONSIVE ===== */
+    /* Responsive */
     @media (max-width: 1024px) {
-      .sidebar {
-        width: 80px;
-        padding: 24px 8px;
-      }
-
-      .sidebar-logo .logo-text,
-      .menu-link span {
-        display: none;
-      }
-
-      .menu-link {
-        justify-content: center;
-        padding: 12px;
-      }
-
-      .menu-link i {
-        width: auto;
-        font-size: 20px;
-      }
-
-      .main-content {
-        margin-left: 80px;
-      }
-
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-
+      
       .charts-row {
         grid-template-columns: 1fr;
       }
-
+      
       .top-referrers-grid {
         grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(calc(var(--sidebar-width) * -1));
+      }
+      
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .menu-toggle {
+        display: block;
+      }
+      
+      .close-sidebar {
+        display: block;
+      }
+      
+      .date-badge {
+        display: none;
+      }
+      
       .filter-bar {
         flex-direction: column;
         align-items: stretch;
@@ -1121,15 +1184,29 @@
       .search-box {
         max-width: 100%;
       }
+    }
 
+    @media (max-width: 480px) {
       .stats-grid {
         grid-template-columns: 1fr;
       }
-
-      .admin-info {
+      
+      .content-area {
+        padding: 16px;
+      }
+      
+      .header {
+        padding: 0 16px;
+      }
+      
+      .logout-btn span {
         display: none;
       }
-
+      
+      .logout-btn {
+        padding: 8px 12px;
+      }
+      
       .commission-banner {
         flex-direction: column;
         align-items: flex-start;
@@ -1144,153 +1221,171 @@
 </head>
 <body>
 
-  <!-- ===== SIDEBAR ===== -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">
-        <i class="fas fa-chart-line"></i>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Logout Modal -->
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal-card" style="max-width: 360px;">
+      <div class="modal-header">
+        <h2>Logout</h2>
+        <div class="modal-close" onclick="closeLogoutModal()">
+          <i class="fas fa-times"></i>
+        </div>
       </div>
-      <span class="logo-text">Prime<span>vest</span></span>
-    </div>
-
-    <ul class="sidebar-menu">
-      <li class="menu-item">
-        <a href="admin-dashboard.html" class="menu-link">
-          <i class="fas fa-home"></i>
-          <span>Dashboard</span>
-        </a>
-      </li>
-      <li class="menu-item">
-        <a href="admin-users.html" class="menu-link">
-          <i class="fas fa-users"></i>
-          <span>Users</span>
-        </a>
-      </li>
-      <li class="menu-item">
-        <a href="admin-deposits.html" class="menu-link">
-          <i class="fas fa-arrow-down"></i>
-          <span>Deposits</span>
-          <span class="menu-badge" id="pendingDepositsBadge">0</span>
-        </a>
-      </li>
-      <li class="menu-item">
-        <a href="admin-withdrawals.html" class="menu-link">
-          <i class="fas fa-arrow-up"></i>
-          <span>Withdrawals</span>
-          <span class="menu-badge" id="pendingWithdrawalsBadge">0</span>
-        </a>
-      </li>
-      <li class="menu-item">
-        <a href="admin-investments.html" class="menu-link">
-          <i class="fas fa-chart-pie"></i>
-          <span>Investments</span>
-        </a>
-      </li>
-      <li class="menu-item">
-        <a href="admin-transactions.html" class="menu-link">
-          <i class="fas fa-history"></i>
-          <span>Transactions</span>
-        </a>
-      </li>
-      <li class="menu-item">
-        <a href="admin-referrals.html" class="menu-link active">
-          <i class="fas fa-gift"></i>
-          <span>Referrals</span>
-        </a>
-      </li>
-
-      <div class="menu-divider"></div>
-
-      <li class="menu-item">
-        <a href="admin-settings.html" class="menu-link">
-          <i class="fas fa-cog"></i>
-          <span>Settings</span>
-        </a>
-      </li>
-      <li class="menu-item">
-        <a href="admin-reports.html" class="menu-link">
-          <i class="fas fa-file-alt"></i>
-          <span>Reports</span>
-        </a>
-      </li>
-
-      <div class="menu-divider"></div>
-
-      <li class="menu-item">
-        <a href="#" onclick="logout()" class="menu-link">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Logout</span>
-        </a>
-      </li>
-    </ul>
-  </aside>
-
-  <!-- ===== MAIN CONTENT ===== -->
-  <div class="main-content">
-    <!-- ===== TOP BAR ===== -->
-    <div class="top-bar">
-      <div class="page-title">
-        <h1>Referral Management</h1>
-        <span>Monitor referral network & earnings</span>
-      </div>
-
-      <div class="top-bar-right">
-        <div class="admin-profile">
-          <div class="admin-avatar" id="adminAvatar">A</div>
-          <div class="admin-info">
-            <div class="admin-name" id="adminName">Admin</div>
-            <div class="admin-role">Administrator</div>
-          </div>
+      <div class="modal-body">
+        <p style="text-align: center; margin-bottom: 24px;">Are you sure you want to logout?</p>
+        <div style="display: flex; gap: 12px;">
+          <button class="action-btn" style="flex: 1; background: var(--error); color: white;" onclick="confirmLogout()">Yes, Logout</button>
+          <button class="action-btn" style="flex: 1;" onclick="closeLogoutModal()">Cancel</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ===== CONTENT AREA ===== -->
+  <!-- Referral Tree Modal -->
+  <div class="modal-overlay" id="referralTreeModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Referral Tree</h2>
+        <div class="modal-close" onclick="closeModal('referralTreeModal')">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <div class="modal-body" id="referralTreeBody">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="logo-text">Prime<span>vest</span></div>
+      </div>
+      <button class="close-sidebar" onclick="toggleSidebar()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="admin-profile">
+      <div class="admin-avatar" id="adminAvatar">A</div>
+      <div class="admin-info">
+        <h4 id="adminName">Admin User</h4>
+        <p id="adminEmail">admin@primevest.com</p>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="admin-dashboard.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="admin-users.html" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span>Users</span>
+      </a>
+      <a href="admin-deposits.html" class="nav-item">
+        <i class="fas fa-arrow-down"></i>
+        <span>Deposits</span>
+        <span class="badge" id="pendingDepositsBadge">0</span>
+      </a>
+      <a href="admin-withdrawals.html" class="nav-item">
+        <i class="fas fa-arrow-up"></i>
+        <span>Withdrawals</span>
+        <span class="badge" id="pendingWithdrawalsBadge">0</span>
+      </a>
+      <a href="admin-investments.html" class="nav-item">
+        <i class="fas fa-chart-pie"></i>
+        <span>Investments</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Management</div>
+      <a href="admin-referrals.html" class="nav-item active">
+        <i class="fas fa-gift"></i>
+        <span>Referrals</span>
+      </a>
+      <a href="admin-transactions.html" class="nav-item">
+        <i class="fas fa-history"></i>
+        <span>Transactions</span>
+      </a>
+      <a href="admin-plans.html" class="nav-item">
+        <i class="fas fa-box"></i>
+        <span>Plans</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Settings</div>
+      <a href="admin-settings.html" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </a>
+      <a href="admin-logs.html" class="nav-item">
+        <i class="fas fa-clipboard-list"></i>
+        <span>Activity Logs</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h2 class="page-title">Referral Management</h2>
+      </div>
+      <div class="header-right">
+        <div class="date-badge" id="currentDateTime"></div>
+        <button class="logout-btn" onclick="showLogoutModal()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Area -->
     <div class="content-area">
       <!-- Stats Cards -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-users"></i>
+          <div class="stat-header">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
           </div>
-          <div class="stat-info">
-            <h3>Total Referrals</h3>
-            <div class="stat-number" id="totalReferrals">0</div>
-            <div class="stat-label">Across all levels</div>
-          </div>
+          <div class="stat-value" id="totalReferrals">0</div>
+          <div class="stat-label">Total Referrals</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--gold);">
-            <i class="fas fa-crown"></i>
+          <div class="stat-header">
+            <div class="stat-icon" style="color: var(--gold);"><i class="fas fa-crown"></i></div>
           </div>
-          <div class="stat-info">
-            <h3>Level A (25%)</h3>
-            <div class="stat-number" id="levelACount">0</div>
-            <div class="stat-label">Direct referrals</div>
-          </div>
+          <div class="stat-value" id="levelACount">0</div>
+          <div class="stat-label">Level A (25%)</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(148,163,184,0.1); color: var(--silver);">
-            <i class="fas fa-users"></i>
+          <div class="stat-header">
+            <div class="stat-icon" style="color: var(--silver);"><i class="fas fa-users"></i></div>
           </div>
-          <div class="stat-info">
-            <h3>Level B (2%)</h3>
-            <div class="stat-number" id="levelBCount">0</div>
-            <div class="stat-label">2nd level</div>
-          </div>
+          <div class="stat-value" id="levelBCount">0</div>
+          <div class="stat-label">Level B (2%)</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(205,127,50,0.1); color: var(--bronze);">
-            <i class="fas fa-users"></i>
+          <div class="stat-header">
+            <div class="stat-icon" style="color: var(--bronze);"><i class="fas fa-users"></i></div>
           </div>
-          <div class="stat-info">
-            <h3>Level C (1%)</h3>
-            <div class="stat-number" id="levelCCount">0</div>
-            <div class="stat-label">3rd level</div>
-          </div>
+          <div class="stat-value" id="levelCCount">0</div>
+          <div class="stat-label">Level C (1%)</div>
         </div>
       </div>
 
@@ -1331,21 +1426,24 @@
         </div>
         <div class="chart-card">
           <div class="chart-header">
-            <h3>Top Referrers</h3>
+            <h3>Commission Distribution</h3>
           </div>
           <div class="chart-container">
-            <canvas id="topReferrersChart"></canvas>
+            <canvas id="commissionChart"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- Top Referrers List -->
+      <!-- Top Referrers -->
       <div class="top-referrers">
         <div class="section-header">
           <h2><i class="fas fa-crown" style="color: var(--gold);"></i> Top Referrers</h2>
         </div>
         <div class="top-referrers-grid" id="topReferrersList">
-          <!-- Will be populated by JS -->
+          <div class="loading-state" style="grid-column: 1/-1;">
+            <div class="spinner" style="width: 30px; height: 30px; margin: 0 auto;"></div>
+            <p>Loading top referrers...</p>
+          </div>
         </div>
       </div>
 
@@ -1353,18 +1451,18 @@
       <div class="filter-bar">
         <div class="search-box">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search users by name or email..." id="searchInput" onkeyup="searchUsers()">
+          <input type="text" placeholder="Search users by name, email or code..." id="searchInput" onkeyup="searchUsers()">
         </div>
         <div class="filter-buttons">
-          <button class="filter-btn active" onclick="filterUsers('all')">All</button>
-          <button class="filter-btn" onclick="filterUsers('with-referrals')">With Referrals</button>
-          <button class="filter-btn" onclick="filterUsers('no-referrals')">No Referrals</button>
+          <button class="filter-btn active" onclick="filterUsers('all', this)">All Users</button>
+          <button class="filter-btn" onclick="filterUsers('with-referrals', this)">With Referrals</button>
+          <button class="filter-btn" onclick="filterUsers('no-referrals', this)">No Referrals</button>
         </div>
       </div>
 
-      <!-- Users Referral Table -->
-      <div class="users-table-container">
-        <table class="users-table" id="usersTable">
+      <!-- Users Table -->
+      <div class="table-container">
+        <table>
           <thead>
             <tr>
               <th>User</th>
@@ -1372,14 +1470,13 @@
               <th>Level A</th>
               <th>Level B</th>
               <th>Level C</th>
-              <th>Total Referrals</th>
-              <th>Total Invested</th>
-              <th>Commission Earned</th>
+              <th>Total</th>
+              <th>Team Investment</th>
+              <th>Commission</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="usersTableBody">
-            <!-- Data will be populated by JavaScript -->
             <tr>
               <td colspan="9" style="text-align: center; padding: 40px;">
                 <div class="loading-state">
@@ -1394,30 +1491,16 @@
 
       <!-- Pagination -->
       <div class="pagination" id="pagination">
-        <button class="page-btn" onclick="changePage('prev')"><i class="fas fa-chevron-left"></i></button>
+        <button class="page-btn" onclick="changePage('prev')" id="prevPage" disabled>
+          <i class="fas fa-chevron-left"></i>
+        </button>
         <div id="pageNumbers"></div>
-        <button class="page-btn" onclick="changePage('next')"><i class="fas fa-chevron-right"></i></button>
+        <button class="page-btn" onclick="changePage('next')" id="nextPage" disabled>
+          <i class="fas fa-chevron-right"></i>
+        </button>
       </div>
     </div>
   </div>
-
-  <!-- ===== REFERRAL TREE MODAL ===== -->
-  <div class="modal-overlay" id="referralTreeModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2>Referral Tree</h2>
-        <div class="modal-close" onclick="closeModal('referralTreeModal')">
-          <i class="fas fa-times"></i>
-        </div>
-      </div>
-      <div class="modal-body" id="referralTreeBody">
-        <!-- Dynamic content -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
 
   <script>
     // ==================== FIREBASE CONFIG ====================
@@ -1437,13 +1520,14 @@
 
     // ==================== GLOBAL VARIABLES ====================
     let currentAdmin = null;
+    let adminData = null;
     let allUsers = [];
     let filteredUsers = [];
     let currentPage = 1;
-    const itemsPerPage = 10;
+    let itemsPerPage = 10;
     let currentFilter = 'all';
     let levelChart = null;
-    let topReferrersChart = null;
+    let commissionChart = null;
 
     // ==================== TOAST SYSTEM ====================
     function showToast({ type = 'info', title, message, duration = 4000 }) {
@@ -1482,14 +1566,39 @@
       }
     }
 
-    // ==================== MODAL FUNCTIONS ====================
-    function openModal(modalId) {
-      document.getElementById(modalId).classList.add('show');
+    // ==================== SIDEBAR TOGGLE ====================
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
     }
 
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
+    // ==================== LOGOUT MODAL ====================
+    function showLogoutModal() {
+      document.getElementById('logoutModal').classList.add('show');
     }
+
+    function closeLogoutModal() {
+      document.getElementById('logoutModal').classList.remove('show');
+    }
+
+    async function confirmLogout() {
+      closeLogoutModal();
+      showToast({ type: 'info', title: 'Logging out...', message: 'Please wait' });
+      try {
+        await auth.signOut();
+        window.location.href = 'admin-login.html';
+      } catch (error) {
+        showToast({ type: 'error', title: 'Error', message: 'Failed to logout' });
+      }
+    }
+
+    // ==================== UPDATE DATE/TIME ====================
+    function updateDateTime() {
+      const now = new Date();
+      const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+      document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
 
     // ==================== FORMAT MONEY ====================
     function formatMoney(amount) {
@@ -1502,6 +1611,8 @@
     // ==================== LOAD ALL USERS ====================
     async function loadUsers() {
       try {
+        console.log('Loading users...');
+        
         const snapshot = await db.collection('users').get();
         
         allUsers = [];
@@ -1512,43 +1623,63 @@
           const userData = doc.data();
           userData.id = doc.id;
 
-          // Get referral counts
+          // Get Level A (direct referrals)
           const levelASnap = await db.collection('users')
             .where('referrerUid', '==', doc.id)
             .get();
           
           const levelACount = levelASnap.size;
           
-          // Get level B and C counts (simplified - would need recursive queries in production)
-          // For now, we'll use stored counts from user document
-          const levelBCount = userData.level2Count || 0;
-          const levelCCount = userData.level3Count || 0;
+          // Calculate Level B and C counts
+          let levelBCount = 0;
+          let levelCCount = 0;
+          let totalTeamInvested = 0;
+
+          // For each level A, get their referrals (level B)
+          for (const aDoc of levelASnap.docs) {
+            const levelBSnap = await db.collection('users')
+              .where('referrerUid', '==', aDoc.id)
+              .get();
+            
+            levelBCount += levelBSnap.size;
+
+            // For each level B, get their referrals (level C)
+            for (const bDoc of levelBSnap.docs) {
+              const levelCSnap = await db.collection('users')
+                .where('referrerUid', '==', bDoc.id)
+                .get();
+              
+              levelCCount += levelCSnap.size;
+            }
+          }
+
+          // Get total invested by all referrals
+          const investmentsSnap = await db.collection('investments')
+            .where('userId', 'in', [doc.id, ...levelASnap.docs.map(d => d.id)])
+            .get();
           
+          investmentsSnap.forEach(inv => {
+            totalTeamInvested += inv.data().amount || 0;
+          });
+
+          // Get commission earned
+          let commissionEarned = 0;
+          const commissionSnap = await db.collection('transactions')
+            .where('userId', '==', doc.id)
+            .where('type', '==', 'referral_bonus')
+            .get();
+          
+          commissionSnap.forEach(t => {
+            commissionEarned += t.data().amount || 0;
+          });
+
           userData.referralStats = {
             levelA: levelACount,
             levelB: levelBCount,
             levelC: levelCCount,
             total: levelACount + levelBCount + levelCCount
           };
-
-          // Get total invested by referrals
-          let totalInvested = 0;
-          const levelADocs = levelASnap.docs;
-          for (const refDoc of levelADocs) {
-            totalInvested += refDoc.data().totalInvested || 0;
-          }
-          userData.referralInvested = totalInvested;
-
-          // Get commission earned
-          const commissionSnap = await db.collection('transactions')
-            .where('userId', '==', doc.id)
-            .where('type', '==', 'referral_bonus')
-            .get();
-          
-          let commissionEarned = 0;
-          commissionSnap.forEach(t => {
-            commissionEarned += t.data().amount || 0;
-          });
+          userData.teamInvested = totalTeamInvested;
           userData.commissionEarned = commissionEarned;
 
           // Update totals
@@ -1559,6 +1690,8 @@
 
           allUsers.push(userData);
         }
+
+        console.log('Users loaded:', allUsers.length);
 
         // Update stats
         document.getElementById('totalReferrals').textContent = totalReferrals;
@@ -1578,13 +1711,17 @@
         showToast({
           type: 'error',
           title: 'Error',
-          message: 'Failed to load users'
+          message: 'Failed to load users: ' + error.message
         });
       }
     }
 
     // ==================== UPDATE CHARTS ====================
     function updateCharts() {
+      const levelA = parseInt(document.getElementById('levelACount').textContent);
+      const levelB = parseInt(document.getElementById('levelBCount').textContent);
+      const levelC = parseInt(document.getElementById('levelCCount').textContent);
+
       // Level Chart
       const levelCtx = document.getElementById('levelChart').getContext('2d');
       if (levelChart) levelChart.destroy();
@@ -1594,12 +1731,8 @@
         data: {
           labels: ['Level A (25%)', 'Level B (2%)', 'Level C (1%)'],
           datasets: [{
-            data: [
-              parseInt(document.getElementById('levelACount').textContent),
-              parseInt(document.getElementById('levelBCount').textContent),
-              parseInt(document.getElementById('levelCCount').textContent)
-            ],
-            backgroundColor: [var(--gold), var(--silver), var(--bronze)],
+            data: [levelA, levelB, levelC],
+            backgroundColor: ['#F59E0B', '#94A3B8', '#CD7F32'],
             borderWidth: 0
           }]
         },
@@ -1607,47 +1740,37 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: {
-              position: 'bottom'
-            }
+            legend: { position: 'bottom' }
           }
         }
       });
 
-      // Top Referrers Chart
-      const topReferrers = allUsers
-        .filter(u => u.referralStats?.total > 0)
-        .slice(0, 5);
-
-      const topCtx = document.getElementById('topReferrersChart').getContext('2d');
-      if (topReferrersChart) topReferrersChart.destroy();
+      // Commission Chart
+      const commissionCtx = document.getElementById('commissionChart').getContext('2d');
+      if (commissionChart) commissionChart.destroy();
       
-      topReferrersChart = new Chart(topCtx, {
-        type: 'bar',
+      // Calculate total commissions by level (simplified)
+      const totalCommission = allUsers.reduce((sum, u) => sum + (u.commissionEarned || 0), 0);
+      
+      commissionChart = new Chart(commissionCtx, {
+        type: 'pie',
         data: {
-          labels: topReferrers.map(u => u.fullName?.split(' ')[0] || u.username || 'User'),
+          labels: ['Level A (25%)', 'Level B (2%)', 'Level C (1%)'],
           datasets: [{
-            label: 'Referrals',
-            data: topReferrers.map(u => u.referralStats?.total || 0),
-            backgroundColor: 'rgba(30,123,75,0.8)',
-            borderRadius: 8
+            data: [
+              totalCommission * 0.25,
+              totalCommission * 0.02,
+              totalCommission * 0.01
+            ],
+            backgroundColor: ['#F59E0B', '#94A3B8', '#CD7F32'],
+            borderWidth: 0
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                display: false
-              }
-            }
+            legend: { position: 'bottom' }
           }
         }
       });
@@ -1662,7 +1785,7 @@
       const container = document.getElementById('topReferrersList');
       
       if (topReferrers.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--gray-500);">No referrers yet</p>';
+        container.innerHTML = '<p style="text-align: center; color: var(--gray-500); padding: 40px;">No referrers yet</p>';
         return;
       }
 
@@ -1675,7 +1798,7 @@
         html += `
           <div class="top-referrer-card">
             <div class="rank-badge ${ranks[index]}">#${index + 1}</div>
-            <div class="user-avatar" style="width: 44px; height: 44px; font-size: 18px;">${initial}</div>
+            <div class="top-referrer-avatar">${initial}</div>
             <div class="top-referrer-info">
               <h4>${user.fullName || user.username || 'User'}</h4>
               <p>${user.email || ''}</p>
@@ -1692,14 +1815,14 @@
     }
 
     // ==================== FILTER USERS ====================
-    function filterUsers(filter) {
+    function filterUsers(filter, element) {
       currentFilter = filter;
       currentPage = 1;
 
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
       });
-      event.currentTarget.classList.add('active');
+      element.classList.add('active');
 
       applyFilter();
     }
@@ -1708,9 +1831,9 @@
       if (currentFilter === 'all') {
         filteredUsers = [...allUsers];
       } else if (currentFilter === 'with-referrals') {
-        filteredUsers = allUsers.filter(u => u.referralStats?.total > 0);
+        filteredUsers = allUsers.filter(u => (u.referralStats?.total || 0) > 0);
       } else if (currentFilter === 'no-referrals') {
-        filteredUsers = allUsers.filter(u => !u.referralStats?.total);
+        filteredUsers = allUsers.filter(u => (u.referralStats?.total || 0) === 0);
       }
 
       renderTable();
@@ -1733,6 +1856,7 @@
         (u.referralCode && u.referralCode.toLowerCase().includes(searchTerm))
       );
 
+      currentPage = 1;
       renderTable();
       renderPagination();
     }
@@ -1753,7 +1877,6 @@
         return;
       }
 
-      // Pagination
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = Math.min(startIndex + itemsPerPage, filteredUsers.length);
       const pageItems = filteredUsers.slice(startIndex, endIndex);
@@ -1776,27 +1899,15 @@
               </div>
             </td>
             <td><code>${user.referralCode || 'N/A'}</code></td>
-            <td>
-              <span class="level-badge-small level-a-badge">
-                ${stats.levelA}
-              </span>
-            </td>
-            <td>
-              <span class="level-badge-small level-b-badge">
-                ${stats.levelB}
-              </span>
-            </td>
-            <td>
-              <span class="level-badge-small level-c-badge">
-                ${stats.levelC}
-              </span>
-            </td>
+            <td><span class="level-badge-small level-a-badge">${stats.levelA}</span></td>
+            <td><span class="level-badge-small level-b-badge">${stats.levelB}</span></td>
+            <td><span class="level-badge-small level-c-badge">${stats.levelC}</span></td>
             <td><strong>${stats.total}</strong></td>
-            <td>₦${formatMoney(user.referralInvested || 0)}</td>
+            <td>₦${formatMoney(user.teamInvested || 0)}</td>
             <td class="earnings-cell">₦${formatMoney(user.commissionEarned || 0)}</td>
             <td>
               <button class="action-btn" onclick="viewReferralTree('${user.id}')">
-                <i class="fas fa-sitemap"></i> View Tree
+                <i class="fas fa-sitemap"></i> View
               </button>
             </td>
           </tr>
@@ -1810,17 +1921,17 @@
     function renderPagination() {
       const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
       const pageNumbers = document.getElementById('pageNumbers');
-      
-      if (totalPages <= 1) {
-        pageNumbers.innerHTML = '';
-        return;
-      }
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
 
-      let html = '';
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+
+      let pagesHtml = '';
       for (let i = 1; i <= totalPages; i++) {
-        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+        pagesHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
       }
-      pageNumbers.innerHTML = html;
+      pageNumbers.innerHTML = pagesHtml;
     }
 
     function goToPage(page) {
@@ -1847,7 +1958,6 @@
 
       const modalBody = document.getElementById('referralTreeBody');
       
-      // Show loading
       modalBody.innerHTML = `
         <div class="loading-state">
           <div class="spinner" style="width: 40px; height: 40px;"></div>
@@ -1855,83 +1965,53 @@
         </div>
       `;
       
-      openModal('referralTreeModal');
+      document.getElementById('referralTreeModal').classList.add('show');
 
       try {
-        // Get Level A (Direct Referrals)
+        // Get Level A
         const levelASnap = await db.collection('users')
           .where('referrerUid', '==', userId)
           .get();
 
-        const levelADownlines = [];
-        const levelBDownlines = [];
-        const levelCDownlines = [];
+        let levelADownlines = [];
+        let levelBDownlines = [];
+        let levelCDownlines = [];
 
-        for (const doc of levelASnap.docs) {
-          const downline = doc.data();
-          downline.id = doc.id;
+        for (const aDoc of levelASnap.docs) {
+          const aData = aDoc.data();
+          aData.id = aDoc.id;
           
-          // Get investments for this downline
-          const investmentsSnap = await db.collection('investments')
-            .where('userId', '==', doc.id)
+          // Get A's investments
+          const aInvestments = await db.collection('investments')
+            .where('userId', '==', aDoc.id)
             .get();
-          
-          let totalInvested = 0;
-          investmentsSnap.forEach(inv => {
-            totalInvested += inv.data().amount || 0;
+          aData.totalInvested = 0;
+          aInvestments.forEach(inv => {
+            aData.totalInvested += inv.data().amount || 0;
           });
-          downline.totalInvested = totalInvested;
 
-          // Get commissions earned from this downline
-          const commissionsSnap = await db.collection('transactions')
-            .where('userId', '==', userId)
-            .where('fromUser', '==', doc.id)
-            .where('level', '==', 'A')
-            .get();
-          
-          let earnedFromThis = 0;
-          commissionsSnap.forEach(comm => {
-            earnedFromThis += comm.data().amount || 0;
-          });
-          downline.earnedFromThis = earnedFromThis;
-
-          levelADownlines.push(downline);
+          levelADownlines.push(aData);
 
           // Get Level B
           const levelBSnap = await db.collection('users')
-            .where('referrerUid', '==', doc.id)
+            .where('referrerUid', '==', aDoc.id)
             .get();
 
           for (const bDoc of levelBSnap.docs) {
-            const bDownline = bDoc.data();
-            bDownline.id = bDoc.id;
-            bDownline.referredBy = downline.fullName || downline.username || 'Referrer';
+            const bData = bDoc.data();
+            bData.id = bDoc.id;
+            bData.referredBy = aData.fullName || aData.username || 'Referrer';
             
-            // Get investments
-            const bInvestmentsSnap = await db.collection('investments')
+            // Get B's investments
+            const bInvestments = await db.collection('investments')
               .where('userId', '==', bDoc.id)
               .get();
-            
-            let bTotalInvested = 0;
-            bInvestmentsSnap.forEach(inv => {
-              bTotalInvested += inv.data().amount || 0;
+            bData.totalInvested = 0;
+            bInvestments.forEach(inv => {
+              bData.totalInvested += inv.data().amount || 0;
             });
-            bDownline.totalInvested = bTotalInvested;
 
-            // Get commissions
-            const bCommissionsSnap = await db.collection('transactions')
-              .where('userId', '==', userId)
-              .where('fromUser', '==', bDoc.id)
-              .where('level', '==', 'B')
-              .get();
-            
-            let bEarnedFromThis = 0;
-            bCommissionsSnap.forEach(comm => {
-              bEarnedFromThis += comm.data().amount || 0;
-            });
-            bDownline.earnedFromThis = bEarnedFromThis;
-
-            levelBDownlines.push(bDownline);
+            levelBDownlines.push(bData);
 
             // Get Level C
             const levelCSnap = await db.collection('users')
@@ -1939,60 +2019,38 @@
               .get();
 
             for (const cDoc of levelCSnap.docs) {
-              const cDownline = cDoc.data();
-              cDownline.id = cDoc.id;
-              cDownline.referredBy = bDownline.fullName || bDownline.username || 'Referrer';
+              const cData = cDoc.data();
+              cData.id = cDoc.id;
+              cData.referredBy = bData.fullName || bData.username || 'Referrer';
               
-              // Get investments
-              const cInvestmentsSnap = await db.collection('investments')
+              // Get C's investments
+              const cInvestments = await db.collection('investments')
                 .where('userId', '==', cDoc.id)
                 .get();
-              
-              let cTotalInvested = 0;
-              cInvestmentsSnap.forEach(inv => {
-                cTotalInvested += inv.data().amount || 0;
+              cData.totalInvested = 0;
+              cInvestments.forEach(inv => {
+                cData.totalInvested += inv.data().amount || 0;
               });
-              cDownline.totalInvested = cTotalInvested;
 
-              // Get commissions
-              const cCommissionsSnap = await db.collection('transactions')
-                .where('userId', '==', userId)
-                .where('fromUser', '==', cDoc.id)
-                .where('level', '==', 'C')
-                .get();
-              
-              let cEarnedFromThis = 0;
-              cCommissionsSnap.forEach(comm => {
-                cEarnedFromThis += comm.data().amount || 0;
-              });
-              cDownline.earnedFromThis = cEarnedFromThis;
-
-              levelCDownlines.push(cDownline);
+              levelCDownlines.push(cData);
             }
           }
         }
 
         // Calculate totals
-        const totalLevelA = levelADownlines.length;
-        const totalLevelB = levelBDownlines.length;
-        const totalLevelC = levelCDownlines.length;
         const totalInvestedA = levelADownlines.reduce((sum, d) => sum + (d.totalInvested || 0), 0);
         const totalInvestedB = levelBDownlines.reduce((sum, d) => sum + (d.totalInvested || 0), 0);
         const totalInvestedC = levelCDownlines.reduce((sum, d) => sum + (d.totalInvested || 0), 0);
-        const totalEarnedA = levelADownlines.reduce((sum, d) => sum + (d.earnedFromThis || 0), 0);
-        const totalEarnedB = levelBDownlines.reduce((sum, d) => sum + (d.earnedFromThis || 0), 0);
-        const totalEarnedC = levelCDownlines.reduce((sum, d) => sum + (d.earnedFromThis || 0), 0);
 
         let treeHtml = `
-          <!-- User Summary -->
           <div class="user-summary">
             <div class="user-summary-avatar">${(user.fullName || user.username || 'U').charAt(0).toUpperCase()}</div>
             <div class="user-summary-info">
               <h3>${user.fullName || user.username || 'Unknown User'}</h3>
-              <p>${user.email || ''} • Referral Code: <code>${user.referralCode || 'N/A'}</code></p>
+              <p>${user.email || ''} • Code: <code>${user.referralCode || 'N/A'}</code></p>
               <div class="user-summary-stats">
                 <div class="summary-stat">
-                  <div class="value">${totalLevelA + totalLevelB + totalLevelC}</div>
+                  <div class="value">${levelADownlines.length + levelBDownlines.length + levelCDownlines.length}</div>
                   <div class="label">Total Referrals</div>
                 </div>
                 <div class="summary-stat">
@@ -2000,31 +2058,24 @@
                   <div class="label">Team Investment</div>
                 </div>
                 <div class="summary-stat">
-                  <div class="value">₦${formatMoney(totalEarnedA + totalEarnedB + totalEarnedC)}</div>
+                  <div class="value">₦${formatMoney(user.commissionEarned || 0)}</div>
                   <div class="label">Commission Earned</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Level Tabs -->
           <div class="level-tabs">
-            <button class="level-tab level-a active" onclick="showLevel('A')">Level A (${totalLevelA})</button>
-            <button class="level-tab level-b" onclick="showLevel('B')">Level B (${totalLevelB})</button>
-            <button class="level-tab level-c" onclick="showLevel('C')">Level C (${totalLevelC})</button>
+            <button class="level-tab level-a active" onclick="showLevel('A')">Level A (${levelADownlines.length})</button>
+            <button class="level-tab level-b" onclick="showLevel('B')">Level B (${levelBDownlines.length})</button>
+            <button class="level-tab level-c" onclick="showLevel('C')">Level C (${levelCDownlines.length})</button>
           </div>
 
-          <!-- Level A Content (default shown) -->
           <div id="levelA-content" class="level-content">
         `;
 
         if (levelADownlines.length === 0) {
-          treeHtml += `
-            <div class="empty-state">
-              <i class="fas fa-users"></i>
-              <p>No direct referrals yet</p>
-            </div>
-          `;
+          treeHtml += `<div class="empty-state"><i class="fas fa-users"></i><p>No direct referrals yet</p></div>`;
         } else {
           treeHtml += '<div class="downline-list">';
           levelADownlines.forEach(d => {
@@ -2046,7 +2097,6 @@
                 <div class="downline-stats">
                   <div class="downline-stat">
                     <div class="invested">₦${formatMoney(d.totalInvested || 0)}</div>
-                    <div class="earned">+₦${formatMoney(d.earnedFromThis || 0)}</div>
                     <div class="date">Joined ${dateStr}</div>
                   </div>
                 </div>
@@ -2058,15 +2108,10 @@
 
         treeHtml += `</div>`;
 
-        // Level B Content (hidden initially)
+        // Level B Content
         treeHtml += `<div id="levelB-content" class="level-content" style="display: none;">`;
         if (levelBDownlines.length === 0) {
-          treeHtml += `
-            <div class="empty-state">
-              <i class="fas fa-users"></i>
-              <p>No level B referrals yet</p>
-            </div>
-          `;
+          treeHtml += `<div class="empty-state"><i class="fas fa-users"></i><p>No level B referrals yet</p></div>`;
         } else {
           treeHtml += '<div class="downline-list">';
           levelBDownlines.forEach(d => {
@@ -2082,13 +2127,12 @@
                   <div class="downline-avatar">${initial}</div>
                   <div class="downline-details">
                     <h4>${name}</h4>
-                    <p>${d.email || ''} • Referred by: ${d.referredBy || 'N/A'}</p>
+                    <p>${d.email || ''} • via ${d.referredBy || 'N/A'}</p>
                   </div>
                 </div>
                 <div class="downline-stats">
                   <div class="downline-stat">
                     <div class="invested">₦${formatMoney(d.totalInvested || 0)}</div>
-                    <div class="earned">+₦${formatMoney(d.earnedFromThis || 0)}</div>
                     <div class="date">Joined ${dateStr}</div>
                   </div>
                 </div>
@@ -2099,15 +2143,10 @@
         }
         treeHtml += `</div>`;
 
-        // Level C Content (hidden initially)
+        // Level C Content
         treeHtml += `<div id="levelC-content" class="level-content" style="display: none;">`;
         if (levelCDownlines.length === 0) {
-          treeHtml += `
-            <div class="empty-state">
-              <i class="fas fa-users"></i>
-              <p>No level C referrals yet</p>
-            </div>
-          `;
+          treeHtml += `<div class="empty-state"><i class="fas fa-users"></i><p>No level C referrals yet</p></div>`;
         } else {
           treeHtml += '<div class="downline-list">';
           levelCDownlines.forEach(d => {
@@ -2123,13 +2162,12 @@
                   <div class="downline-avatar">${initial}</div>
                   <div class="downline-details">
                     <h4>${name}</h4>
-                    <p>${d.email || ''} • Referred by: ${d.referredBy || 'N/A'}</p>
+                    <p>${d.email || ''} • via ${d.referredBy || 'N/A'}</p>
                   </div>
                 </div>
                 <div class="downline-stats">
                   <div class="downline-stat">
                     <div class="invested">₦${formatMoney(d.totalInvested || 0)}</div>
-                    <div class="earned">+₦${formatMoney(d.earnedFromThis || 0)}</div>
                     <div class="date">Joined ${dateStr}</div>
                   </div>
                 </div>
@@ -2147,7 +2185,7 @@
         modalBody.innerHTML = `
           <div class="empty-state">
             <i class="fas fa-exclamation-circle" style="color: var(--error);"></i>
-            <p>Error loading referral tree</p>
+            <p>Error loading referral tree: ${error.message}</p>
           </div>
         `;
       }
@@ -2168,63 +2206,63 @@
 
     window.showLevel = showLevel;
 
-    // ==================== LOGOUT ====================
-    async function logout() {
-      try {
-        await auth.signOut();
-        window.location.href = 'admin-login.html';
-      } catch (error) {
-        showToast({
-          type: 'error',
-          title: 'Error',
-          message: 'Failed to logout'
-        });
-      }
+    // ==================== CLOSE MODAL ====================
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
     }
 
-    // ==================== CHECK ADMIN ====================
-    async function checkAdmin(user) {
-      try {
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (!userDoc.exists || !userDoc.data().isAdmin) {
-          await auth.signOut();
-          window.location.href = 'admin-login.html';
-          return false;
-        }
-
-        currentAdmin = user;
-        document.getElementById('adminName').textContent = userDoc.data().fullName || 'Admin';
-        document.getElementById('adminAvatar').textContent = 
-          (userDoc.data().fullName || 'A').charAt(0).toUpperCase();
-
-        return true;
-      } catch (error) {
-        console.error('Error checking admin:', error);
-        return false;
-      }
-    }
-
-    // ==================== INIT ====================
+    // ==================== CHECK ADMIN & LOAD DATA ====================
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.href = 'admin-login.html';
         return;
       }
 
-      const isAdmin = await checkAdmin(user);
-      if (!isAdmin) return;
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        
+        if (!userDoc.exists || !userDoc.data().isAdmin) {
+          await auth.signOut();
+          window.location.href = 'admin-login.html';
+          return;
+        }
 
-      await loadUsers();
+        currentAdmin = user;
+        adminData = userDoc.data();
+
+        const firstName = (adminData.fullName || 'Admin').split(' ')[0];
+        document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
+        document.getElementById('adminName').textContent = adminData.fullName || 'Admin User';
+        document.getElementById('adminEmail').textContent = adminData.email || user.email;
+
+        // Load pending counts for badges
+        const pendingDeposits = await db.collection('deposits').where('status', '==', 'pending').get();
+        document.getElementById('pendingDepositsBadge').textContent = pendingDeposits.size;
+
+        const pendingWithdrawals = await db.collection('withdrawals').where('status', '==', 'pending').get();
+        document.getElementById('pendingWithdrawalsBadge').textContent = pendingWithdrawals.size;
+
+        // Load users data
+        await loadUsers();
+
+      } catch (error) {
+        console.error('Error verifying admin:', error);
+        await auth.signOut();
+        window.location.href = 'admin-login.html';
+      }
     });
 
-    // Make functions global
+    // Expose functions globally
+    window.toggleSidebar = toggleSidebar;
+    window.showLogoutModal = showLogoutModal;
+    window.closeLogoutModal = closeLogoutModal;
+    window.confirmLogout = confirmLogout;
     window.filterUsers = filterUsers;
     window.searchUsers = searchUsers;
     window.viewReferralTree = viewReferralTree;
     window.goToPage = goToPage;
     window.changePage = changePage;
     window.closeModal = closeModal;
-    window.logout = logout;
   </script>
 </body>
 </html>
