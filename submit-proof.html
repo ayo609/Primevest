@@ -998,12 +998,25 @@
       appId: "1:76160486147:web:5b5853f9772503daa7b736"
     };
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     
     const auth = firebase.auth();
     const db = firebase.firestore();
     const storage = firebase.storage();
     const FieldValue = firebase.firestore.FieldValue;
+
+    // Enable offline persistence
+    db.enablePersistence()
+      .catch((err) => {
+        if (err.code === 'failed-precondition') {
+          console.log('Persistence failed: Multiple tabs open');
+        } else if (err.code === 'unimplemented') {
+          console.log('Persistence not supported');
+        }
+      });
 
     // ==================== GLOBAL VARIABLES ====================
     let currentUser = null;
@@ -1076,19 +1089,14 @@
     function formatDate(timestamp) {
       if (!timestamp) return 'N/A';
       try {
-        let date;
-        if (timestamp.toDate) {
-          date = timestamp.toDate();
-        } else if (timestamp.seconds) {
-          date = new Date(timestamp.seconds * 1000);
-        } else {
-          date = new Date(timestamp);
+        if (timestamp && typeof timestamp.toDate === 'function') {
+          return timestamp.toDate().toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
         }
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-        });
+        return 'N/A';
       } catch (e) {
         return 'N/A';
       }
@@ -1118,10 +1126,9 @@
       try {
         console.log('Loading withdrawals for user:', currentUser.uid);
         
-        // Get all withdrawals for this user
+        // Get all withdrawals for this user - simplified query
         const withdrawalsSnap = await db.collection('withdrawals')
           .where('userId', '==', currentUser.uid)
-          .orderBy('createdAt', 'desc')
           .get();
 
         console.log('Total withdrawals found:', withdrawalsSnap.size);
@@ -1153,8 +1160,7 @@
           
           // Check if withdrawal is approved (status might be 'approved' or 'paid')
           const isApproved = withdrawal.status === 'approved' || 
-                            withdrawal.status === 'paid' || 
-                            withdrawal.status === 'completed';
+                            withdrawal.status === 'paid';
           
           // Check if already proven
           const alreadyProven = provenWithdrawalIds.has(doc.id);
@@ -1207,7 +1213,7 @@
       let html = '<div class="withdrawals-list">';
       
       eligibleWithdrawals.forEach(withdrawal => {
-        let dateStr = formatDate(withdrawal.createdAt);
+        let dateStr = withdrawal.createdAt ? formatDate(withdrawal.createdAt) : 'N/A';
         const shortId = withdrawal.transactionId ? 
           withdrawal.transactionId.slice(-8) : 
           withdrawal.id.slice(-8);
@@ -1259,7 +1265,7 @@
         
         document.getElementById('selectedWithdrawalName').textContent = `Withdrawal #${shortId}`;
         document.getElementById('selectedWithdrawalAmount').textContent = '₦' + formatMoney(selectedWithdrawal.amount);
-        document.getElementById('selectedWithdrawalDate').textContent = formatDate(selectedWithdrawal.createdAt);
+        document.getElementById('selectedWithdrawalDate').textContent = selectedWithdrawal.createdAt ? formatDate(selectedWithdrawal.createdAt) : 'N/A';
         
         display.style.display = 'block';
 
@@ -1347,22 +1353,40 @@
 
       const caption = document.getElementById('caption').value.trim();
       const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.innerHTML;
       
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
 
       try {
+        console.log('Starting proof submission...');
+        console.log('Selected withdrawal:', selectedWithdrawal.id);
+        console.log('File:', selectedFile.name);
+        
         // Upload image to Storage
         const timestamp = Date.now();
         const safeFileName = selectedFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
         const filePath = `proofs/${currentUser.uid}/${timestamp}_${safeFileName}`;
         const fileRef = storage.ref().child(filePath);
         
-        // Upload file
-        await fileRef.put(selectedFile);
+        console.log('Uploading to:', filePath);
+        
+        // Upload file with metadata
+        const metadata = {
+          contentType: selectedFile.type,
+          customMetadata: {
+            userId: currentUser.uid,
+            withdrawalId: selectedWithdrawal.id
+          }
+        };
+        
+        const uploadTask = await fileRef.put(selectedFile, metadata);
+        console.log('Upload complete:', uploadTask);
+        
         const fileUrl = await fileRef.getDownloadURL();
+        console.log('File URL:', fileUrl);
 
-        // Create proof record
+        // Create proof record with minimal required fields
         const proofData = {
           userId: currentUser.uid,
           userName: userData?.fullName || userData?.username || 'User',
@@ -1371,14 +1395,16 @@
           withdrawalAmount: selectedWithdrawal.amount,
           proofImage: fileUrl,
           proofPath: filePath,
+          proofFileName: selectedFile.name,
           caption: caption || '',
           status: 'pending',
           createdAt: FieldValue.serverTimestamp()
         };
 
-        console.log('Submitting proof:', proofData);
+        console.log('Saving proof data:', proofData);
         
-        await db.collection('withdrawalProofs').add(proofData);
+        const docRef = await db.collection('withdrawalProofs').add(proofData);
+        console.log('Proof saved with ID:', docRef.id);
 
         // Show success modal
         showSuccessModal();
@@ -1392,15 +1418,25 @@
 
       } catch (error) {
         console.error('Error submitting proof:', error);
+        
+        let errorMessage = error.message;
+        if (error.code === 'storage/unauthorized') {
+          errorMessage = 'Storage permission denied. Please check Firebase Storage rules.';
+        } else if (error.code === 'permission-denied') {
+          errorMessage = 'Database permission denied. Please check Firestore rules.';
+        } else if (error.code === 'storage/canceled') {
+          errorMessage = 'Upload was canceled';
+        }
+        
         showToast({
           type: 'error',
           title: 'Submission Failed',
-          message: error.message || 'Please try again'
+          message: errorMessage
         });
       }
 
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Review';
+      submitBtn.innerHTML = originalText;
     }
 
     // ==================== RESET FORM ====================
@@ -1427,11 +1463,16 @@
       const gallery = document.getElementById('proofsGallery');
       
       try {
+        console.log('Loading gallery preview...');
+        
+        // Get approved proofs
         const snapshot = await db.collection('withdrawalProofs')
           .where('status', '==', 'approved')
           .orderBy('createdAt', 'desc')
           .limit(9)
           .get();
+
+        console.log('Gallery proofs found:', snapshot.size);
 
         if (snapshot.empty) {
           gallery.innerHTML = `
@@ -1446,17 +1487,26 @@
         let html = '';
         snapshot.forEach(doc => {
           const proof = doc.data();
-          const date = formatDate(proof.createdAt);
+          let dateStr = 'N/A';
+          if (proof.createdAt) {
+            try {
+              const date = proof.createdAt.toDate();
+              dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            } catch (e) {
+              dateStr = 'N/A';
+            }
+          }
+          
           const name = proof.userName || 'Investor';
           const displayName = name.length > 15 ? name.substring(0, 12) + '...' : name;
 
           html += `
             <div class="preview-card" onclick="window.open('${proof.proofImage}', '_blank')">
-              <img src="${proof.proofImage}" alt="Withdrawal proof" loading="lazy">
+              <img src="${proof.proofImage}" alt="Withdrawal proof" loading="lazy" onerror="this.src='https://via.placeholder.com/150?text=Error'">
               <div class="preview-info">
                 <span class="name">${displayName}</span>
                 <span class="amount">₦${formatMoney(proof.withdrawalAmount)}</span>
-                <span class="date">${date}</span>
+                <span class="date">${dateStr}</span>
               </div>
             </div>
           `;
@@ -1468,7 +1518,9 @@
         console.error('Error loading gallery:', error);
         gallery.innerHTML = `
           <div style="grid-column: 1/-1; text-align: center; color: var(--error); padding: 40px;">
-            <p>Failed to load gallery</p>
+            <i class="fas fa-exclamation-circle" style="font-size: 40px; margin-bottom: 12px;"></i>
+            <p>Failed to load gallery: ${error.message}</p>
+            <button onclick="location.reload()" class="empty-state-btn" style="margin-top: 16px;">Refresh</button>
           </div>
         `;
       }
@@ -1499,6 +1551,8 @@
 
     // ==================== AUTH STATE ====================
     auth.onAuthStateChanged(async (user) => {
+      console.log('Auth state changed:', user ? 'Logged in' : 'Not logged in');
+      
       if (!user) {
         window.location.href = 'login.html';
         return;
@@ -1521,6 +1575,8 @@
     window.submitProof = submitProof;
     window.checkFormValidity = checkFormValidity;
     window.closeSuccessModal = closeSuccessModal;
+    window.goHome = goHome;
+    window.goToProfile = goToProfile;
   </script>
 </body>
 </html>
