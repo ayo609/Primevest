@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    /* Keep all your existing styles exactly as they were */
     * {
       margin: 0;
       padding: 0;
@@ -70,7 +71,7 @@
       overflow-x: hidden;
     }
 
-    /* Sidebar (same as before) */
+    /* Sidebar */
     .sidebar {
       position: fixed;
       top: 0;
@@ -1338,14 +1339,14 @@
             <td>
               ${deposit.status === 'pending' ? `
                 <button class="action-btn approve" onclick="approveDeposit('${deposit.id}')">
-                  <i class="fas fa-check"></i>
+                  <i class="fas fa-check"></i> Approve
                 </button>
                 <button class="action-btn reject" onclick="showRejectModal('${deposit.id}')">
-                  <i class="fas fa-times"></i>
+                  <i class="fas fa-times"></i> Reject
                 </button>
               ` : `
                 <button class="action-btn view" onclick="viewProof('${deposit.id}')">
-                  <i class="fas fa-eye"></i>
+                  <i class="fas fa-eye"></i> View
                 </button>
               `}
             </td>
@@ -1380,10 +1381,13 @@
     }
 
     function changePage(direction) {
+      const totalPages = Math.ceil(filteredDeposits.length / itemsPerPage);
       if (direction === 'prev' && currentPage > 1) {
         currentPage--;
-      } else if (direction === 'next' && currentPage < Math.ceil(filteredDeposits.length / itemsPerPage)) {
+      } else if (direction === 'next' && currentPage < totalPages) {
         currentPage++;
+      } else {
+        return;
       }
       renderDepositsTable();
       updatePagination();
@@ -1510,51 +1514,100 @@
       const deposit = allDeposits.find(d => d.id === depositId);
       if (!deposit) return;
 
+      // Disable button to prevent double-click
+      const approveBtn = document.querySelector(`button[onclick="approveDeposit('${depositId}')"]`);
+      if (approveBtn) {
+        approveBtn.disabled = true;
+        approveBtn.innerHTML = '<span class="spinner"></span>';
+      }
+
       try {
-        // Update deposit status
-        await db.collection('deposits').doc(depositId).update({
-          status: 'approved',
-          approvedBy: currentAdmin.uid,
-          approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        console.log('Approving deposit:', depositId);
+        console.log('User ID:', deposit.userId);
+        console.log('Amount:', deposit.amount);
+
+        // First, check if user exists
+        const userRef = db.collection('users').doc(deposit.userId);
+        const userDoc = await userRef.get();
+
+        if (!userDoc.exists) {
+          throw new Error('User document not found');
+        }
+
+        // Get current balance
+        const currentBalance = userDoc.data().balance || 0;
+        console.log('Current user balance:', currentBalance);
+
+        // Use a transaction to ensure data consistency
+        await db.runTransaction(async (transaction) => {
+          // Update deposit status
+          const depositRef = db.collection('deposits').doc(depositId);
+          transaction.update(depositRef, {
+            status: 'approved',
+            approvedBy: currentAdmin.uid,
+            approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          // Update user's wallet balance
+          transaction.update(userRef, {
+            balance: firebase.firestore.FieldValue.increment(deposit.amount),
+            totalDeposits: firebase.firestore.FieldValue.increment(deposit.amount),
+            lastDepositAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          // Create transaction record
+          const transactionRef = db.collection('transactions').doc();
+          transaction.set(transactionRef, {
+            userId: deposit.userId,
+            userName: deposit.userName,
+            type: 'deposit',
+            amount: deposit.amount,
+            status: 'approved',
+            reference: deposit.reference,
+            depositId: depositId,
+            adminId: currentAdmin.uid,
+            adminName: adminData?.fullName || 'Admin',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            note: `Deposit approved by admin`
+          });
         });
 
-        // Credit user's wallet
-        await db.collection('users').doc(deposit.userId).update({
-          balance: firebase.firestore.FieldValue.increment(deposit.amount)
-        });
-
-        // Record transaction
-        await db.collection('transactions').add({
-          userId: deposit.userId,
-          userName: deposit.userName,
-          type: 'deposit',
-          amount: deposit.amount,
-          status: 'approved',
-          reference: deposit.reference,
-          depositId: depositId,
-          adminId: currentAdmin.uid,
-          adminName: adminData.fullName || 'Admin',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          note: `Deposit approved by admin`
-        });
-
+        console.log('Deposit approved successfully');
+        
         showToast({
           type: 'success',
           title: 'Deposit Approved',
-          message: `₦${formatMoney(deposit.amount)} credited to user`
+          message: `₦${formatMoney(deposit.amount)} credited to user`,
+          duration: 5000
         });
 
         closeProofModal();
-        loadDeposits(); // Refresh list
+        
+        // Refresh the deposits list
+        await loadDeposits();
 
       } catch (error) {
         console.error('Error approving deposit:', error);
+        
+        let errorMessage = 'Failed to approve deposit';
+        if (error.code === 'permission-denied') {
+          errorMessage = 'Permission denied. Check Firestore rules.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         showToast({
           type: 'error',
           title: 'Error',
-          message: 'Failed to approve deposit'
+          message: errorMessage
         });
+      } finally {
+        // Re-enable button
+        if (approveBtn) {
+          approveBtn.disabled = false;
+          approveBtn.innerHTML = '<i class="fas fa-check"></i> Approve';
+        }
       }
     }
 
@@ -1584,31 +1637,41 @@
       if (!deposit) return;
 
       const reason = document.getElementById('rejectReason').value;
+      const rejectBtn = document.querySelector('.modal-btn-danger');
+      const originalText = rejectBtn.innerHTML;
+      
+      rejectBtn.disabled = true;
+      rejectBtn.innerHTML = '<span class="spinner"></span> Rejecting...';
 
       try {
-        // Update deposit status
-        await db.collection('deposits').doc(selectedDepositId).update({
-          status: 'rejected',
-          rejectedBy: currentAdmin.uid,
-          rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          rejectionReason: reason || null,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        // Use transaction for consistency
+        await db.runTransaction(async (transaction) => {
+          // Update deposit status
+          const depositRef = db.collection('deposits').doc(selectedDepositId);
+          transaction.update(depositRef, {
+            status: 'rejected',
+            rejectedBy: currentAdmin.uid,
+            rejectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            rejectionReason: reason || null,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
 
-        // Record transaction
-        await db.collection('transactions').add({
-          userId: deposit.userId,
-          userName: deposit.userName,
-          type: 'deposit',
-          amount: deposit.amount,
-          status: 'rejected',
-          reference: deposit.reference,
-          depositId: selectedDepositId,
-          adminId: currentAdmin.uid,
-          adminName: adminData.fullName || 'Admin',
-          rejectionReason: reason || null,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          note: `Deposit rejected by admin${reason ? ': ' + reason : ''}`
+          // Create transaction record
+          const transactionRef = db.collection('transactions').doc();
+          transaction.set(transactionRef, {
+            userId: deposit.userId,
+            userName: deposit.userName,
+            type: 'deposit',
+            amount: deposit.amount,
+            status: 'rejected',
+            reference: deposit.reference,
+            depositId: selectedDepositId,
+            adminId: currentAdmin.uid,
+            adminName: adminData?.fullName || 'Admin',
+            rejectionReason: reason || null,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            note: `Deposit rejected by admin${reason ? ': ' + reason : ''}`
+          });
         });
 
         showToast({
@@ -1618,15 +1681,19 @@
         });
 
         closeRejectModal();
-        loadDeposits(); // Refresh list
+        closeProofModal();
+        await loadDeposits();
 
       } catch (error) {
         console.error('Error rejecting deposit:', error);
         showToast({
           type: 'error',
           title: 'Error',
-          message: 'Failed to reject deposit'
+          message: 'Failed to reject deposit: ' + error.message
         });
+      } finally {
+        rejectBtn.disabled = false;
+        rejectBtn.innerHTML = originalText;
       }
     }
 
