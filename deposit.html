@@ -978,7 +978,10 @@
       appId: "1:76160486147:web:5b5853f9772503daa7b736"
     };
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -1010,7 +1013,9 @@
       
       const icons = {
         success: 'fa-check-circle',
-        error: 'fa-exclamation-circle'
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
       };
 
       toast.innerHTML = `
@@ -1020,6 +1025,9 @@
         <div class="toast-content">
           <div class="toast-title">${title}</div>
           <div class="toast-message">${message}</div>
+        </div>
+        <div class="toast-close" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
         </div>
       `;
 
@@ -1047,11 +1055,25 @@
 
     // ==================== COPY TO CLIPBOARD ====================
     function copyToClipboard(text) {
-      navigator.clipboard.writeText(text);
-      showToast({
-        type: 'success',
-        title: 'Copied!',
-        message: 'Copied to clipboard'
+      navigator.clipboard.writeText(text).then(() => {
+        showToast({
+          type: 'success',
+          title: 'Copied!',
+          message: 'Copied to clipboard'
+        });
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast({
+          type: 'success',
+          title: 'Copied!',
+          message: 'Copied to clipboard'
+        });
       });
     }
 
@@ -1241,23 +1263,35 @@
       const reference = 'DEP' + Date.now() + Math.random().toString(36).substr(2, 8).toUpperCase();
       
       const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.innerHTML;
+      
       submitBtn.classList.remove('active');
       submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
 
       try {
+        console.log('Starting deposit submission...');
+        console.log('Selected amount:', selectedAmount);
+        console.log('Selected file:', selectedFile.name);
+        
         // Upload file
         const timestamp = Date.now();
         const safeFileName = selectedFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
         const filePath = `deposits/${currentUser.uid}/${timestamp}_${safeFileName}`;
         const fileRef = storage.ref().child(filePath);
         
-        await fileRef.put(selectedFile);
+        console.log('Uploading to:', filePath);
+        
+        // Upload with progress tracking
+        const uploadTask = await fileRef.put(selectedFile);
+        console.log('Upload complete:', uploadTask);
+        
         const fileUrl = await fileRef.getDownloadURL();
+        console.log('File URL:', fileUrl);
 
         // Save deposit
         const depositData = {
           userId: currentUser.uid,
-          userName: userData?.fullName || 'User',
+          userName: userData?.fullName || userData?.username || 'User',
           userEmail: userData?.email || currentUser.email,
           amount: selectedAmount,
           planName: selectedPlan,
@@ -1265,11 +1299,15 @@
           reference: reference,
           proofUrl: fileUrl,
           proofPath: filePath,
+          proofFileName: selectedFile.name,
           status: 'pending',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        await db.collection('deposits').add(depositData);
+        console.log('Saving deposit data:', depositData);
+
+        const docRef = await db.collection('deposits').add(depositData);
+        console.log('Deposit saved with ID:', docRef.id);
 
         showToast({
           type: 'success',
@@ -1292,15 +1330,26 @@
         loadDepositHistory();
 
       } catch (error) {
+        console.error('Deposit error:', error);
+        
+        let errorMessage = error.message;
+        if (error.code === 'storage/unauthorized') {
+          errorMessage = 'Storage permission denied. Please check Firebase Storage rules.';
+        } else if (error.code === 'storage/canceled') {
+          errorMessage = 'Upload was canceled';
+        } else if (error.code === 'storage/unknown') {
+          errorMessage = 'An unknown error occurred during upload';
+        }
+        
         showToast({
           type: 'error',
           title: 'Error',
-          message: error.message
+          message: errorMessage
         });
       }
 
       submitBtn.classList.add('active');
-      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Deposit Request';
+      submitBtn.innerHTML = originalText;
     }
 
     // ==================== LOAD DEPOSIT HISTORY ====================
@@ -1308,6 +1357,8 @@
       if (!currentUser) return;
 
       try {
+        console.log('Loading deposit history for user:', currentUser.uid);
+        
         const snapshot = await db.collection('deposits')
           .where('userId', '==', currentUser.uid)
           .orderBy('createdAt', 'desc')
@@ -1354,7 +1405,13 @@
         document.getElementById('depositHistory').innerHTML = html;
 
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error loading deposit history:', error);
+        document.getElementById('depositHistory').innerHTML = `
+          <div style="text-align: center; padding: 20px; color: var(--error);">
+            <i class="fas fa-exclamation-circle" style="font-size: 24px;"></i>
+            <p style="margin-top: 8px;">Failed to load history</p>
+          </div>
+        `;
       }
     }
 
@@ -1369,14 +1426,18 @@
           document.getElementById('balanceAmount').textContent = formatMoney(userData.balance || 0);
           const firstName = (userData.fullName || 'User').split(' ')[0];
           document.getElementById('profileInitial').textContent = firstName.charAt(0).toUpperCase();
+        } else {
+          console.log('User document not found');
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error loading user data:', error);
       }
     }
 
     // ==================== AUTH STATE ====================
     auth.onAuthStateChanged(async (user) => {
+      console.log('Auth state changed:', user ? 'Logged in' : 'Not logged in');
+      
       if (!user) {
         window.location.href = 'login.html';
         return;
