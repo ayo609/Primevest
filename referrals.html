@@ -24,7 +24,6 @@
     }
 
     :root {
-      /* Clean White/Green Palette */
       --white: #FFFFFF;
       --off-white: #F8FAFC;
       --gray-50: #F1F5F9;
@@ -37,7 +36,6 @@
       --gray-700: #1E293B;
       --gray-800: #0F172A;
       
-      /* Fresh Green */
       --green-50: #F0F9F0;
       --green-100: #E8F5E9;
       --green-200: #C8E6C9;
@@ -47,25 +45,19 @@
       --green-600: #1E7B4B;
       --green-700: #0B4F2E;
       
-      /* Accent Colors */
       --success: #10B981;
       --warning: #F59E0B;
       --error: #EF4444;
       --info: #3B82F6;
-      --purple: #8B5CF6;
-      --blue: #3B82F6;
-      --orange: #F97316;
       --gold: #F59E0B;
       --silver: #94A3B8;
       --bronze: #CD7F32;
       
-      /* Shadows */
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
       --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
       
-      /* Radius */
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 16px;
@@ -73,7 +65,6 @@
       --radius-2xl: 24px;
       --radius-full: 9999px;
       
-      /* Layout */
       --header-height: 70px;
       --bottom-nav-height: 75px;
     }
@@ -88,7 +79,6 @@
       overflow-x: hidden;
     }
 
-    /* Simple clean background */
     body::before {
       content: '';
       position: fixed;
@@ -709,6 +699,7 @@
       justify-content: center;
       gap: 8px;
       transition: all 0.2s;
+      margin-top: 12px;
     }
 
     .expand-btn:hover {
@@ -995,8 +986,6 @@
         </div>
       </div>
       
-      <div id="levelADownlines"></div>
-      
       <button class="expand-btn" onclick="toggleLevel('A')" id="expandBtnA">
         <span>View Downlines</span>
         <i class="fas fa-chevron-down"></i>
@@ -1028,8 +1017,6 @@
         </div>
       </div>
       
-      <div id="levelBDownlines"></div>
-      
       <button class="expand-btn" onclick="toggleLevel('B')" id="expandBtnB">
         <span>View Downlines</span>
         <i class="fas fa-chevron-down"></i>
@@ -1060,8 +1047,6 @@
           <div class="level-stat-value" id="levelCEarned">₦0</div>
         </div>
       </div>
-      
-      <div id="levelCDownlines"></div>
       
       <button class="expand-btn" onclick="toggleLevel('C')" id="expandBtnC">
         <span>View Downlines</span>
@@ -1111,7 +1096,6 @@
     
     const auth = firebase.auth();
     const db = firebase.firestore();
-    const FieldValue = firebase.firestore.FieldValue;
 
     // ==================== GLOBAL VARIABLES ====================
     let currentUser = null;
@@ -1119,11 +1103,6 @@
     let levelADownlines = [];
     let levelBDownlines = [];
     let levelCDownlines = [];
-    let levelStats = {
-      A: { count: 0, invested: 0, earned: 0 },
-      B: { count: 0, invested: 0, earned: 0 },
-      C: { count: 0, invested: 0, earned: 0 }
-    };
 
     // ==================== TOAST SYSTEM ====================
     function showToast({ type = 'info', title, message, duration = 4000 }) {
@@ -1185,8 +1164,28 @@
       
       navigator.clipboard.writeText(link).then(() => {
         const btn = document.querySelector('.referral-copy-btn');
+        const originalText = btn.textContent;
         btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+        setTimeout(() => { btn.textContent = originalText; }, 2000);
+        
+        showToast({
+          type: 'success',
+          title: 'Copied!',
+          message: 'Referral link copied to clipboard'
+        });
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = link;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        const btn = document.querySelector('.referral-copy-btn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = originalText; }, 2000);
         
         showToast({
           type: 'success',
@@ -1219,28 +1218,33 @@
 
     window.toggleLevel = toggleLevel;
 
-    // ==================== LOAD DOWNLINES ====================
-    async function loadDownlines() {
+    // ==================== LOAD REFERRAL DATA ====================
+    async function loadReferralData() {
       if (!currentUser) return;
       
       try {
+        console.log('Loading referral data for user:', currentUser.uid);
+        
         // Get Level A (Direct Referrals)
         const levelASnapshot = await db.collection('users')
           .where('referrerUid', '==', currentUser.uid)
           .get();
         
         levelADownlines = [];
-        levelStats.A.count = levelASnapshot.size;
-        levelStats.A.invested = 0;
-        levelStats.A.earned = 0;
+        let levelACount = levelASnapshot.size;
+        let levelAInvested = 0;
+        let levelAEarned = 0;
         
+        // Process each Level A downline
         for (const doc of levelASnapshot.docs) {
           const downline = doc.data();
           downline.id = doc.id;
           
-          // Get downline's total investments
-          const investmentsSnap = await db.collection('investments')
+          // Get downline's total investments from transactions
+          const investmentsSnap = await db.collection('transactions')
             .where('userId', '==', doc.id)
+            .where('type', '==', 'deposit')
+            .where('status', '==', 'approved')
             .get();
           
           let totalInvested = 0;
@@ -1249,36 +1253,28 @@
           });
           
           downline.totalInvested = totalInvested;
-          levelStats.A.invested += totalInvested;
+          levelAInvested += totalInvested;
           
-          // Get commissions earned from this downline
-          const commissionsSnap = await db.collection('transactions')
-            .where('userId', '==', currentUser.uid)
-            .where('fromUser', '==', doc.id)
-            .where('level', '==', 'A')
-            .get();
-          
-          let totalEarned = 0;
-          commissionsSnap.forEach(comm => {
-            totalEarned += comm.data().amount || 0;
-          });
-          
-          downline.totalEarned = totalEarned;
-          levelStats.A.earned += totalEarned;
+          // Calculate commission (25% of their investments)
+          const commission = totalInvested * 0.25;
+          downline.commission = commission;
+          levelAEarned += commission;
           
           levelADownlines.push(downline);
         }
         
-        // Get Level B (Referrals of referrals)
+        // Get Level B (Referrals of Level A)
         levelBDownlines = [];
-        levelStats.B.count = 0;
-        levelStats.B.invested = 0;
-        levelStats.B.earned = 0;
+        let levelBCount = 0;
+        let levelBInvested = 0;
+        let levelBEarned = 0;
         
         for (const aDownline of levelADownlines) {
           const levelBSnapshot = await db.collection('users')
             .where('referrerUid', '==', aDownline.id)
             .get();
+          
+          levelBCount += levelBSnapshot.size;
           
           for (const bDoc of levelBSnapshot.docs) {
             const bDownline = bDoc.data();
@@ -1286,49 +1282,41 @@
             bDownline.referredBy = aDownline.fullName || aDownline.username || 'Referrer';
             
             // Get investments
-            const investmentsSnap = await db.collection('investments')
+            const bInvestmentsSnap = await db.collection('transactions')
               .where('userId', '==', bDoc.id)
+              .where('type', '==', 'deposit')
+              .where('status', '==', 'approved')
               .get();
             
             let totalInvested = 0;
-            investmentsSnap.forEach(inv => {
+            bInvestmentsSnap.forEach(inv => {
               totalInvested += inv.data().amount || 0;
             });
             
             bDownline.totalInvested = totalInvested;
-            levelStats.B.invested += totalInvested;
+            levelBInvested += totalInvested;
             
-            // Get commissions
-            const commissionsSnap = await db.collection('transactions')
-              .where('userId', '==', currentUser.uid)
-              .where('fromUser', '==', bDoc.id)
-              .where('level', '==', 'B')
-              .get();
-            
-            let totalEarned = 0;
-            commissionsSnap.forEach(comm => {
-              totalEarned += comm.data().amount || 0;
-            });
-            
-            bDownline.totalEarned = totalEarned;
-            levelStats.B.earned += totalEarned;
+            // Calculate commission (2% of their investments)
+            const commission = totalInvested * 0.02;
+            bDownline.commission = commission;
+            levelBEarned += commission;
             
             levelBDownlines.push(bDownline);
           }
         }
         
-        levelStats.B.count = levelBDownlines.length;
-        
         // Get Level C (3rd level)
         levelCDownlines = [];
-        levelStats.C.count = 0;
-        levelStats.C.invested = 0;
-        levelStats.C.earned = 0;
+        let levelCCount = 0;
+        let levelCInvested = 0;
+        let levelCEarned = 0;
         
         for (const bDownline of levelBDownlines) {
           const levelCSnapshot = await db.collection('users')
             .where('referrerUid', '==', bDownline.id)
             .get();
+          
+          levelCCount += levelCSnapshot.size;
           
           for (const cDoc of levelCSnapshot.docs) {
             const cDownline = cDoc.data();
@@ -1336,50 +1324,80 @@
             cDownline.referredBy = bDownline.fullName || bDownline.username || 'Referrer';
             
             // Get investments
-            const investmentsSnap = await db.collection('investments')
+            const cInvestmentsSnap = await db.collection('transactions')
               .where('userId', '==', cDoc.id)
+              .where('type', '==', 'deposit')
+              .where('status', '==', 'approved')
               .get();
             
             let totalInvested = 0;
-            investmentsSnap.forEach(inv => {
+            cInvestmentsSnap.forEach(inv => {
               totalInvested += inv.data().amount || 0;
             });
             
             cDownline.totalInvested = totalInvested;
-            levelStats.C.invested += totalInvested;
+            levelCInvested += totalInvested;
             
-            // Get commissions
-            const commissionsSnap = await db.collection('transactions')
-              .where('userId', '==', currentUser.uid)
-              .where('fromUser', '==', cDoc.id)
-              .where('level', '==', 'C')
-              .get();
-            
-            let totalEarned = 0;
-            commissionsSnap.forEach(comm => {
-              totalEarned += comm.data().amount || 0;
-            });
-            
-            cDownline.totalEarned = totalEarned;
-            levelStats.C.earned += totalEarned;
+            // Calculate commission (1% of their investments)
+            const commission = totalInvested * 0.01;
+            cDownline.commission = commission;
+            levelCEarned += commission;
             
             levelCDownlines.push(cDownline);
           }
         }
         
-        levelStats.C.count = levelCDownlines.length;
-        
         // Update UI
-        updateUI();
+        updateUI({
+          total: levelACount + levelBCount + levelCCount,
+          invested: levelAInvested + levelBInvested + levelCInvested,
+          earned: levelAEarned + levelBEarned + levelCEarned,
+          A: { count: levelACount, invested: levelAInvested, earned: levelAEarned },
+          B: { count: levelBCount, invested: levelBInvested, earned: levelBEarned },
+          C: { count: levelCCount, invested: levelCInvested, earned: levelCEarned }
+        });
+        
+        console.log('Referral data loaded:', {
+          total: levelACount + levelBCount + levelCCount,
+          invested: levelAInvested + levelBInvested + levelCInvested,
+          earned: levelAEarned + levelBEarned + levelCEarned
+        });
         
       } catch (error) {
-        console.error('Error loading downlines:', error);
+        console.error('Error loading referral data:', error);
         showToast({
           type: 'error',
           title: 'Error',
-          message: 'Failed to load referral data'
+          message: 'Failed to load referral data: ' + error.message
         });
       }
+    }
+
+    // ==================== UPDATE UI ====================
+    function updateUI(data) {
+      // Update summary cards
+      document.getElementById('totalReferrals').textContent = data.total;
+      document.getElementById('totalInvested').textContent = '₦' + formatMoney(data.invested);
+      document.getElementById('totalEarned').textContent = '₦' + formatMoney(data.earned);
+      
+      // Update Level A stats
+      document.getElementById('levelACount').textContent = data.A.count;
+      document.getElementById('levelAInvested').textContent = '₦' + formatMoney(data.A.invested);
+      document.getElementById('levelAEarned').textContent = '₦' + formatMoney(data.A.earned);
+      
+      // Update Level B stats
+      document.getElementById('levelBCount').textContent = data.B.count;
+      document.getElementById('levelBInvested').textContent = '₦' + formatMoney(data.B.invested);
+      document.getElementById('levelBEarned').textContent = '₦' + formatMoney(data.B.earned);
+      
+      // Update Level C stats
+      document.getElementById('levelCCount').textContent = data.C.count;
+      document.getElementById('levelCInvested').textContent = '₦' + formatMoney(data.C.invested);
+      document.getElementById('levelCEarned').textContent = '₦' + formatMoney(data.C.earned);
+      
+      // Update mini stats
+      document.getElementById('totalClicks').textContent = userData?.referralClicks || 0;
+      document.getElementById('conversions').textContent = data.A.count;
     }
 
     // ==================== LOAD DOWNLINES FOR SPECIFIC LEVEL ====================
@@ -1398,7 +1416,7 @@
       
       if (downlines.length === 0) {
         html += `
-          <div style="text-align: center; padding: 20px; color: var(--gray-500);">
+          <div class="empty-state" style="padding: 20px;">
             <i class="fas fa-users" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i>
             <p>No downlines yet</p>
           </div>
@@ -1422,7 +1440,7 @@
               <div class="downline-stats">
                 <div class="downline-invested">₦${formatMoney(downline.totalInvested)}</div>
                 <div class="downline-earned">
-                  <i class="fas fa-arrow-up"></i> ₦${formatMoney(downline.totalEarned)}
+                  <i class="fas fa-arrow-up"></i> ₦${formatMoney(downline.commission || 0)}
                 </div>
               </div>
             </div>
@@ -1432,35 +1450,6 @@
       
       html += '</div>';
       content.innerHTML = html;
-    }
-
-    // ==================== UPDATE UI ====================
-    function updateUI() {
-      // Update summary cards
-      const totalReferrals = levelStats.A.count + levelStats.B.count + levelStats.C.count;
-      const totalInvested = levelStats.A.invested + levelStats.B.invested + levelStats.C.invested;
-      const totalEarned = levelStats.A.earned + levelStats.B.earned + levelStats.C.earned;
-      
-      document.getElementById('totalReferrals').textContent = totalReferrals;
-      document.getElementById('totalInvested').textContent = '₦' + formatMoney(totalInvested);
-      document.getElementById('totalEarned').textContent = '₦' + formatMoney(totalEarned);
-      
-      // Update level stats
-      document.getElementById('levelACount').textContent = levelStats.A.count;
-      document.getElementById('levelAInvested').textContent = '₦' + formatMoney(levelStats.A.invested);
-      document.getElementById('levelAEarned').textContent = '₦' + formatMoney(levelStats.A.earned);
-      
-      document.getElementById('levelBCount').textContent = levelStats.B.count;
-      document.getElementById('levelBInvested').textContent = '₦' + formatMoney(levelStats.B.invested);
-      document.getElementById('levelBEarned').textContent = '₦' + formatMoney(levelStats.B.earned);
-      
-      document.getElementById('levelCCount').textContent = levelStats.C.count;
-      document.getElementById('levelCInvested').textContent = '₦' + formatMoney(levelStats.C.invested);
-      document.getElementById('levelCEarned').textContent = '₦' + formatMoney(levelStats.C.earned);
-      
-      // Update referral link mini stats
-      document.getElementById('totalClicks').textContent = userData?.referralClicks || 0;
-      document.getElementById('conversions').textContent = levelStats.A.count;
     }
 
     // ==================== LOAD USER DATA ====================
@@ -1485,8 +1474,8 @@
         const refLink = `${window.location.origin}/signup.html?ref=${refCode}`;
         document.getElementById('referralLink').textContent = refLink;
         
-        // Load downlines
-        await loadDownlines();
+        // Load referral data
+        await loadReferralData();
         
       } catch (err) {
         console.error('Error loading user data:', err);
