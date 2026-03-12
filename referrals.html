@@ -102,6 +102,7 @@
     .lc-stat:last-child{border-right:none;}
     .lc-stat-lbl{font-size:11px;color:var(--gray-500);text-transform:uppercase;margin-bottom:4px;}
     .lc-stat-val{font-size:18px;font-weight:700;color:var(--gray-800);}
+    .lc-stat-val.green{color:var(--success);}
 
     /* EXPAND BUTTON */
     .expand-btn{width:100%;padding:11px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--r-lg);color:var(--gray-600);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;font-family:inherit;}
@@ -110,32 +111,45 @@
     .expand-btn.open i{transform:rotate(180deg);}
 
     /* DOWNLINE LIST */
-    .downline-wrap{margin-top:16px;display:none;}
+    .downline-wrap{margin-top:14px;display:none;}
     .downline-wrap.show{display:block;}
-    .downline-list{display:flex;flex-direction:column;gap:10px;}
-    .downline-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--gray-50);border-radius:var(--r-lg);transition:background 0.2s;}
-    .downline-item:hover{background:var(--primary-soft);}
-    .dl-info{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
-    .dl-avatar{width:40px;height:40px;background:var(--primary-soft);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700;font-size:15px;flex-shrink:0;}
+
+    /* DOWNLINE MEMBER CARD */
+    .downline-item{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--r-lg);padding:14px;margin-bottom:10px;transition:all 0.2s;}
+    .downline-item:last-child{margin-bottom:0;}
+    .downline-item:hover{background:var(--primary-soft);border-color:var(--primary-light);}
+    .dl-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .dl-info{display:flex;align-items:center;gap:10px;}
+    .dl-avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;}
     .dl-name{font-weight:700;font-size:14px;color:var(--gray-800);}
-    .dl-sub{font-size:11px;color:var(--gray-500);margin-top:2px;}
-    .dl-right{text-align:right;flex-shrink:0;}
-    .dl-invested{font-weight:700;font-size:14px;color:var(--gray-800);}
-    .dl-earned{font-size:11px;color:var(--success);margin-top:2px;}
+    .dl-sub{font-size:11px;color:var(--gray-500);margin-top:1px;}
+    .dl-no-plans{font-size:12px;color:var(--gray-400);font-style:italic;padding:4px 0;}
+
+    /* PLAN PILLS — what the downline actually invested in */
+    .plan-list{display:flex;flex-direction:column;gap:6px;}
+    .plan-pill{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-md);padding:9px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+    .plan-pill-left{display:flex;align-items:center;gap:8px;}
+    .plan-pill-icon{width:28px;height:28px;background:var(--primary-soft);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+    .plan-pill-name{font-weight:700;font-size:13px;color:var(--gray-800);}
+    .plan-pill-type{font-size:11px;color:var(--gray-500);margin-top:1px;}
+    .plan-pill-right{text-align:right;}
+    .plan-pill-invested{font-weight:700;font-size:13px;color:var(--gray-800);}
+    .plan-pill-commission{font-size:11px;color:var(--success);font-weight:600;margin-top:1px;}
+    .plan-pill-total{font-size:11px;color:var(--gray-500);margin-top:1px;}
+    .plan-status{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:var(--r-full);font-size:10px;font-weight:700;}
+    .plan-status.active{background:var(--primary-soft);color:var(--primary-dark);}
+    .plan-status.completed{background:var(--gray-100);color:var(--gray-600);}
+
+    /* MEMBER COMMISSION TOTAL */
+    .dl-commission-total{display:flex;align-items:center;justify-content:space-between;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-md);padding:8px 12px;margin-top:8px;}
+    .dct-label{font-size:12px;color:var(--gray-500);font-weight:600;}
+    .dct-value{font-size:14px;font-weight:700;color:var(--success);}
 
     /* LOADING */
     .loading-state{text-align:center;padding:40px;color:var(--gray-500);}
     .spinner-lg{width:40px;height:40px;border:3px solid rgba(30,123,75,0.15);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
-    .spinner{width:16px;height:16px;border:2px solid rgba(30,123,75,0.2);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;}
+    .inline-spinner{width:14px;height:14px;border:2px solid rgba(30,123,75,0.2);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
     @keyframes spin{to{transform:rotate(360deg);}}
-
-    /* EMPTY */
-    .empty-state{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-2xl);padding:36px 20px;text-align:center;}
-    .empty-icon{width:64px;height:64px;background:var(--gray-50);border-radius:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px;color:var(--gray-400);}
-    .empty-state h3{font-size:16px;font-weight:700;color:var(--gray-800);margin-bottom:8px;}
-    .empty-state p{font-size:13px;color:var(--gray-500);margin-bottom:16px;}
-    .empty-btn{display:inline-block;padding:10px 24px;background:var(--primary);border-radius:var(--r-md);color:white;text-decoration:none;font-weight:700;font-size:13px;transition:all 0.2s;}
-    .empty-btn:hover{background:var(--primary-dark);}
 
     /* BOTTOM NAV */
     .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--white);border-top:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-around;padding:0 8px;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.06);}
@@ -143,11 +157,6 @@
     .nav-item i{font-size:18px;}
     .nav-item.active{color:var(--primary);}
     .nav-center{width:50px;height:50px;background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:16px;display:flex;align-items:center;justify-content:center;color:white;font-size:22px;transform:translateY(-8px);box-shadow:0 4px 14px rgba(30,123,75,0.4);text-decoration:none;}
-
-    /* ERROR BOX */
-    .err-box{background:#FEF2F2;border:2px solid var(--error);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:16px;}
-    .err-box-title{font-weight:700;color:var(--error);font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
-    .err-box-body{font-size:13px;color:var(--gray-700);}
   </style>
 </head>
 <body>
@@ -164,7 +173,7 @@
   <div class="container">
     <div class="page-title">
       <h1>My Referrals</h1>
-      <p>Track your network and earnings</p>
+      <p>Track your network and commission earnings</p>
     </div>
 
     <!-- Referral Link Card -->
@@ -183,7 +192,7 @@
           <span class="rms-value" id="miniTotal">0</span>
         </div>
         <div class="rms-item">
-          <span class="rms-label">Total Earned</span>
+          <span class="rms-label">Total Commission</span>
           <span class="rms-value" id="miniEarned">₦0</span>
         </div>
       </div>
@@ -194,17 +203,17 @@
       <div class="level-item">
         <div class="level-badge la">A</div>
         <div class="level-pct">25%</div>
-        <div class="level-lbl">Level 1</div>
+        <div class="level-lbl">Level 1 Direct</div>
       </div>
       <div class="level-item">
         <div class="level-badge lb">B</div>
         <div class="level-pct">2%</div>
-        <div class="level-lbl">Level 2</div>
+        <div class="level-lbl">Level 2 Indirect</div>
       </div>
       <div class="level-item">
         <div class="level-badge lc">C</div>
         <div class="level-pct">1%</div>
-        <div class="level-lbl">Level 3</div>
+        <div class="level-lbl">Level 3 Network</div>
       </div>
     </div>
 
@@ -217,18 +226,15 @@
       </div>
       <div class="summary-card">
         <div class="summary-icon"><i class="fas fa-chart-line"></i></div>
-        <div class="summary-value" id="totalInvested">₦0</div>
-        <div class="summary-label">Team Investment</div>
+        <div class="summary-value" id="totalPlanInvested">₦0</div>
+        <div class="summary-label">Team Plan Volume</div>
       </div>
       <div class="summary-card">
         <div class="summary-icon"><i class="fas fa-coins"></i></div>
         <div class="summary-value" id="totalEarned">₦0</div>
-        <div class="summary-label">Commission Earned</div>
+        <div class="summary-label">Your Commission</div>
       </div>
     </div>
-
-    <!-- Error display -->
-    <div id="errorBox" style="display:none;"></div>
 
     <!-- Loading state -->
     <div id="loadingState" class="loading-state">
@@ -236,7 +242,7 @@
       <p>Loading your referral network...</p>
     </div>
 
-    <!-- Level Cards (hidden until data loads) -->
+    <!-- Level Cards -->
     <div id="levelCards" style="display:none;">
 
       <!-- Level A -->
@@ -245,16 +251,16 @@
           <div class="lc-icon la">A</div>
           <div class="lc-title">
             <h3>Level 1 — Direct Referrals (25%)</h3>
-            <p>People who signed up using your link</p>
+            <p>People who signed up using your referral link</p>
           </div>
         </div>
         <div class="lc-stats">
           <div class="lc-stat"><div class="lc-stat-lbl">Members</div><div class="lc-stat-val" id="lcACount">0</div></div>
-          <div class="lc-stat"><div class="lc-stat-lbl">Invested</div><div class="lc-stat-val" id="lcAInvested">₦0</div></div>
-          <div class="lc-stat"><div class="lc-stat-lbl">Earned</div><div class="lc-stat-val" id="lcAEarned">₦0</div></div>
+          <div class="lc-stat"><div class="lc-stat-lbl">Plan Volume</div><div class="lc-stat-val" id="lcAInvested">₦0</div></div>
+          <div class="lc-stat"><div class="lc-stat-lbl">Your Commission</div><div class="lc-stat-val green" id="lcAEarned">₦0</div></div>
         </div>
         <button class="expand-btn" id="btnA" onclick="toggleLevel('A')">
-          <span>View Members</span><i class="fas fa-chevron-down"></i>
+          <span>View Members & Plans</span><i class="fas fa-chevron-down"></i>
         </button>
         <div class="downline-wrap" id="wrapA"></div>
       </div>
@@ -270,11 +276,11 @@
         </div>
         <div class="lc-stats">
           <div class="lc-stat"><div class="lc-stat-lbl">Members</div><div class="lc-stat-val" id="lcBCount">0</div></div>
-          <div class="lc-stat"><div class="lc-stat-lbl">Invested</div><div class="lc-stat-val" id="lcBInvested">₦0</div></div>
-          <div class="lc-stat"><div class="lc-stat-lbl">Earned</div><div class="lc-stat-val" id="lcBEarned">₦0</div></div>
+          <div class="lc-stat"><div class="lc-stat-lbl">Plan Volume</div><div class="lc-stat-val" id="lcBInvested">₦0</div></div>
+          <div class="lc-stat"><div class="lc-stat-lbl">Your Commission</div><div class="lc-stat-val green" id="lcBEarned">₦0</div></div>
         </div>
         <button class="expand-btn" id="btnB" onclick="toggleLevel('B')">
-          <span>View Members</span><i class="fas fa-chevron-down"></i>
+          <span>View Members & Plans</span><i class="fas fa-chevron-down"></i>
         </button>
         <div class="downline-wrap" id="wrapB"></div>
       </div>
@@ -290,16 +296,16 @@
         </div>
         <div class="lc-stats">
           <div class="lc-stat"><div class="lc-stat-lbl">Members</div><div class="lc-stat-val" id="lcCCount">0</div></div>
-          <div class="lc-stat"><div class="lc-stat-lbl">Invested</div><div class="lc-stat-val" id="lcCInvested">₦0</div></div>
-          <div class="lc-stat"><div class="lc-stat-lbl">Earned</div><div class="lc-stat-val" id="lcCEarned">₦0</div></div>
+          <div class="lc-stat"><div class="lc-stat-lbl">Plan Volume</div><div class="lc-stat-val" id="lcCInvested">₦0</div></div>
+          <div class="lc-stat"><div class="lc-stat-lbl">Your Commission</div><div class="lc-stat-val green" id="lcCEarned">₦0</div></div>
         </div>
         <button class="expand-btn" id="btnC" onclick="toggleLevel('C')">
-          <span>View Members</span><i class="fas fa-chevron-down"></i>
+          <span>View Members & Plans</span><i class="fas fa-chevron-down"></i>
         </button>
         <div class="downline-wrap" id="wrapC"></div>
       </div>
-    </div>
 
+    </div>
   </div>
 
   <nav class="bottom-nav">
@@ -311,9 +317,6 @@
   </nav>
 
   <script>
-    // ═══════════════════════════════════════
-    //  FIREBASE
-    // ═══════════════════════════════════════
     const firebaseConfig = {
       apiKey:            "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
       authDomain:        "primevest-5208c.firebaseapp.com",
@@ -326,18 +329,14 @@
     const auth = firebase.auth();
     const db   = firebase.firestore();
 
-    // ═══════════════════════════════════════
-    //  STATE
-    // ═══════════════════════════════════════
     let currentUser = null;
     let userData    = null;
-    let downlinesA  = [];
-    let downlinesB  = [];
-    let downlinesC  = [];
 
-    // ═══════════════════════════════════════
-    //  UTILS
-    // ═══════════════════════════════════════
+    // downlinesX: array of { id, name, email, plans: [{planName, planType, amount, totalReturn, status}] }
+    let downlinesA = [];
+    let downlinesB = [];
+    let downlinesC = [];
+
     const fmt = n => Number(n||0).toLocaleString('en-NG');
     const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -345,214 +344,197 @@
       const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
       const el = document.createElement('div');
       el.className = `toast ${type}`;
-      el.innerHTML = `
-        <div class="ti"><i class="fas ${icons[type]}"></i></div>
-        <div class="tc"><div class="tt">${title}</div><div class="tm">${message}</div></div>
-        <div class="tclose" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>`;
+      el.innerHTML = `<div class="ti"><i class="fas ${icons[type]}"></i></div><div class="tc"><div class="tt">${title}</div><div class="tm">${message}</div></div><div class="tclose" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>`;
       document.getElementById('toastContainer').appendChild(el);
       setTimeout(() => el.classList.add('show'), 10);
       if (duration) setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, duration);
     }
 
-    function showError(title, msg) {
-      const box = document.getElementById('errorBox');
-      box.style.display = 'block';
-      box.innerHTML = `
-        <div class="err-box">
-          <div class="err-box-title"><i class="fas fa-exclamation-circle"></i> ${esc(title)}</div>
-          <div class="err-box-body">${esc(msg)}</div>
-        </div>`;
-    }
-
-    // ═══════════════════════════════════════
-    //  COPY REFERRAL LINK
-    // ═══════════════════════════════════════
     function copyLink() {
       const link = document.getElementById('referralLink').textContent;
-      navigator.clipboard.writeText(link).catch(() => {
+      const btn  = document.querySelector('.copy-btn');
+      const fallback = () => {
         const ta = document.createElement('textarea');
         ta.value = link; document.body.appendChild(ta);
         ta.select(); document.execCommand('copy');
         document.body.removeChild(ta);
-      }).finally(() => {
-        const btn = document.querySelector('.copy-btn');
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = 'Copy', 2000);
-        showToast({ type:'success', title:'Copied!', message:'Referral link copied to clipboard.' });
-      });
+      };
+      (navigator.clipboard ? navigator.clipboard.writeText(link).catch(fallback) : Promise.resolve(fallback()))
+        .finally(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = 'Copy', 2000);
+          showToast({ type:'success', title:'Copied!', message:'Referral link copied to clipboard.' });
+        });
     }
 
-    // ═══════════════════════════════════════
-    //  GET INVESTED AMOUNT FROM USER DOC
-    //  Reads totalDeposited or balance fields stored on the user document.
-    //  This avoids querying other users' deposits (permission issue).
-    // ═══════════════════════════════════════
-    function getInvestedAmount(userDoc) {
-      const d = userDoc;
-      // Try common field names where total invested is stored on the user doc
-      return Number(
-        d.totalDeposited  ??
-        d.totalInvested   ??
-        d.investedAmount  ??
-        d.totalInvestment ??
-        d.invested        ??
-        0
-      );
+    // ══════════════════════════════════════════
+    //  FETCH PLANS for a given userId
+    //  Returns array of plan objects from
+    //  the investments collection — NOT deposits.
+    //  This is what we show in the referral page.
+    // ══════════════════════════════════════════
+    async function fetchUserPlans(userId) {
+      try {
+        const snap = await db.collection('investments')
+          .where('userId', '==', userId)
+          .get();
+
+        const plans = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          plans.push({
+            id:          doc.id,
+            planName:    d.planName    || 'Investment Plan',
+            planType:    d.planType    || 'daily',
+            amount:      Number(d.amount      || 0), // what they put in
+            totalReturn: Number(d.totalReturn || 0), // what they will get back
+            dailyReturn: Number(d.dailyReturn || 0),
+            totalDays:   Number(d.totalDays   || d.duration || 0),
+            status:      d.status || 'active'
+          });
+        });
+        return plans;
+      } catch (e) {
+        console.warn(`fetchUserPlans(${userId}) failed:`, e.message);
+        return [];
+      }
     }
 
-    // ═══════════════════════════════════════
-    //  LOAD REFERRAL DATA
-    //  Strategy: query users by referrerUid / referralCode.
-    //  Read investment totals from the user document itself
-    //  (no per-user deposit sub-queries = no permission errors).
-    // ═══════════════════════════════════════
+    // ══════════════════════════════════════════
+    //  FETCH DOWNLINE USERS by referrer field
+    //  Returns array of user objects
+    // ══════════════════════════════════════════
+    async function fetchDownlineUsers(referrerIds, isSingle = false) {
+      // referrerIds: array of uids whose referrals we want
+      // Strategy: query users where referrerUid (or referredBy) IN referrerIds
+      const results = [];
+      const seen    = new Set();
+
+      // Batch into groups of 30 (Firestore 'in' limit)
+      const batches = [];
+      for (let i = 0; i < referrerIds.length; i += 30) batches.push(referrerIds.slice(i, i + 30));
+
+      for (const batch of batches) {
+        // Try referrerUid field
+        let snap = null;
+        try {
+          snap = batch.length === 1
+            ? await db.collection('users').where('referrerUid', '==', batch[0]).get()
+            : await db.collection('users').where('referrerUid', 'in', batch).get();
+        } catch (e) { console.warn('referrerUid query error:', e.message); }
+
+        // Fallback: try referredBy field if referrerUid returned nothing
+        if (!snap || snap.empty) {
+          try {
+            snap = batch.length === 1
+              ? await db.collection('users').where('referredBy', '==', batch[0]).get()
+              : await db.collection('users').where('referredBy', 'in', batch).get();
+          } catch (e) { console.warn('referredBy query error:', e.message); }
+        }
+
+        if (snap && !snap.empty) {
+          snap.forEach(doc => {
+            if (!seen.has(doc.id)) {
+              seen.add(doc.id);
+              const d = doc.data();
+              results.push({
+                id:         doc.id,
+                name:       d.fullName || d.username || d.displayName || 'Member',
+                email:      d.email || '',
+                referrerUid: d.referrerUid || d.referredBy || null,
+                plans:      [] // filled below
+              });
+            }
+          });
+        }
+      }
+      return results;
+    }
+
+    // ══════════════════════════════════════════
+    //  LOAD ALL REFERRAL DATA
+    // ══════════════════════════════════════════
     async function loadReferralData() {
-      if (!currentUser || !userData) return;
-
       document.getElementById('loadingState').style.display = 'block';
       document.getElementById('levelCards').style.display   = 'none';
-      document.getElementById('errorBox').style.display     = 'none';
 
-      // Figure out what field name is used to store the referrer ID on user docs
-      // Most common: referrerUid, referredBy, referralCode (of the referrer)
       const myUid  = currentUser.uid;
       const myCode = userData.referralCode || userData.username || myUid.slice(0, 8);
 
       try {
-        // ── LEVEL A: users who have referrerUid == myUid OR referredByCode == myCode ──
-        let levelASnap = null;
+        // ── LEVEL A ──
+        let levelAUsers = await fetchDownlineUsers([myUid]);
 
-        // Try referrerUid first
-        try {
-          levelASnap = await db.collection('users').where('referrerUid', '==', myUid).get();
-        } catch (e) {
-          console.warn('referrerUid query failed, trying referredBy:', e.message);
-        }
-
-        // Fallback: try referredBy field
-        if (!levelASnap || levelASnap.empty) {
+        // Also try referredByCode if still empty
+        if (!levelAUsers.length && myCode) {
           try {
-            levelASnap = await db.collection('users').where('referredBy', '==', myUid).get();
-          } catch (e) { console.warn('referredBy query failed:', e.message); }
-        }
-
-        // Fallback: try referralCode match
-        if (!levelASnap || levelASnap.empty) {
-          try {
-            levelASnap = await db.collection('users').where('referredByCode', '==', myCode).get();
-          } catch (e) { console.warn('referredByCode query failed:', e.message); }
-        }
-
-        downlinesA = [];
-        if (levelASnap && !levelASnap.empty) {
-          levelASnap.forEach(doc => {
-            const d = doc.data();
-            downlinesA.push({
-              id:         doc.id,
-              name:       d.fullName || d.username || d.displayName || 'Member',
-              email:      d.email || '',
-              invested:   getInvestedAmount(d),
-              joinedAt:   d.createdAt || null
+            const codeSnap = await db.collection('users').where('referredByCode', '==', myCode).get();
+            const seen = new Set(levelAUsers.map(u => u.id));
+            codeSnap.forEach(doc => {
+              if (!seen.has(doc.id)) {
+                const d = doc.data();
+                levelAUsers.push({ id:doc.id, name:d.fullName||d.username||'Member', email:d.email||'', plans:[] });
+              }
             });
-          });
+          } catch (e) { console.warn('referredByCode fallback error:', e.message); }
         }
 
-        // ── LEVEL B: referrals of Level A members ──
-        downlinesB = [];
-        if (downlinesA.length > 0) {
-          // Firestore 'in' supports max 30 items — batch if needed
-          const aIds = downlinesA.map(d => d.id);
-          const batches = [];
-          for (let i = 0; i < aIds.length; i += 30) batches.push(aIds.slice(i, i + 30));
-
-          for (const batch of batches) {
-            try {
-              const bSnap = await db.collection('users').where('referrerUid', '==', batch[0]).get();
-              // For single items use equality; for multiple use 'in'
-              let snap2;
-              if (batch.length === 1) {
-                snap2 = await db.collection('users').where('referrerUid', '==', batch[0]).get();
-              } else {
-                snap2 = await db.collection('users').where('referrerUid', 'in', batch).get();
-              }
-              snap2.forEach(doc => {
-                const d = doc.data();
-                const referrer = downlinesA.find(a => a.id === (d.referrerUid || d.referredBy));
-                downlinesB.push({
-                  id:         doc.id,
-                  name:       d.fullName || d.username || d.displayName || 'Member',
-                  email:      d.email || '',
-                  invested:   getInvestedAmount(d),
-                  referredBy: referrer?.name || 'Level 1 Member'
-                });
-              });
-            } catch (e) { console.warn('Level B batch error:', e.message); }
-          }
+        // Fetch each Level A user's investment plans
+        for (const user of levelAUsers) {
+          user.plans = await fetchUserPlans(user.id);
         }
+        downlinesA = levelAUsers;
 
-        // ── LEVEL C: referrals of Level B members ──
-        downlinesC = [];
-        if (downlinesB.length > 0) {
-          const bIds = downlinesB.map(d => d.id);
-          const batches = [];
-          for (let i = 0; i < bIds.length; i += 30) batches.push(bIds.slice(i, i + 30));
-
-          for (const batch of batches) {
-            try {
-              let snap3;
-              if (batch.length === 1) {
-                snap3 = await db.collection('users').where('referrerUid', '==', batch[0]).get();
-              } else {
-                snap3 = await db.collection('users').where('referrerUid', 'in', batch).get();
-              }
-              snap3.forEach(doc => {
-                const d = doc.data();
-                const referrer = downlinesB.find(b => b.id === (d.referrerUid || d.referredBy));
-                downlinesC.push({
-                  id:         doc.id,
-                  name:       d.fullName || d.username || d.displayName || 'Member',
-                  email:      d.email || '',
-                  invested:   getInvestedAmount(d),
-                  referredBy: referrer?.name || 'Level 2 Member'
-                });
-              });
-            } catch (e) { console.warn('Level C batch error:', e.message); }
-          }
+        // ── LEVEL B ──
+        const aIds = downlinesA.map(u => u.id);
+        let levelBUsers = aIds.length ? await fetchDownlineUsers(aIds) : [];
+        for (const user of levelBUsers) {
+          user.plans = await fetchUserPlans(user.id);
+          // Tag which Level A member referred them
+          const referrer = downlinesA.find(a => a.id === user.referrerUid);
+          user.referredByName = referrer?.name || 'Level 1 Member';
         }
+        downlinesB = levelBUsers;
 
-        // ── Calculate totals ──
-        const sumInvested = arr => arr.reduce((s, d) => s + d.invested, 0);
-        const aInvested   = sumInvested(downlinesA);
-        const bInvested   = sumInvested(downlinesB);
-        const cInvested   = sumInvested(downlinesC);
-        const aEarned     = aInvested * 0.25;
-        const bEarned     = bInvested * 0.02;
-        const cEarned     = cInvested * 0.01;
+        // ── LEVEL C ──
+        const bIds = downlinesB.map(u => u.id);
+        let levelCUsers = bIds.length ? await fetchDownlineUsers(bIds) : [];
+        for (const user of levelCUsers) {
+          user.plans = await fetchUserPlans(user.id);
+          const referrer = downlinesB.find(b => b.id === user.referrerUid);
+          user.referredByName = referrer?.name || 'Level 2 Member';
+        }
+        downlinesC = levelCUsers;
 
-        // ── Update UI ──
-        // Summary
-        document.getElementById('totalReferrals').textContent = downlinesA.length + downlinesB.length + downlinesC.length;
-        document.getElementById('totalInvested').textContent  = '₦' + fmt(aInvested + bInvested + cInvested);
-        document.getElementById('totalEarned').textContent    = '₦' + fmt(aEarned + bEarned + cEarned);
-        document.getElementById('miniTotal').textContent      = downlinesA.length;
-        document.getElementById('miniEarned').textContent     = '₦' + fmt(aEarned + bEarned + cEarned);
+        // ── Compute totals from PLAN INVESTMENTS (not deposits) ──
+        const sumPlans = arr => arr.reduce((s, u) => s + u.plans.reduce((ps, p) => ps + p.amount, 0), 0);
+        const aVolume  = sumPlans(downlinesA);
+        const bVolume  = sumPlans(downlinesB);
+        const cVolume  = sumPlans(downlinesC);
+        const aEarned  = Math.round(aVolume * 0.25);
+        const bEarned  = Math.round(bVolume * 0.02);
+        const cEarned  = Math.round(cVolume * 0.01);
+        const total    = aEarned + bEarned + cEarned;
 
-        // Level A
+        // ── Update Summary ──
+        document.getElementById('totalReferrals').textContent  = downlinesA.length + downlinesB.length + downlinesC.length;
+        document.getElementById('totalPlanInvested').textContent = '₦' + fmt(aVolume + bVolume + cVolume);
+        document.getElementById('totalEarned').textContent     = '₦' + fmt(total);
+        document.getElementById('miniTotal').textContent       = downlinesA.length;
+        document.getElementById('miniEarned').textContent      = '₦' + fmt(total);
+
         document.getElementById('lcACount').textContent    = downlinesA.length;
-        document.getElementById('lcAInvested').textContent = '₦' + fmt(aInvested);
+        document.getElementById('lcAInvested').textContent = '₦' + fmt(aVolume);
         document.getElementById('lcAEarned').textContent   = '₦' + fmt(aEarned);
 
-        // Level B
         document.getElementById('lcBCount').textContent    = downlinesB.length;
-        document.getElementById('lcBInvested').textContent = '₦' + fmt(bInvested);
+        document.getElementById('lcBInvested').textContent = '₦' + fmt(bVolume);
         document.getElementById('lcBEarned').textContent   = '₦' + fmt(bEarned);
 
-        // Level C
         document.getElementById('lcCCount').textContent    = downlinesC.length;
-        document.getElementById('lcCInvested').textContent = '₦' + fmt(cInvested);
+        document.getElementById('lcCInvested').textContent = '₦' + fmt(cVolume);
         document.getElementById('lcCEarned').textContent   = '₦' + fmt(cEarned);
 
-        // Show cards
         document.getElementById('loadingState').style.display = 'none';
         document.getElementById('levelCards').style.display   = 'block';
 
@@ -560,28 +542,23 @@
         console.error('Referral load error:', err);
         document.getElementById('loadingState').style.display = 'none';
         document.getElementById('levelCards').style.display   = 'block';
-
-        let msg = err.message;
-        if (err.code === 'permission-denied') {
-          msg = 'Firestore permission denied. Make sure users collection allows: allow read: if true; in your rules.';
-        }
-        showError('Failed to Load Referral Data', msg);
-        showToast({ type:'error', title:'Load Error', message: msg });
+        showToast({ type:'error', title:'Load Error', message: err.code === 'permission-denied'
+          ? 'Permission denied. Check Firestore rules for users and investments collections.'
+          : err.message });
       }
     }
 
-    // ═══════════════════════════════════════
-    //  TOGGLE LEVEL
-    // ═══════════════════════════════════════
+    // ══════════════════════════════════════════
+    //  TOGGLE LEVEL EXPAND
+    // ══════════════════════════════════════════
     function toggleLevel(lv) {
-      const wrap = document.getElementById('wrap' + lv);
-      const btn  = document.getElementById('btn'  + lv);
+      const wrap  = document.getElementById('wrap' + lv);
+      const btn   = document.getElementById('btn'  + lv);
       const isOpen = wrap.classList.contains('show');
-
       if (isOpen) {
         wrap.classList.remove('show');
         btn.classList.remove('open');
-        btn.querySelector('span').textContent = 'View Members';
+        btn.querySelector('span').textContent = 'View Members & Plans';
       } else {
         renderDownlines(lv);
         wrap.classList.add('show');
@@ -590,48 +567,89 @@
       }
     }
 
-    // ═══════════════════════════════════════
+    // ══════════════════════════════════════════
     //  RENDER DOWNLINES
-    // ═══════════════════════════════════════
+    //  Shows each member + their plan cards
+    //  with the commission YOU earn from each plan
+    // ══════════════════════════════════════════
     function renderDownlines(lv) {
-      const wrap    = document.getElementById('wrap' + lv);
-      const list    = lv === 'A' ? downlinesA : lv === 'B' ? downlinesB : downlinesC;
-      const pct     = lv === 'A' ? 0.25 : lv === 'B' ? 0.02 : 0.01;
+      const wrap = document.getElementById('wrap' + lv);
+      const list = lv === 'A' ? downlinesA : lv === 'B' ? downlinesB : downlinesC;
+      const rate = lv === 'A' ? 0.25 : lv === 'B' ? 0.02 : 0.01;
+      const lvNum = lv === 'A' ? '1' : lv === 'B' ? '2' : '3';
 
       if (!list.length) {
         wrap.innerHTML = `
-          <div style="text-align:center;padding:24px;color:var(--gray-500);">
-            <i class="fas fa-users" style="font-size:32px;margin-bottom:10px;display:block;opacity:0.35;"></i>
-            <p style="font-size:13px;">No Level ${lv === 'A' ? '1' : lv === 'B' ? '2' : '3'} members yet.</p>
-            ${lv === 'A' ? '<p style="font-size:12px;margin-top:4px;">Share your referral link to start earning!</p>' : ''}
+          <div style="text-align:center;padding:28px;color:var(--gray-500);">
+            <i class="fas fa-users" style="font-size:32px;margin-bottom:12px;display:block;opacity:0.3;"></i>
+            <p style="font-weight:600;margin-bottom:4px;">No Level ${lvNum} members yet</p>
+            ${lv === 'A' ? '<p style="font-size:12px;">Share your referral link to start earning commissions!</p>' : '<p style="font-size:12px;">When your Level ' + (Number(lvNum)-1) + ' members refer others, they appear here.</p>'}
           </div>`;
         return;
       }
 
-      const rows = list.map(d => {
-        const commission = d.invested * pct;
+      const planTypeIcon = t => t === 'daily' ? '☀️' : '⚡';
+      const planTypeLbl  = t => t === 'daily' ? 'Daily Plan' : 'Instant Plan';
+
+      const html = list.map(member => {
+        const memberVolume     = member.plans.reduce((s, p) => s + p.amount, 0);
+        const memberCommission = Math.round(memberVolume * rate);
+
+        // Plan rows
+        let planRows = '';
+        if (!member.plans.length) {
+          planRows = `<div class="dl-no-plans"><i class="fas fa-info-circle" style="margin-right:4px;opacity:0.5;"></i>No active plans yet</div>`;
+        } else {
+          planRows = `<div class="plan-list">` + member.plans.map(p => {
+            const commission = Math.round(p.amount * rate);
+            const statusCls  = p.status === 'active' ? 'active' : 'completed';
+            const statusTxt  = p.status === 'active' ? '● Active' : '✓ Completed';
+            return `
+              <div class="plan-pill">
+                <div class="plan-pill-left">
+                  <div class="plan-pill-icon">${planTypeIcon(p.planType)}</div>
+                  <div>
+                    <div class="plan-pill-name">${esc(p.planName)}</div>
+                    <div class="plan-pill-type">${planTypeLbl(p.planType)}
+                      <span class="plan-status ${statusCls}">${statusTxt}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="plan-pill-right">
+                  <div class="plan-pill-invested">₦${fmt(p.amount)} invested</div>
+                  <div class="plan-pill-commission">Your commission: ₦${fmt(commission)}</div>
+                  <div class="plan-pill-total">Total return: ₦${fmt(p.totalReturn)}</div>
+                </div>
+              </div>`;
+          }).join('') + `</div>`;
+        }
+
         return `
           <div class="downline-item">
-            <div class="dl-info">
-              <div class="dl-avatar">${esc(d.name.charAt(0).toUpperCase())}</div>
-              <div>
-                <div class="dl-name">${esc(d.name)}</div>
-                <div class="dl-sub">${esc(d.email)}${lv !== 'A' && d.referredBy ? ` • via ${esc(d.referredBy)}` : ''}</div>
+            <div class="dl-top">
+              <div class="dl-info">
+                <div class="dl-avatar">${esc(member.name.charAt(0).toUpperCase())}</div>
+                <div>
+                  <div class="dl-name">${esc(member.name)}</div>
+                  <div class="dl-sub">${esc(member.email)}${member.referredByName ? ` · via ${esc(member.referredByName)}` : ''}</div>
+                </div>
               </div>
             </div>
-            <div class="dl-right">
-              <div class="dl-invested">₦${fmt(d.invested)}</div>
-              <div class="dl-earned"><i class="fas fa-arrow-up" style="font-size:8px;"></i> ₦${fmt(commission)}</div>
-            </div>
+            ${planRows}
+            ${member.plans.length ? `
+              <div class="dl-commission-total">
+                <span class="dct-label">Your total commission from ${esc(member.name)}</span>
+                <span class="dct-value">₦${fmt(memberCommission)}</span>
+              </div>` : ''}
           </div>`;
       }).join('');
 
-      wrap.innerHTML = `<div class="downline-list">${rows}</div>`;
+      wrap.innerHTML = html;
     }
 
-    // ═══════════════════════════════════════
+    // ══════════════════════════════════════════
     //  AUTH
-    // ═══════════════════════════════════════
+    // ══════════════════════════════════════════
     auth.onAuthStateChanged(async user => {
       if (!user) { window.location.href = 'login.html'; return; }
       currentUser = user;
@@ -639,26 +657,21 @@
       try {
         const doc = await db.collection('users').doc(user.uid).get();
         if (!doc.exists) { window.location.href = 'login.html'; return; }
-
         userData = doc.data();
 
-        // Profile initial
         document.getElementById('profileInitial').textContent =
           (userData.fullName || userData.username || 'P').charAt(0).toUpperCase();
 
-        // Referral link
         const code    = userData.referralCode || userData.username || user.uid.slice(0, 8);
         const refLink = `${window.location.origin}/signup.html?ref=${code}`;
         document.getElementById('referralLink').textContent = refLink;
 
-        // Load referral data
         await loadReferralData();
-
       } catch (err) {
-        console.error('Auth error:', err);
-        showError('Failed to Load Profile', err.message);
+        console.error('Auth/load error:', err);
         document.getElementById('loadingState').style.display = 'none';
         document.getElementById('levelCards').style.display   = 'block';
+        showToast({ type:'error', title:'Error', message: err.message });
       }
     });
   </script>
