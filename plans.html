@@ -27,7 +27,6 @@
     }
     body{font-family:'Plus Jakarta Sans',sans-serif;background:linear-gradient(145deg,#F0F9F0 0%,var(--white) 100%);color:var(--gray-800);min-height:100vh;padding-bottom:calc(var(--nav)+20px);overflow-x:hidden;}
 
-    /* TOAST */
     .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
     @media(max-width:480px){.toast-container{top:16px;right:16px;left:16px;}}
     .toast{background:var(--white);border-radius:var(--r-lg);padding:14px 18px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:12px;max-width:380px;transform:translateX(120%);transition:transform 0.3s cubic-bezier(0.68,-0.55,0.265,1.55);border-left:4px solid;pointer-events:auto;}
@@ -41,15 +40,14 @@
     .tc{flex:1;} .tt{font-weight:700;font-size:14px;color:var(--gray-800);margin-bottom:2px;} .tm{font-size:12px;color:var(--gray-500);line-height:1.4;}
     .tclose{color:var(--gray-400);cursor:pointer;padding:4px;font-size:14px;}
 
-    /* MODALS */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:10000;padding:20px;}
     .modal-overlay.show{display:flex;}
     .modal-card{background:var(--white);border-radius:var(--r-2xl);width:90%;max-width:420px;padding:28px 24px;box-shadow:var(--shadow-xl);animation:popIn 0.25s cubic-bezier(0.68,-0.55,0.265,1.55);}
     @keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
     .modal-icon{width:64px;height:64px;border-radius:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;}
-    .modal-icon.green {background:rgba(30,123,75,0.1); color:var(--primary);}
-    .modal-icon.warn  {background:rgba(245,158,11,0.1);color:var(--warning);}
-    .modal-icon.red   {background:rgba(239,68,68,0.1); color:var(--error);}
+    .modal-icon.green{background:rgba(30,123,75,0.1);color:var(--primary);}
+    .modal-icon.warn {background:rgba(245,158,11,0.1);color:var(--warning);}
+    .modal-icon.red  {background:rgba(239,68,68,0.1); color:var(--error);}
     .modal-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:700;color:var(--gray-800);text-align:center;margin-bottom:6px;}
     .modal-sub{font-size:14px;color:var(--gray-500);text-align:center;margin-bottom:20px;line-height:1.5;}
     .modal-details{background:var(--gray-50);border-radius:var(--r-lg);padding:16px;margin-bottom:20px;}
@@ -69,7 +67,6 @@
     .spinner-sm{width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg);}}
 
-    /* HEADER */
     .header{height:var(--header);padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:var(--white);border-bottom:1px solid var(--gray-100);position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
     .header-left{display:flex;align-items:center;gap:8px;cursor:pointer;}
     .logo{width:40px;height:40px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:20px;font-weight:700;}
@@ -77,13 +74,11 @@
     .brand span{color:var(--primary);}
     .profile-btn{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:700;font-size:16px;cursor:pointer;}
 
-    /* LAYOUT */
     .container{max-width:1200px;margin:0 auto;padding:20px;}
     .page-title{margin-bottom:24px;}
     .page-title h1{font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;color:var(--gray-800);margin-bottom:6px;}
     .page-title p{font-size:15px;color:var(--gray-500);}
 
-    /* WALLET BALANCE CARD */
     .balance-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--r-2xl);padding:20px 24px;margin-bottom:24px;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
     .balance-label{font-size:13px;opacity:0.85;margin-bottom:4px;}
     .balance-value{font-family:'Outfit',sans-serif;font-size:32px;font-weight:700;}
@@ -91,7 +86,6 @@
     .deposit-link{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;padding:10px 20px;border-radius:var(--r-lg);font-size:13px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.2s;white-space:nowrap;}
     .deposit-link:hover{background:rgba(255,255,255,0.3);}
 
-    /* REFERRAL BANNER */
     .ref-banner{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--r-2xl);padding:20px 24px;margin-bottom:28px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;}
     .ref-banner h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--gray-800);margin-bottom:4px;}
     .ref-banner p{font-size:13px;color:var(--gray-500);}
@@ -100,7 +94,6 @@
     .rb-val{font-size:18px;font-weight:700;color:var(--primary);margin-bottom:2px;}
     .rb-lbl{font-size:10px;color:var(--gray-500);font-weight:600;}
 
-    /* SECTION TITLE */
     .section-title{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
     .section-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
     .section-icon.green{background:rgba(30,123,75,0.1);color:var(--primary);}
@@ -111,10 +104,8 @@
     .badge-green{background:rgba(30,123,75,0.1);color:var(--primary);}
     .badge-warn{background:rgba(245,158,11,0.1);color:var(--warning);}
 
-    /* PLANS GRID */
     .plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin-bottom:40px;}
 
-    /* PLAN CARD */
     .plan-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--r-2xl);padding:22px;transition:all 0.3s;cursor:pointer;position:relative;overflow:hidden;}
     .plan-card:hover:not(.locked){border-color:var(--primary-light);box-shadow:var(--shadow-lg);transform:translateY(-4px);}
     .plan-card.locked{opacity:0.65;cursor:not-allowed;}
@@ -147,12 +138,9 @@
     .lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.5);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:5;border-radius:var(--r-2xl);}
     .lock-badge{width:52px;height:52px;background:rgba(239,68,68,0.9);border-radius:26px;display:flex;align-items:center;justify-content:center;color:white;font-size:22px;}
 
-    /* PAYOUT NOTICE */
     .payout-notice{background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.25);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:24px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray-700);}
     .payout-notice i{color:var(--success);font-size:18px;flex-shrink:0;}
-    .payout-notice strong{color:var(--success);}
 
-    /* BOTTOM NAV */
     .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--white);border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-around;padding:0 8px;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.06);}
     .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;border-radius:var(--r-lg);flex:1;max-width:64px;color:var(--gray-400);font-size:10px;font-weight:600;}
     .nav-item i{font-size:18px;}
@@ -164,12 +152,12 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- ══ Confirm Investment Modal ══ -->
+  <!-- Confirm Investment Modal -->
   <div class="modal-overlay" id="investModal">
     <div class="modal-card">
       <div class="modal-icon green"><i class="fas fa-chart-line"></i></div>
       <h3 class="modal-title" id="modalPlanName">Confirm Investment</h3>
-      <p class="modal-sub"   id="modalPlanType">Daily Earnings Plan</p>
+      <p class="modal-sub" id="modalPlanType">Daily Earnings Plan</p>
       <div class="modal-details" id="modalDetails"></div>
       <div class="modal-actions">
         <button class="mbtn mbtn-primary" id="confirmBtn" onclick="confirmInvestment()">
@@ -180,16 +168,16 @@
     </div>
   </div>
 
-  <!-- ══ Insufficient Balance Modal ══ -->
+  <!-- Insufficient Balance Modal -->
   <div class="modal-overlay" id="insufficientModal">
     <div class="modal-card">
       <div class="modal-icon warn"><i class="fas fa-exclamation-triangle"></i></div>
       <h3 class="modal-title">Insufficient Balance</h3>
-      <p class="modal-sub">You don't have enough funds for this plan. Please deposit to continue.</p>
+      <p class="modal-sub">You don't have enough funds. Please deposit to continue.</p>
       <div class="modal-details">
         <div class="modal-row"><span class="modal-label">Plan Cost</span><span class="modal-value green" id="reqAmt">₦0</span></div>
         <div class="modal-row"><span class="modal-label">Your Balance</span><span class="modal-value" id="balAmt">₦0</span></div>
-        <div class="modal-row"><span class="modal-label">You Need</span><span class="modal-value red" id="shortAmt">₦0</span></div>
+        <div class="modal-row"><span class="modal-label">You Need More</span><span class="modal-value red" id="shortAmt">₦0</span></div>
       </div>
       <div class="modal-actions">
         <a href="deposit.html" class="mbtn mbtn-primary"><i class="fas fa-plus"></i> Deposit Now</a>
@@ -198,14 +186,14 @@
     </div>
   </div>
 
-  <!-- ══ Locked Plan Modal ══ -->
+  <!-- Locked Modal -->
   <div class="modal-overlay" id="lockedModal">
     <div class="modal-card">
       <div class="modal-icon red"><i class="fas fa-lock"></i></div>
       <h3 class="modal-title">Plan Locked</h3>
       <p class="modal-sub">You need ₦50,000 or more in total approved deposits to unlock Instant Access Plans.</p>
       <div class="modal-details">
-        <div class="modal-row"><span class="modal-label">Your Total Deposits</span><span class="modal-value" id="yourDeposits">₦0</span></div>
+        <div class="modal-row"><span class="modal-label">Your Deposits</span><span class="modal-value" id="yourDeposits">₦0</span></div>
         <div class="modal-row"><span class="modal-label">Required</span><span class="modal-value green">₦50,000</span></div>
         <div class="modal-row"><span class="modal-label">Still Need</span><span class="modal-value red" id="lockShort">₦0</span></div>
       </div>
@@ -216,19 +204,18 @@
     </div>
   </div>
 
-  <!-- ══ Error Modal ══ -->
+  <!-- Error Modal -->
   <div class="modal-overlay" id="errorModal">
     <div class="modal-card">
       <div class="modal-icon red"><i class="fas fa-exclamation-circle"></i></div>
       <h3 class="modal-title">Something Went Wrong</h3>
-      <p class="modal-sub" id="errorMsg">An unexpected error occurred. Please try again.</p>
+      <p class="modal-sub" id="errorMsg">An unexpected error occurred.</p>
       <div class="modal-actions" style="justify-content:center;">
         <button class="mbtn mbtn-secondary" onclick="closeModal('errorModal')" style="flex:0.6;">OK</button>
       </div>
     </div>
   </div>
 
-  <!-- Header -->
   <header class="header">
     <div class="header-left" onclick="window.location.href='home.html'">
       <div class="logo">P</div>
@@ -238,13 +225,11 @@
   </header>
 
   <div class="container">
-
     <div class="page-title">
       <h1>Investment Plans</h1>
       <p>Choose the perfect plan to grow your wealth</p>
     </div>
 
-    <!-- Live Balance Card -->
     <div class="balance-card">
       <div>
         <div class="balance-label">💰 Your Wallet Balance</div>
@@ -254,7 +239,6 @@
       <a href="deposit.html" class="deposit-link"><i class="fas fa-plus-circle"></i> Top Up</a>
     </div>
 
-    <!-- Referral Banner -->
     <div class="ref-banner">
       <div>
         <h3>🎁 Earn Referral Bonuses</h3>
@@ -267,13 +251,11 @@
       </div>
     </div>
 
-    <!-- Payout processing notice -->
     <div class="payout-notice" id="payoutNotice" style="display:none;">
       <i id="payoutIcon" class="fas fa-sync-alt fa-spin"></i>
       <span>Processing pending payouts… <strong id="payoutStatus"></strong></span>
     </div>
 
-    <!-- ══ DAILY PLANS ══ -->
     <div class="section-title">
       <div class="section-icon green"><i class="fas fa-sun"></i></div>
       <div class="section-text">
@@ -284,12 +266,11 @@
       </div>
     </div>
     <div class="plans-grid" id="dailyGrid">
-      <div style="text-align:center;padding:40px;color:var(--gray-400);">
+      <div style="text-align:center;padding:40px;color:var(--gray-400);grid-column:1/-1;">
         <i class="fas fa-spinner fa-spin" style="font-size:28px;margin-bottom:10px;display:block;"></i>Loading plans...
       </div>
     </div>
 
-    <!-- ══ INSTANT PLANS ══ -->
     <div class="section-title">
       <div class="section-icon purple"><i class="fas fa-bolt"></i></div>
       <div class="section-text">
@@ -300,11 +281,10 @@
       </div>
     </div>
     <div class="plans-grid" id="instantGrid">
-      <div style="text-align:center;padding:40px;color:var(--gray-400);">
+      <div style="text-align:center;padding:40px;color:var(--gray-400);grid-column:1/-1;">
         <i class="fas fa-spinner fa-spin" style="font-size:28px;margin-bottom:10px;display:block;"></i>Loading plans...
       </div>
     </div>
-
   </div>
 
   <nav class="bottom-nav">
@@ -316,9 +296,6 @@
   </nav>
 
   <script>
-    // ════════════════════════════════════════════
-    //  FIREBASE INIT
-    // ════════════════════════════════════════════
     const firebaseConfig = {
       apiKey:            "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
       authDomain:        "primevest-5208c.firebaseapp.com",
@@ -331,11 +308,8 @@
     const auth = firebase.auth();
     const db   = firebase.firestore();
     const FV   = firebase.firestore.FieldValue;
-    const TS   = firebase.firestore.Timestamp; // ← FIX: use Firestore Timestamps, not JS Dates
+    const TS   = firebase.firestore.Timestamp;
 
-    // ════════════════════════════════════════════
-    //  PLAN DEFINITIONS  (source of truth)
-    // ════════════════════════════════════════════
     const DAILY_PLANS = [
       { id:'d1', name:'Konga 1',     amount:4000,   daily:200,  total:6000,   duration:30,  icon:'🛒' },
       { id:'d2', name:'Audiomack 2', amount:10000,  daily:350,  total:14000,  duration:40,  icon:'🎵' },
@@ -354,19 +328,13 @@
       { id:'i5', name:'Platinum', amount:50000, returnAmt:75000, duration:75, icon:'💎' }
     ];
 
-    // ════════════════════════════════════════════
-    //  STATE
-    // ════════════════════════════════════════════
     let currentUser       = null;
     let userData          = null;
     let userBalance       = 0;
     let userTotalDeposits = 0;
     let selectedPlan      = null;
-    let selectedType      = null; // 'daily' | 'instant'
+    let selectedType      = null;
 
-    // ════════════════════════════════════════════
-    //  UTILS
-    // ════════════════════════════════════════════
     const fmt = n => Number(n || 0).toLocaleString('en-NG');
 
     function toJsDate(val) {
@@ -376,19 +344,11 @@
       return new Date(val);
     }
 
-    function jsDateToTS(date) {
-      // ← FIX: always store Firestore Timestamp, never raw JS Date
-      return TS.fromDate(date);
-    }
-
-    function showToast({ type = 'info', title, message, duration = 5000 }) {
+    function showToast({ type='info', title, message, duration=5000 }) {
       const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
       const el = document.createElement('div');
       el.className = `toast ${type}`;
-      el.innerHTML = `
-        <div class="ti"><i class="fas ${icons[type]}"></i></div>
-        <div class="tc"><div class="tt">${title}</div><div class="tm">${message}</div></div>
-        <div class="tclose" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>`;
+      el.innerHTML = `<div class="ti"><i class="fas ${icons[type]}"></i></div><div class="tc"><div class="tt">${title}</div><div class="tm">${message}</div></div><div class="tclose" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>`;
       document.getElementById('toastContainer').appendChild(el);
       setTimeout(() => el.classList.add('show'), 10);
       if (duration) setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, duration);
@@ -397,46 +357,28 @@
     function openModal(id)  { document.getElementById(id).classList.add('show'); }
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-    // ════════════════════════════════════════════
-    //  LOAD USER DATA
-    // ════════════════════════════════════════════
     async function loadUserData() {
       const doc = await db.collection('users').doc(currentUser.uid).get();
       if (!doc.exists) return;
       userData    = doc.data();
       userBalance = Number(userData.balance || 0);
-
-      // Profile initial
       document.getElementById('profileInitial').textContent =
         (userData.fullName || userData.username || 'P').charAt(0).toUpperCase();
-
-      // Show live balance
       document.getElementById('walletBalance').textContent = '₦' + fmt(userBalance);
 
-      // Calculate total approved deposits
       try {
         const dSnap = await db.collection('deposits')
           .where('userId', '==', currentUser.uid)
           .where('status', '==', 'approved')
           .get();
-
         userTotalDeposits = 0;
         dSnap.forEach(d => { userTotalDeposits += Number(d.data().amount || 0); });
-
-        // Persist for referral page to read
-        await db.collection('users').doc(currentUser.uid).update({
-          totalDeposited: userTotalDeposits
-        });
+        await db.collection('users').doc(currentUser.uid).update({ totalDeposited: userTotalDeposits });
       } catch (e) {
-        console.warn('Deposit calc failed:', e.message);
-        // Fall back to stored value
         userTotalDeposits = Number(userData.totalDeposited || userData.totalInvested || 0);
       }
     }
 
-    // ════════════════════════════════════════════
-    //  RENDER PLANS
-    // ════════════════════════════════════════════
     function renderDailyPlans() {
       document.getElementById('dailyGrid').innerHTML = DAILY_PLANS.map(p => `
         <div class="plan-card" onclick="showInvestModal('${p.id}','daily')">
@@ -445,22 +387,10 @@
           <div class="plan-name">${p.name}</div>
           <div class="plan-amount">₦${fmt(p.amount)}</div>
           <div class="plan-features">
-            <div class="plan-feature">
-              <span class="feat-label"><i class="fas fa-sun"></i> Daily ROI</span>
-              <span class="feat-val green">₦${fmt(p.daily)}</span>
-            </div>
-            <div class="plan-feature">
-              <span class="feat-label"><i class="fas fa-clock"></i> Schedule</span>
-              <span class="feat-val">Every 24 hours</span>
-            </div>
-            <div class="plan-feature">
-              <span class="feat-label"><i class="fas fa-calendar"></i> Duration</span>
-              <span class="feat-val">${p.duration} days</span>
-            </div>
-            <div class="plan-feature">
-              <span class="feat-label"><i class="fas fa-coins"></i> Total Return</span>
-              <span class="feat-val green">₦${fmt(p.total)}</span>
-            </div>
+            <div class="plan-feature"><span class="feat-label"><i class="fas fa-sun"></i> Daily ROI</span><span class="feat-val green">₦${fmt(p.daily)}</span></div>
+            <div class="plan-feature"><span class="feat-label"><i class="fas fa-clock"></i> Schedule</span><span class="feat-val">Every 24 hours</span></div>
+            <div class="plan-feature"><span class="feat-label"><i class="fas fa-calendar"></i> Duration</span><span class="feat-val">${p.duration} days</span></div>
+            <div class="plan-feature"><span class="feat-label"><i class="fas fa-coins"></i> Total Return</span><span class="feat-val green">₦${fmt(p.total)}</span></div>
           </div>
           <div class="plan-footer">
             <span class="plan-price">Profit <strong>₦${fmt(p.total - p.amount)}</strong></span>
@@ -472,30 +402,17 @@
     function renderInstantPlans() {
       const hasAccess = userTotalDeposits >= 50000;
       document.getElementById('instantGrid').innerHTML = INSTANT_PLANS.map(p => `
-        <div class="plan-card${hasAccess ? '' : ' locked'}"
-             onclick="${hasAccess ? `showInvestModal('${p.id}','instant')` : 'showLockedModal()'}">
+        <div class="plan-card${hasAccess ? '' : ' locked'}" onclick="${hasAccess ? `showInvestModal('${p.id}','instant')` : 'showLockedModal()'}">
           <div class="plan-badge purple">50% ROI</div>
           ${!hasAccess ? `<div class="lock-overlay"><div class="lock-badge"><i class="fas fa-lock"></i></div></div>` : ''}
           <div class="plan-icon purple">${p.icon}</div>
           <div class="plan-name">${p.name}</div>
           <div class="plan-amount">₦${fmt(p.amount)}</div>
           <div class="plan-features">
-            <div class="plan-feature">
-              <span class="feat-label"><i class="fas fa-arrow-up purple"></i> You Receive</span>
-              <span class="feat-val purple">₦${fmt(p.returnAmt)}</span>
-            </div>
-            <div class="plan-feature">
-              <span class="feat-label"><i class="fas fa-calendar purple"></i> Duration</span>
-              <span class="feat-val">${p.duration} days</span>
-            </div>
-            <div class="plan-feature">
-              <span class="feat-label"><i class="fas fa-bolt purple"></i> Credit</span>
-              <span class="feat-val">On maturity</span>
-            </div>
-            <div class="plan-feature">
-              <span class="feat-label"><i class="fas fa-coins purple"></i> Net Profit</span>
-              <span class="feat-val purple">₦${fmt(p.returnAmt - p.amount)}</span>
-            </div>
+            <div class="plan-feature"><span class="feat-label"><i class="fas fa-arrow-up purple"></i> You Receive</span><span class="feat-val purple">₦${fmt(p.returnAmt)}</span></div>
+            <div class="plan-feature"><span class="feat-label"><i class="fas fa-calendar purple"></i> Duration</span><span class="feat-val">${p.duration} days</span></div>
+            <div class="plan-feature"><span class="feat-label"><i class="fas fa-bolt purple"></i> Credit</span><span class="feat-val">On maturity</span></div>
+            <div class="plan-feature"><span class="feat-label"><i class="fas fa-coins purple"></i> Net Profit</span><span class="feat-val purple">₦${fmt(p.returnAmt - p.amount)}</span></div>
           </div>
           <div class="plan-footer">
             <span class="plan-price">Profit <strong>₦${fmt(p.returnAmt - p.amount)}</strong></span>
@@ -504,40 +421,30 @@
         </div>`).join('');
     }
 
-    // ════════════════════════════════════════════
-    //  MODALS
-    // ════════════════════════════════════════════
     function showInvestModal(planId, type) {
-      const plan = type === 'daily'
-        ? DAILY_PLANS.find(p => p.id === planId)
-        : INSTANT_PLANS.find(p => p.id === planId);
+      const plan = type === 'daily' ? DAILY_PLANS.find(p => p.id === planId) : INSTANT_PLANS.find(p => p.id === planId);
       if (!plan) return;
-
       selectedPlan = plan;
       selectedType = type;
-
       document.getElementById('modalPlanName').textContent = plan.name;
       document.getElementById('modalPlanType').textContent = type === 'daily'
         ? 'Daily Earnings Plan — ROI credited every 24 hours automatically'
         : 'Instant Access Plan — full 50% ROI credited on maturity';
-
       const walletOk = userBalance >= plan.amount;
-      const rows = type === 'daily' ? `
+      document.getElementById('modalDetails').innerHTML = type === 'daily' ? `
         <div class="modal-row"><span class="modal-label">Investment</span><span class="modal-value green">₦${fmt(plan.amount)}</span></div>
         <div class="modal-row"><span class="modal-label">Daily Income</span><span class="modal-value">₦${fmt(plan.daily)}</span></div>
         <div class="modal-row"><span class="modal-label">Duration</span><span class="modal-value">${plan.duration} days</span></div>
         <div class="modal-row"><span class="modal-label">Total Return</span><span class="modal-value green">₦${fmt(plan.total)}</span></div>
         <div class="modal-row"><span class="modal-label">Net Profit</span><span class="modal-value" style="color:var(--success)">₦${fmt(plan.total - plan.amount)}</span></div>
-        <div class="modal-row"><span class="modal-label">Your Balance</span><span class="modal-value ${walletOk ? '' : 'red'}">₦${fmt(userBalance)}</span></div>
+        <div class="modal-row"><span class="modal-label">Your Balance</span><span class="modal-value ${walletOk?'':'red'}">₦${fmt(userBalance)}</span></div>
       ` : `
         <div class="modal-row"><span class="modal-label">Investment</span><span class="modal-value green">₦${fmt(plan.amount)}</span></div>
         <div class="modal-row"><span class="modal-label">You Receive</span><span class="modal-value" style="color:var(--purple)">₦${fmt(plan.returnAmt)}</span></div>
         <div class="modal-row"><span class="modal-label">Duration</span><span class="modal-value">${plan.duration} days</span></div>
         <div class="modal-row"><span class="modal-label">Net Profit</span><span class="modal-value" style="color:var(--success)">₦${fmt(plan.returnAmt - plan.amount)}</span></div>
-        <div class="modal-row"><span class="modal-label">Your Balance</span><span class="modal-value ${walletOk ? '' : 'red'}">₦${fmt(userBalance)}</span></div>
+        <div class="modal-row"><span class="modal-label">Your Balance</span><span class="modal-value ${walletOk?'':'red'}">₦${fmt(userBalance)}</span></div>
       `;
-
-      document.getElementById('modalDetails').innerHTML = rows;
       const btn = document.getElementById('confirmBtn');
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-check"></i> Confirm & Invest';
@@ -552,9 +459,18 @@
 
     // ════════════════════════════════════════════
     //  CONFIRM INVESTMENT
-    //  All writes in one atomic Firestore transaction.
-    //  FIX: expiresAt and nextPayoutAt stored as
-    //  Firestore Timestamps — NOT JS Date objects.
+    //
+    //  ARCHITECTURE FIX:
+    //  The main transaction ONLY does 3 things:
+    //    1. Deduct buyer's balance
+    //    2. Create investment document
+    //    3. Create buyer's debit transaction record
+    //
+    //  Referral bonuses run SEPARATELY after the
+    //  purchase succeeds. This means:
+    //  - A referral error can NEVER block a purchase
+    //  - No cross-user writes inside one transaction
+    //  - No permission issues from updating other users' docs
     // ════════════════════════════════════════════
     async function confirmInvestment() {
       if (!selectedPlan || !selectedType || !currentUser) return;
@@ -563,20 +479,18 @@
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner-sm"></span> Processing...';
 
+      const plan   = selectedPlan;
+      const type   = selectedType;
+      const amount = plan.amount;
+      const now    = new Date();
+
       try {
-        const plan    = selectedPlan;
-        const type    = selectedType;
-        const amount  = plan.amount;
-        const now     = new Date();
-
-        // ── Pre-fetch fresh user data outside transaction ──
+        // ── 1. Fresh balance check ──
         const freshSnap = await db.collection('users').doc(currentUser.uid).get();
-        if (!freshSnap.exists) throw new Error('User account not found. Please contact support.');
-        const freshUser = freshSnap.data();
-
+        if (!freshSnap.exists) throw new Error('User account not found.');
+        const freshUser   = freshSnap.data();
         const liveBalance = Number(freshUser.balance || 0);
 
-        // Balance check
         if (liveBalance < amount) {
           closeModal('investModal');
           document.getElementById('reqAmt').textContent   = '₦' + fmt(amount);
@@ -588,7 +502,6 @@
           return;
         }
 
-        // Instant plan deposit check
         if (type === 'instant' && userTotalDeposits < 50000) {
           closeModal('investModal');
           showLockedModal();
@@ -597,61 +510,30 @@
           return;
         }
 
-        // ── FIX: Build Firestore Timestamps, not JS Dates ──
-        const expiresAt  = jsDateToTS(new Date(now.getTime() + plan.duration * 86400000));
-        const nextPayout = type === 'daily'
-          ? jsDateToTS(new Date(now.getTime() + 86400000))  // 24h from now
-          : null;
+        const expiresAt  = TS.fromDate(new Date(now.getTime() + plan.duration * 86400000));
+        const nextPayout = type === 'daily' ? TS.fromDate(new Date(now.getTime() + 86400000)) : null;
 
-        // ── Prefetch referrer chain (reads outside transaction) ──
-        // FIX: Try multiple field names for referrer — different signup flows may use different names
-        const referrerUidRaw =
-          freshUser.referrerUid ||
-          freshUser.referredBy  ||
-          freshUser.referredByUid ||
-          null;
+        // ── 2. MAIN TRANSACTION — only buyer's own docs ──
+        //    No referrer updates here = no permission issues
+        let investmentId = null;
 
-        let lvlA = null, lvlB = null, lvlC = null;
-
-        if (referrerUidRaw && referrerUidRaw !== 'direct' && referrerUidRaw !== currentUser.uid) {
-          const rA = await db.collection('users').doc(referrerUidRaw).get();
-          if (rA.exists) {
-            lvlA = { uid: referrerUidRaw, data: rA.data() };
-
-            const lvlBUidRaw = rA.data().referrerUid || rA.data().referredBy || rA.data().referredByUid || null;
-            if (lvlBUidRaw && lvlBUidRaw !== 'direct' && lvlBUidRaw !== currentUser.uid) {
-              const rB = await db.collection('users').doc(lvlBUidRaw).get();
-              if (rB.exists) {
-                lvlB = { uid: lvlBUidRaw, data: rB.data() };
-
-                const lvlCUidRaw = rB.data().referrerUid || rB.data().referredBy || rB.data().referredByUid || null;
-                if (lvlCUidRaw && lvlCUidRaw !== 'direct' && lvlCUidRaw !== currentUser.uid) {
-                  const rC = await db.collection('users').doc(lvlCUidRaw).get();
-                  if (rC.exists) lvlC = { uid: lvlCUidRaw, data: rC.data() };
-                }
-              }
-            }
-          }
-        }
-
-        // ── Atomic Firestore Transaction ──
         await db.runTransaction(async tx => {
-          // Re-read user balance inside transaction to prevent race conditions
           const userRef  = db.collection('users').doc(currentUser.uid);
           const userSnap = await tx.get(userRef);
-          if (!userSnap.exists) throw new Error('User not found during transaction.');
+          if (!userSnap.exists) throw new Error('User not found.');
 
           const txBalance = Number(userSnap.data().balance || 0);
           if (txBalance < amount) throw new Error('INSUFFICIENT_BALANCE');
 
-          // ── A: Deduct balance from investor ──
+          // Deduct balance
           tx.update(userRef, {
             balance:     FV.increment(-amount),
             lastUpdated: FV.serverTimestamp()
           });
 
-          // ── B: Create investment document ──
+          // Create investment
           const invRef = db.collection('investments').doc();
+          investmentId = invRef.id;
           tx.set(invRef, {
             userId:        currentUser.uid,
             userName:      freshUser.fullName || freshUser.username || 'Investor',
@@ -661,21 +543,19 @@
             amount:        amount,
             dailyReturn:   type === 'daily' ? plan.daily : 0,
             totalReturn:   type === 'daily' ? plan.total : plan.returnAmt,
-            totalDays:     plan.duration,      // ← FIX: also store as totalDays for investments page
+            totalDays:     plan.duration,
             duration:      plan.duration,
             status:        'active',
             totalPaidOut:  0,
             daysCompleted: 0,
-            // FIX: Stored as Firestore Timestamps — countdown/progress work correctly
             createdAt:     FV.serverTimestamp(),
             expiresAt:     expiresAt,
             nextPayoutAt:  nextPayout,
             lastPayoutAt:  null
           });
 
-          // ── C: Debit transaction record ──
-          const debitRef = db.collection('transactions').doc();
-          tx.set(debitRef, {
+          // Debit transaction record
+          tx.set(db.collection('transactions').doc(), {
             userId:      currentUser.uid,
             userName:    freshUser.fullName || freshUser.username || 'Investor',
             type:        'investment',
@@ -686,86 +566,10 @@
             planName:    plan.name,
             createdAt:   FV.serverTimestamp()
           });
-
-          // ── D: Referral bonuses ──
-          const bonusA = Math.round(amount * 0.25);
-          const bonusB = Math.round(amount * 0.02);
-          const bonusC = Math.round(amount * 0.01);
-
-          if (lvlA) {
-            tx.update(db.collection('users').doc(lvlA.uid), {
-              balance:          FV.increment(bonusA),
-              totalRefEarnings: FV.increment(bonusA),
-              lastUpdated:      FV.serverTimestamp()
-            });
-            tx.set(db.collection('transactions').doc(), {
-              userId:           lvlA.uid,
-              userName:         lvlA.data.fullName || lvlA.data.username || 'Referrer',
-              type:             'referral_bonus',
-              level:            'A',
-              percentage:       '25%',
-              amount:           bonusA,
-              fromUserId:       currentUser.uid,
-              fromUserName:     freshUser.fullName || freshUser.username || 'Investor',
-              planName:         plan.name,
-              investmentAmount: amount,
-              description:      `Level A referral bonus (25%) — ${freshUser.fullName || 'downline'} invested ₦${fmt(amount)}`,
-              status:           'completed',
-              createdAt:        FV.serverTimestamp()
-            });
-          }
-
-          if (lvlB) {
-            tx.update(db.collection('users').doc(lvlB.uid), {
-              balance:          FV.increment(bonusB),
-              totalRefEarnings: FV.increment(bonusB),
-              lastUpdated:      FV.serverTimestamp()
-            });
-            tx.set(db.collection('transactions').doc(), {
-              userId:           lvlB.uid,
-              userName:         lvlB.data.fullName || lvlB.data.username || 'Referrer',
-              type:             'referral_bonus',
-              level:            'B',
-              percentage:       '2%',
-              amount:           bonusB,
-              fromUserId:       currentUser.uid,
-              fromUserName:     freshUser.fullName || freshUser.username || 'Investor',
-              planName:         plan.name,
-              investmentAmount: amount,
-              description:      `Level B referral bonus (2%) — indirect downline invested ₦${fmt(amount)}`,
-              status:           'completed',
-              createdAt:        FV.serverTimestamp()
-            });
-          }
-
-          if (lvlC) {
-            tx.update(db.collection('users').doc(lvlC.uid), {
-              balance:          FV.increment(bonusC),
-              totalRefEarnings: FV.increment(bonusC),
-              lastUpdated:      FV.serverTimestamp()
-            });
-            tx.set(db.collection('transactions').doc(), {
-              userId:           lvlC.uid,
-              userName:         lvlC.data.fullName || lvlC.data.username || 'Referrer',
-              type:             'referral_bonus',
-              level:            'C',
-              percentage:       '1%',
-              amount:           bonusC,
-              fromUserId:       currentUser.uid,
-              fromUserName:     freshUser.fullName || freshUser.username || 'Investor',
-              planName:         plan.name,
-              investmentAmount: amount,
-              description:      `Level C referral bonus (1%) — 3rd level downline invested ₦${fmt(amount)}`,
-              status:           'completed',
-              createdAt:        FV.serverTimestamp()
-            });
-          }
         });
 
-        // ── SUCCESS ──
+        // ── 3. SUCCESS — show toast, update balance display ──
         closeModal('investModal');
-
-        // Update local balance display
         userBalance -= amount;
         document.getElementById('walletBalance').textContent = '₦' + fmt(userBalance);
 
@@ -776,13 +580,18 @@
           duration: 5000
         });
 
+        // ── 4. REFERRAL BONUSES — separate, after success ──
+        //    Runs independently so any error here does NOT
+        //    roll back or affect the purchase above.
+        creditReferralBonuses(freshUser, plan, type, amount, investmentId)
+          .catch(e => console.warn('[referral] bonus error (non-critical):', e.message));
+
         selectedPlan = null;
         selectedType = null;
-
         setTimeout(() => window.location.href = 'investments.html', 2200);
 
       } catch (err) {
-        console.error('Investment error:', err);
+        console.error('Investment error:', err.code, err.message);
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-check"></i> Confirm & Invest';
         closeModal('investModal');
@@ -791,17 +600,15 @@
           try {
             const s = await db.collection('users').doc(currentUser.uid).get();
             const b = Number(s.data()?.balance || 0);
-            document.getElementById('reqAmt').textContent   = '₦' + fmt(selectedPlan?.amount || 0);
+            document.getElementById('reqAmt').textContent   = '₦' + fmt(plan.amount);
             document.getElementById('balAmt').textContent   = '₦' + fmt(b);
-            document.getElementById('shortAmt').textContent = '₦' + fmt((selectedPlan?.amount || 0) - b);
+            document.getElementById('shortAmt').textContent = '₦' + fmt(plan.amount - b);
           } catch (_) {}
           openModal('insufficientModal');
         } else {
-          // Show human-readable Firestore errors
-          let msg = err.message || 'An unexpected error occurred. Please try again.';
-          if (err.code === 'permission-denied')    msg = 'Permission denied. Please make sure you are logged in and try again.';
-          if (err.code === 'unavailable')          msg = 'Network error. Please check your connection and try again.';
-          if (err.code === 'resource-exhausted')   msg = 'Too many requests. Please wait a moment and try again.';
+          let msg = err.message || 'An unexpected error occurred.';
+          if (err.code === 'permission-denied') msg = 'Permission denied. Please log out, log back in, and try again.';
+          if (err.code === 'unavailable')       msg = 'Network error. Please check your connection and try again.';
           document.getElementById('errorMsg').textContent = msg;
           openModal('errorModal');
         }
@@ -809,16 +616,79 @@
     }
 
     // ════════════════════════════════════════════
+    //  REFERRAL BONUSES  (runs after purchase, separately)
+    //  Uses individual writes — not a transaction —
+    //  so each referrer gets credited independently.
+    // ════════════════════════════════════════════
+    async function creditReferralBonuses(freshUser, plan, type, amount, investmentId) {
+      const referrerUidRaw =
+        freshUser.referrerUid    ||
+        freshUser.referredBy     ||
+        freshUser.referredByUid  ||
+        null;
+
+      if (!referrerUidRaw || referrerUidRaw === 'direct' || referrerUidRaw === currentUser.uid) return;
+
+      const bonusRates = [0.25, 0.02, 0.01]; // Level A, B, C
+      const levels     = ['A', 'B', 'C'];
+      const pcts       = ['25%', '2%', '1%'];
+
+      let uid = referrerUidRaw;
+
+      for (let i = 0; i < 3; i++) {
+        if (!uid || uid === 'direct' || uid === currentUser.uid) break;
+
+        try {
+          const refSnap = await db.collection('users').doc(uid).get();
+          if (!refSnap.exists) break;
+
+          const refData = refSnap.data();
+          const bonus   = Math.round(amount * bonusRates[i]);
+
+          // Use a batch for atomicity per referrer
+          const batch = db.batch();
+
+          batch.update(db.collection('users').doc(uid), {
+            balance:          FV.increment(bonus),
+            totalRefEarnings: FV.increment(bonus),
+            lastUpdated:      FV.serverTimestamp()
+          });
+
+          batch.set(db.collection('transactions').doc(), {
+            userId:           uid,
+            userName:         refData.fullName || refData.username || 'Referrer',
+            type:             'referral_bonus',
+            level:            levels[i],
+            percentage:       pcts[i],
+            amount:           bonus,
+            fromUserId:       currentUser.uid,
+            fromUserName:     freshUser.fullName || freshUser.username || 'Investor',
+            planName:         plan.name,
+            investmentAmount: amount,
+            investmentId:     investmentId,
+            description:      `Level ${levels[i]} referral bonus (${pcts[i]}) — downline invested ₦${fmt(amount)} in ${plan.name}`,
+            status:           'completed',
+            createdAt:        FV.serverTimestamp()
+          });
+
+          await batch.commit();
+          console.log(`[referral] Level ${levels[i]} bonus ₦${fmt(bonus)} credited to ${uid}`);
+
+          // Move up the chain
+          uid = refData.referrerUid || refData.referredBy || refData.referredByUid || null;
+
+        } catch (e) {
+          console.warn(`[referral] Level ${levels[i]} failed for ${uid}:`, e.message);
+          break;
+        }
+      }
+    }
+
+    // ════════════════════════════════════════════
     //  PAYOUT ENGINE
-    //  Runs on page load. Credits any overdue daily
-    //  ROI and any matured instant plans.
-    //  FIX: consistent field names (totalEarnings),
-    //  FIX: correct overdue cycle counting,
-    //  FIX: uses Firestore Timestamps for all dates.
     // ════════════════════════════════════════════
     async function runPayoutEngine() {
       if (!currentUser) return;
-
       const notice   = document.getElementById('payoutNotice');
       const statusEl = document.getElementById('payoutStatus');
       const iconEl   = document.getElementById('payoutIcon');
@@ -829,33 +699,23 @@
           .where('userId', '==', currentUser.uid)
           .where('status', '==', 'active')
           .get();
-
         if (snap.empty) return;
 
-        const pendingDaily   = [];
-        const pendingInstant = [];
+        const pendingDaily = [], pendingInstant = [];
 
         snap.forEach(doc => {
           const inv = { id: doc.id, ...doc.data() };
-
           if (inv.planType === 'daily') {
             const next = toJsDate(inv.nextPayoutAt);
-            if (!next) return; // no nextPayoutAt set yet, skip
-
-            if (now >= next) {
-              // Count how many full 24h windows have passed
-              const msDue    = now.getTime() - next.getTime();
-              const overdue  = Math.floor(msDue / 86400000) + 1;
-              const maxLeft  = (inv.totalDays || inv.duration || 0) - (inv.daysCompleted || 0);
-              const cycles   = Math.min(overdue, maxLeft);
-              if (cycles > 0) pendingDaily.push({ inv, cycles });
-            }
-
+            if (!next || now < next) return;
+            const msDue   = now.getTime() - next.getTime();
+            const overdue = Math.floor(msDue / 86400000) + 1;
+            const maxLeft = (inv.totalDays || inv.duration || 0) - (inv.daysCompleted || 0);
+            const cycles  = Math.min(overdue, maxLeft);
+            if (cycles > 0) pendingDaily.push({ inv, cycles });
           } else if (inv.planType === 'instant') {
             const expires = toJsDate(inv.expiresAt);
-            if (expires && now >= expires) {
-              pendingInstant.push({ inv });
-            }
+            if (expires && now >= expires) pendingInstant.push({ inv });
           }
         });
 
@@ -866,37 +726,31 @@
         iconEl.className = 'fas fa-sync-alt fa-spin';
         let done = 0;
 
-        // ── Daily Payouts ──
         for (const { inv, cycles } of pendingDaily) {
           try {
-            const credit      = Number(inv.dailyReturn || 0) * cycles;
-            const newDays     = (inv.daysCompleted || 0) + cycles;
-            const totalDays   = inv.totalDays || inv.duration || 0;
-            const isComplete  = newDays >= totalDays;
-            const nextPayDate = new Date(toJsDate(inv.nextPayoutAt).getTime() + cycles * 86400000);
+            const credit     = Number(inv.dailyReturn || 0) * cycles;
+            const newDays    = (inv.daysCompleted || 0) + cycles;
+            const totalDays  = inv.totalDays || inv.duration || 0;
+            const isComplete = newDays >= totalDays;
+            const nextDate   = new Date(toJsDate(inv.nextPayoutAt).getTime() + cycles * 86400000);
 
             await db.runTransaction(async tx => {
               const invRef  = db.collection('investments').doc(inv.id);
               const invSnap = await tx.get(invRef);
               if (!invSnap.exists || invSnap.data().status !== 'active') return;
 
-              const userRef = db.collection('users').doc(currentUser.uid);
-
-              // FIX: use totalEarnings (consistent field name across all pages)
-              tx.update(userRef, {
+              tx.update(db.collection('users').doc(currentUser.uid), {
                 balance:       FV.increment(credit),
                 totalEarnings: FV.increment(credit),
                 lastUpdated:   FV.serverTimestamp()
               });
-
               tx.update(invRef, {
                 totalPaidOut:  FV.increment(credit),
                 daysCompleted: newDays,
-                nextPayoutAt:  isComplete ? null : jsDateToTS(nextPayDate),
+                nextPayoutAt:  isComplete ? null : TS.fromDate(nextDate),
                 lastPayoutAt:  FV.serverTimestamp(),
                 status:        isComplete ? 'completed' : 'active'
               });
-
               tx.set(db.collection('transactions').doc(), {
                 userId:       currentUser.uid,
                 type:         'daily_roi',
@@ -913,82 +767,47 @@
 
             done++;
             statusEl.textContent = `Credited ${done}/${total} payouts`;
-
-            showToast({
-              type:    'success',
-              title:   '💰 Daily ROI Credited!',
-              message: `₦${fmt(credit)} from ${inv.planName}${cycles > 1 ? ` (${cycles} days)` : ''}`,
-              duration: 6000
-            });
-
-            // Update displayed balance
+            showToast({ type:'success', title:'💰 Daily ROI Credited!', message:`₦${fmt(credit)} from ${inv.planName}${cycles > 1 ? ` (${cycles} days)` : ''}`, duration:6000 });
             userBalance += credit;
             document.getElementById('walletBalance').textContent = '₦' + fmt(userBalance);
-
-          } catch (e) {
-            console.error('[payout] daily error', inv.id, e.message);
-          }
+          } catch (e) { console.error('[payout] daily error', inv.id, e.message); }
         }
 
-        // ── Instant Plan Maturity ──
         for (const { inv } of pendingInstant) {
           try {
             const credit = Number(inv.totalReturn || 0);
-
             await db.runTransaction(async tx => {
               const invRef  = db.collection('investments').doc(inv.id);
               const invSnap = await tx.get(invRef);
               if (!invSnap.exists || invSnap.data().status !== 'active') return;
 
-              const userRef = db.collection('users').doc(currentUser.uid);
-
-              tx.update(userRef, {
+              tx.update(db.collection('users').doc(currentUser.uid), {
                 balance:       FV.increment(credit),
                 totalEarnings: FV.increment(credit),
                 lastUpdated:   FV.serverTimestamp()
               });
-
               tx.update(invRef, {
-                status:       'completed',
-                totalPaidOut: credit,
-                lastPayoutAt: FV.serverTimestamp(),
-                completedAt:  FV.serverTimestamp()
+                status:'completed', totalPaidOut:credit,
+                lastPayoutAt:FV.serverTimestamp(), completedAt:FV.serverTimestamp()
               });
-
               tx.set(db.collection('transactions').doc(), {
-                userId:       currentUser.uid,
-                type:         'instant_maturity',
-                amount:       credit,
-                planName:     inv.planName,
-                investmentId: inv.id,
-                description:  `Maturity payout — ${inv.planName} (50% ROI)`,
-                status:       'completed',
-                createdAt:    FV.serverTimestamp()
+                userId:currentUser.uid, type:'instant_maturity', amount:credit,
+                planName:inv.planName, investmentId:inv.id,
+                description:`Maturity payout — ${inv.planName} (50% ROI)`,
+                status:'completed', createdAt:FV.serverTimestamp()
               });
             });
-
             done++;
             statusEl.textContent = `Credited ${done}/${total} payouts`;
-
-            showToast({
-              type:    'success',
-              title:   '🎉 Plan Matured!',
-              message: `₦${fmt(credit)} from ${inv.planName} credited to your wallet!`,
-              duration: 7000
-            });
-
+            showToast({ type:'success', title:'🎉 Plan Matured!', message:`₦${fmt(credit)} from ${inv.planName} credited to your wallet!`, duration:7000 });
             userBalance += credit;
             document.getElementById('walletBalance').textContent = '₦' + fmt(userBalance);
-
-          } catch (e) {
-            console.error('[payout] instant error', inv.id, e.message);
-          }
+          } catch (e) { console.error('[payout] instant error', inv.id, e.message); }
         }
 
-        // Done
         iconEl.className = 'fas fa-check-circle';
         iconEl.style.color = 'var(--success)';
-        statusEl.textContent = `${done} payout${done !== 1 ? 's' : ''} processed successfully!`;
+        statusEl.textContent = `${done} payout${done !== 1 ? 's' : ''} processed!`;
         setTimeout(() => { notice.style.display = 'none'; }, 5000);
 
       } catch (err) {
@@ -997,24 +816,13 @@
       }
     }
 
-    // ════════════════════════════════════════════
-    //  AUTH STATE
-    // ════════════════════════════════════════════
     auth.onAuthStateChanged(async user => {
       if (!user) { window.location.href = 'login.html'; return; }
       currentUser = user;
-
-      try {
-        await loadUserData();
-      } catch (e) {
-        console.error('loadUserData error:', e);
-      }
-
+      try { await loadUserData(); } catch (e) { console.error('loadUserData:', e); }
       renderDailyPlans();
       renderInstantPlans();
-
-      // Run payout engine silently in background
-      runPayoutEngine().catch(e => console.error('[payout] engine crashed:', e));
+      runPayoutEngine().catch(e => console.error('[payout] crashed:', e));
     });
   </script>
 </body>
