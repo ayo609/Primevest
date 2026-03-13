@@ -5,988 +5,209 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
   <title>Primevest | Referral Contest</title>
 
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
-  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --primary: #1E7B4B;
-      --primary-dark: #0B4F2E;
-      --primary-light: #4CAF7C;
-      --primary-soft: #E8F5E9;
-      --accent: #2DD4BF;
-      --white: #FFFFFF;
-      --gray-50: #F9FAFB;
-      --gray-100: #F3F4F6;
-      --gray-200: #E5E7EB;
-      --gray-300: #D1D5DB;
-      --gray-400: #9CA3AF;
-      --gray-500: #6B7280;
-      --gray-600: #4B5563;
-      --gray-700: #374151;
-      --gray-800: #1F2937;
-      --gray-900: #111827;
-      --success: #10B981;
-      --warning: #F59E0B;
-      --error: #EF4444;
-      --info: #3B82F6;
-      --gold: #F59E0B;
-      --silver: #94A3B8;
-      --bronze: #CD7F32;
-      
-      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
-      
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --radius-xl: 20px;
-      --radius-2xl: 24px;
-      --radius-full: 9999px;
-      
-      --header-height: 70px;
-      --bottom-nav-height: 75px;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: linear-gradient(145deg, var(--primary-soft) 0%, var(--white) 100%);
-      color: var(--gray-800);
-      min-height: 100vh;
-      padding-bottom: var(--bottom-nav-height);
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    /* Toast System */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      pointer-events: none;
-    }
-
-    @media (max-width: 480px) {
-      .toast-container {
-        top: 16px;
-        right: 16px;
-        left: 16px;
-      }
-    }
-
-    .toast {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      padding: 14px 18px;
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 300px;
-      max-width: 380px;
-      transform: translateX(120%);
-      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      border-left: 4px solid;
-      pointer-events: auto;
-    }
-
-    .toast.show {
-      transform: translateX(0);
-    }
-
-    .toast.success {
-      border-left-color: var(--success);
-    }
-
-    .toast.success .toast-icon {
-      color: var(--success);
-      background: rgba(16,185,129,0.1);
-    }
-
-    .toast.error {
-      border-left-color: var(--error);
-    }
-
-    .toast.error .toast-icon {
-      color: var(--error);
-      background: rgba(239,68,68,0.1);
-    }
-
-    .toast.warning {
-      border-left-color: var(--warning);
-    }
-
-    .toast.warning .toast-icon {
-      color: var(--warning);
-      background: rgba(245,158,11,0.1);
-    }
-
-    .toast.info {
-      border-left-color: var(--primary);
-    }
-
-    .toast.info .toast-icon {
-      color: var(--primary);
-      background: rgba(30,123,75,0.1);
-    }
-
-    .toast-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
-    .toast-content {
-      flex: 1;
-    }
-
-    .toast-title {
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--gray-800);
-      margin-bottom: 2px;
-    }
-
-    .toast-message {
-      font-size: 12px;
-      color: var(--gray-500);
-      line-height: 1.4;
-    }
-
-    .toast-close {
-      color: var(--gray-400);
-      cursor: pointer;
-      font-size: 14px;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-sm);
-      transition: all 0.2s;
-    }
-
-    .toast-close:hover {
-      background: var(--gray-100);
-      color: var(--gray-700);
-    }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(5px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      padding: 16px;
-    }
-
-    .modal-overlay.show {
-      display: flex;
-    }
-
-    .modal-card {
-      background: var(--white);
-      border-radius: var(--radius-2xl);
-      width: 90%;
-      max-width: 400px;
-      padding: 32px 24px;
-      box-shadow: var(--shadow-xl);
-      text-align: center;
-    }
-
-    .modal-icon {
-      width: 70px;
-      height: 70px;
-      background: rgba(16,185,129,0.1);
-      border-radius: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 32px;
-      color: var(--success);
-    }
-
-    .modal-icon.warning {
-      background: rgba(245,158,11,0.1);
-      color: var(--warning);
-    }
-
-    .modal-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin-bottom: 12px;
-    }
-
-    .modal-text {
-      font-size: 15px;
-      color: var(--gray-500);
-      margin-bottom: 24px;
-      line-height: 1.6;
-    }
-
-    .modal-details {
-      background: var(--gray-50);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      margin-bottom: 24px;
-      text-align: left;
-    }
-
-    .modal-detail-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-
-    .modal-detail-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .modal-detail-label {
-      color: var(--gray-500);
-    }
-
-    .modal-detail-value {
-      font-weight: 700;
-      color: var(--gray-800);
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 12px;
-    }
-
-    .modal-btn {
-      flex: 1;
-      padding: 14px;
-      border: none;
-      border-radius: var(--radius-lg);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .modal-btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .modal-btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .modal-btn-secondary {
-      background: var(--gray-100);
-      color: var(--gray-700);
-    }
-
-    .modal-btn-secondary:hover {
-      background: var(--gray-200);
-    }
-
-    /* Header */
-    .header {
-      height: var(--header-height);
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-200);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-
-    .logo {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--white);
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .brand {
-      font-family: 'Outfit', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--gray-800);
-    }
-
-    .brand span {
-      color: var(--primary);
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .profile-btn {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--white);
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    /* Main Container */
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* Hero Section */
-    .hero-section {
-      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
-      border-radius: var(--radius-2xl);
-      padding: 32px 24px;
-      margin-bottom: 24px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-section::before {
-      content: '';
-      position: absolute;
-      top: -50px;
-      right: -50px;
-      width: 200px;
-      height: 200px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-    }
-
-    .hero-section::after {
-      content: '';
-      position: absolute;
-      bottom: -50px;
-      left: -50px;
-      width: 150px;
-      height: 150px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-    }
-
-    .hero-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    .hero-content h1 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .hero-content p {
-      font-size: 16px;
-      opacity: 0.9;
-      margin-bottom: 24px;
-    }
-
-    .hero-stats {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
-
-    .hero-stat {
-      text-align: center;
-    }
-
-    .hero-stat .value {
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .hero-stat .label {
-      font-size: 13px;
-      opacity: 0.8;
-    }
-
-    /* Section Title */
-    .section-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-title i {
-      color: var(--primary);
-    }
-
-    /* Tasks Grid */
-    .tasks-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .task-card {
-      background: var(--white);
-      border-radius: var(--radius-2xl);
-      border: 1px solid var(--gray-200);
-      overflow: hidden;
-      transition: all 0.3s;
-      position: relative;
-    }
-
-    .task-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--primary-light);
-    }
-
-    .task-card.completed {
-      border-color: var(--success);
-      background: linear-gradient(145deg, var(--white), rgba(16,185,129,0.05));
-    }
-
-    .task-card.claimed {
-      border-color: var(--primary);
-      background: linear-gradient(145deg, var(--white), rgba(30,123,75,0.05));
-      opacity: 0.9;
-    }
-
-    .task-badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      padding: 6px 14px;
-      border-radius: var(--radius-full);
-      font-size: 12px;
-      font-weight: 600;
-      z-index: 2;
-    }
-
-    .badge-pending {
-      background: var(--gray-200);
-      color: var(--gray-600);
-    }
-
-    .badge-completed {
-      background: var(--success);
-      color: white;
-    }
-
-    .badge-claimed {
-      background: var(--primary);
-      color: white;
-    }
-
-    .task-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--gray-200);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .task-icon {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(145deg, var(--primary-soft), var(--white));
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      color: var(--primary);
-    }
-
-    .task-title {
-      flex: 1;
-    }
-
-    .task-title h3 {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin-bottom: 4px;
-    }
-
-    .task-title p {
-      font-size: 13px;
-      color: var(--gray-500);
-    }
-
-    .task-content {
-      padding: 20px;
-    }
-
-    .requirement-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      padding: 8px 12px;
-      background: var(--gray-50);
-      border-radius: var(--radius-lg);
-    }
-
-    .requirement-label {
-      font-size: 14px;
-      color: var(--gray-600);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .requirement-label i {
-      color: var(--primary);
-      font-size: 14px;
-    }
-
-    .requirement-value {
-      font-weight: 600;
-      color: var(--gray-800);
-    }
-
-    .progress-section {
-      margin: 16px 0;
-    }
-
-    .progress-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .progress-title {
-      font-size: 13px;
-      color: var(--gray-600);
-    }
-
-    .progress-percent {
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .progress-bar {
-      height: 8px;
-      background: var(--gray-200);
-      border-radius: var(--radius-full);
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      border-radius: var(--radius-full);
-      transition: width 0.3s;
-    }
-
-    .count-display {
-      text-align: center;
-      margin: 16px 0;
-      font-size: 14px;
-    }
-
-    .count-number {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--primary);
-      line-height: 1;
-    }
-
-    .count-label {
-      font-size: 12px;
-      color: var(--gray-500);
-    }
-
-    .reward-box {
-      background: linear-gradient(145deg, var(--gold), #e67e22);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      margin: 16px 0;
-      color: white;
-      text-align: center;
-    }
-
-    .reward-box h4 {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 4px;
-      opacity: 0.9;
-    }
-
-    .reward-amount {
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .task-footer {
-      padding: 20px;
-      border-top: 1px solid var(--gray-200);
-    }
-
-    .claim-btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: var(--radius-lg);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .claim-btn.available {
-      background: linear-gradient(145deg, var(--success), #0f9f6e);
-      color: white;
-    }
-
-    .claim-btn.available:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(16,185,129,0.3);
-    }
-
-    .claim-btn.claimed {
-      background: var(--gray-200);
-      color: var(--gray-500);
-      cursor: not-allowed;
-    }
-
-    .claim-btn.disabled {
-      background: var(--gray-200);
-      color: var(--gray-500);
-      cursor: not-allowed;
-    }
-
-    /* Leaderboard Section */
-    .leaderboard-section {
-      background: var(--white);
-      border-radius: var(--radius-2xl);
-      padding: 24px;
-      margin-top: 30px;
-      border: 1px solid var(--gray-200);
-    }
-
-    .leaderboard-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .leaderboard-header h2 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--gray-800);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .leaderboard-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .leaderboard-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 12px;
-      background: var(--gray-50);
-      border-radius: var(--radius-lg);
-    }
-
-    .rank-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .rank-1 {
-      background: linear-gradient(145deg, var(--gold), #e67e22);
-      color: white;
-    }
-
-    .rank-2 {
-      background: linear-gradient(145deg, var(--silver), #718096);
-      color: white;
-    }
-
-    .rank-3 {
-      background: linear-gradient(145deg, var(--bronze), #b45f06);
-      color: white;
-    }
-
-    .leaderboard-info {
-      flex: 1;
-    }
-
-    .leaderboard-info h4 {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--gray-800);
-      margin-bottom: 2px;
-    }
-
-    .leaderboard-info p {
-      font-size: 12px;
-      color: var(--gray-500);
-    }
-
-    .leaderboard-stats {
-      text-align: right;
-    }
-
-    .leaderboard-stats .points {
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .leaderboard-stats .tasks {
-      font-size: 11px;
-      color: var(--gray-400);
-    }
-
-    /* Bottom Navigation */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: var(--bottom-nav-height);
-      background: var(--white);
-      border-top: 1px solid var(--gray-200);
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      padding: 0 8px;
-      z-index: 100;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      text-decoration: none;
-      padding: 6px 8px;
-      border-radius: var(--radius-lg);
-      flex: 1;
-      max-width: 64px;
-      color: var(--gray-400);
-      font-size: 10px;
-    }
-
-    .nav-item i {
-      font-size: 18px;
-    }
-
-    .nav-item.active {
-      color: var(--primary);
-    }
-
-    .nav-center {
-      width: 48px;
-      height: 48px;
-      background: var(--primary);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 22px;
-      transform: translateY(-8px);
-      box-shadow: 0 4px 12px rgba(30,123,75,0.3);
-    }
-
-    /* Loading Spinner */
-    .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(30,123,75,0.2);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Responsive */
-    @media (max-width: 640px) {
-      .hero-content h1 {
-        font-size: 24px;
-      }
-
-      .hero-stats {
-        gap: 20px;
-      }
-
-      .hero-stat .value {
-        font-size: 20px;
-      }
-
-      .tasks-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .task-header {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .task-badge {
-        position: relative;
-        top: 0;
-        right: 0;
-        margin-bottom: 10px;
-        display: inline-block;
-      }
-    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --primary:#1E7B4B;--primary-dark:#0B4F2E;--primary-light:#4CAF7C;--primary-soft:#E8F5E9;
+      --accent:#2DD4BF;--white:#FFFFFF;
+      --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;
+      --gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;
+      --success:#10B981;--warning:#F59E0B;--error:#EF4444;--info:#3B82F6;
+      --gold:#F59E0B;--silver:#94A3B8;--bronze:#CD7F32;
+      --shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);--shadow-xl:0 20px 25px -5px rgba(0,0,0,0.1);
+      --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:24px;--r-full:9999px;
+      --header:70px;--nav:75px;
+    }
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:linear-gradient(145deg,var(--primary-soft) 0%,var(--white) 100%);color:var(--gray-800);min-height:100vh;padding-bottom:calc(var(--nav)+20px);overflow-x:hidden;}
+
+    /* TOAST */
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+    @media(max-width:480px){.toast-container{top:16px;right:16px;left:16px;}}
+    .toast{background:var(--white);border-radius:var(--r-lg);padding:14px 18px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:12px;max-width:380px;transform:translateX(120%);transition:transform 0.3s cubic-bezier(0.68,-0.55,0.265,1.55);border-left:4px solid;pointer-events:auto;}
+    @media(max-width:480px){.toast{max-width:100%;}}
+    .toast.show{transform:translateX(0);}
+    .toast.success{border-left-color:var(--success);}.toast.success .ti{color:var(--success);background:rgba(16,185,129,0.1);}
+    .toast.error{border-left-color:var(--error);}.toast.error .ti{color:var(--error);background:rgba(239,68,68,0.1);}
+    .toast.warning{border-left-color:var(--warning);}.toast.warning .ti{color:var(--warning);background:rgba(245,158,11,0.1);}
+    .toast.info{border-left-color:var(--primary);}.toast.info .ti{color:var(--primary);background:rgba(30,123,75,0.1);}
+    .ti{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .tc{flex:1;}.tt{font-weight:700;font-size:14px;color:var(--gray-800);margin-bottom:2px;}.tm{font-size:12px;color:var(--gray-500);line-height:1.4;}
+    .tclose{color:var(--gray-400);cursor:pointer;padding:4px;font-size:14px;}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:10000;padding:16px;}
+    .modal-overlay.show{display:flex;}
+    .modal-card{background:var(--white);border-radius:var(--r-2xl);width:90%;max-width:400px;padding:32px 24px;box-shadow:var(--shadow-xl);text-align:center;animation:popIn 0.25s cubic-bezier(0.68,-0.55,0.265,1.55);}
+    @keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+    .modal-icon{width:70px;height:70px;background:rgba(16,185,129,0.1);border-radius:35px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px;color:var(--success);}
+    .modal-title{font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;color:var(--gray-800);margin-bottom:12px;}
+    .modal-text{font-size:15px;color:var(--gray-500);margin-bottom:24px;line-height:1.6;}
+    .modal-details{background:var(--gray-50);border-radius:var(--r-lg);padding:16px;margin-bottom:24px;text-align:left;}
+    .modal-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;}
+    .modal-row:last-child{margin-bottom:0;}
+    .modal-label{color:var(--gray-500);}
+    .modal-value{font-weight:700;color:var(--gray-800);}
+    .modal-value.green{color:var(--success);}
+    .mbtn{flex:1;padding:14px;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+    .mbtn-primary{background:var(--primary);color:white;}
+    .mbtn-primary:hover{background:var(--primary-dark);}
+
+    /* HEADER */
+    .header{height:var(--header);padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:var(--white);border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:100;}
+    .header-left{display:flex;align-items:center;gap:8px;cursor:pointer;}
+    .logo{width:40px;height:40px;background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:20px;font-weight:700;}
+    .brand{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--gray-800);}
+    .brand span{color:var(--primary);}
+    .profile-btn{width:40px;height:40px;background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:700;font-size:16px;cursor:pointer;}
+
+    /* CONTAINER */
+    .container{max-width:800px;margin:0 auto;padding:20px;}
+
+    /* HERO */
+    .hero-section{background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:var(--r-2xl);padding:32px 24px;margin-bottom:24px;color:white;position:relative;overflow:hidden;}
+    .hero-section::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,0.08);border-radius:50%;}
+    .hero-section::after{content:'';position:absolute;bottom:-50px;left:-50px;width:150px;height:150px;background:rgba(255,255,255,0.08);border-radius:50%;}
+    .hero-content{position:relative;z-index:2;text-align:center;}
+    .hero-icon{font-size:48px;margin-bottom:16px;}
+    .hero-content h1{font-family:'Outfit',sans-serif;font-size:30px;font-weight:700;margin-bottom:8px;}
+    .hero-content>p{font-size:15px;opacity:0.9;margin-bottom:24px;}
+    .hero-stats{display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;}
+    .hero-stat{text-align:center;}
+    .hero-stat .value{font-size:28px;font-weight:700;}
+    .hero-stat .label{font-size:13px;opacity:0.8;}
+
+    /* SECTION TITLE */
+    .section-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:700;color:var(--gray-800);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .section-title i{color:var(--primary);}
+
+    /* TASKS GRID */
+    .tasks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;margin-bottom:30px;}
+    @media(max-width:640px){.tasks-grid{grid-template-columns:1fr;}}
+
+    .task-card{background:var(--white);border-radius:var(--r-2xl);border:1.5px solid var(--gray-200);overflow:hidden;transition:all 0.3s;position:relative;}
+    .task-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--primary-light);}
+    .task-card.completed{border-color:var(--success);background:linear-gradient(145deg,var(--white),rgba(16,185,129,0.04));}
+    .task-card.claimed{border-color:var(--primary);background:linear-gradient(145deg,var(--white),rgba(30,123,75,0.04));opacity:0.9;}
+
+    .task-badge{position:absolute;top:16px;right:16px;padding:5px 13px;border-radius:var(--r-full);font-size:12px;font-weight:700;z-index:2;}
+    .badge-pending{background:var(--gray-200);color:var(--gray-600);}
+    .badge-completed{background:var(--success);color:white;}
+    .badge-claimed{background:var(--primary);color:white;}
+
+    .task-header{padding:20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:16px;}
+    .task-icon{width:60px;height:60px;background:linear-gradient(145deg,var(--primary-soft),var(--white));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--primary);flex-shrink:0;}
+    .task-title{flex:1;}
+    .task-title h3{font-size:17px;font-weight:700;color:var(--gray-800);margin-bottom:4px;}
+    .task-title p{font-size:13px;color:var(--gray-500);}
+
+    .task-content{padding:20px;}
+    .req-item{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:9px 13px;background:var(--gray-50);border-radius:var(--r-lg);}
+    .req-label{font-size:13px;color:var(--gray-600);display:flex;align-items:center;gap:7px;}
+    .req-label i{color:var(--primary);font-size:13px;}
+    .req-value{font-weight:700;color:var(--gray-800);font-size:14px;}
+
+    .progress-section{margin:16px 0;}
+    .progress-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .progress-title{font-size:13px;color:var(--gray-600);}
+    .progress-pct{font-weight:700;color:var(--primary);}
+    .progress-bar{height:10px;background:var(--gray-200);border-radius:var(--r-full);overflow:hidden;}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:var(--r-full);transition:width 0.6s ease;}
+
+    .count-display{text-align:center;margin:14px 0;}
+    .count-number{font-size:32px;font-weight:700;color:var(--primary);line-height:1;}
+    .count-label{font-size:12px;color:var(--gray-500);}
+
+    .reward-box{background:linear-gradient(145deg,var(--gold),#e67e22);border-radius:var(--r-lg);padding:16px;margin:14px 0;color:white;text-align:center;}
+    .reward-box h4{font-size:13px;font-weight:500;margin-bottom:4px;opacity:0.9;}
+    .reward-amount{font-size:28px;font-weight:700;}
+
+    .task-footer{padding:16px 20px 20px;border-top:1px solid var(--gray-100);}
+    .claim-btn{width:100%;padding:14px;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;}
+    .claim-btn.available{background:linear-gradient(145deg,var(--success),#0f9f6e);color:white;}
+    .claim-btn.available:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,185,129,0.3);}
+    .claim-btn.available:disabled{opacity:0.6;transform:none;cursor:not-allowed;}
+    .claim-btn.claimed,.claim-btn.disabled{background:var(--gray-200);color:var(--gray-500);cursor:not-allowed;}
+
+    /* SPINNER (inside btn) */
+    .btn-spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* LEADERBOARD */
+    .leaderboard-section{background:var(--white);border-radius:var(--r-2xl);padding:24px;margin-top:10px;border:1.5px solid var(--gray-200);}
+    .leaderboard-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+    .leaderboard-header h2{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--gray-800);display:flex;align-items:center;gap:8px;}
+    .leaderboard-list{display:flex;flex-direction:column;gap:10px;}
+    .leaderboard-item{display:flex;align-items:center;gap:14px;padding:12px;background:var(--gray-50);border-radius:var(--r-lg);}
+    .rank-badge{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;}
+    .rank-1{background:linear-gradient(145deg,var(--gold),#e67e22);color:white;}
+    .rank-2{background:linear-gradient(145deg,var(--silver),#718096);color:white;}
+    .rank-3{background:linear-gradient(145deg,var(--bronze),#b45f06);color:white;}
+    .rank-other{background:var(--gray-200);color:var(--gray-600);}
+    .lb-info{flex:1;}
+    .lb-info h4{font-size:15px;font-weight:600;color:var(--gray-800);margin-bottom:2px;}
+    .lb-info p{font-size:12px;color:var(--gray-500);}
+    .lb-stats{text-align:right;}
+    .lb-stats .points{font-weight:700;color:var(--primary);}
+    .lb-stats .tasks{font-size:11px;color:var(--gray-400);}
+
+    /* BOTTOM NAV */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--white);border-top:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-around;padding:0 8px;z-index:100;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;border-radius:var(--r-lg);flex:1;max-width:64px;color:var(--gray-400);font-size:10px;font-weight:600;}
+    .nav-item i{font-size:18px;}
+    .nav-item.active{color:var(--primary);}
+    .nav-center{width:50px;height:50px;background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:16px;display:flex;align-items:center;justify-content:center;color:white;font-size:22px;transform:translateY(-8px);box-shadow:0 4px 14px rgba(30,123,75,0.4);text-decoration:none;}
+
+    /* LOADING */
+    @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .task-card{animation:fadein 0.3s ease both;}
+
+    /* EMPTY / LOADING STATES */
+    .load-msg{text-align:center;padding:40px 20px;color:var(--gray-500);}
+    .big-spinner{width:40px;height:40px;border:3px solid rgba(30,123,75,0.15);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px;}
   </style>
 </head>
 <body>
 
-  <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Claim Success Modal -->
   <div class="modal-overlay" id="claimSuccessModal">
     <div class="modal-card">
-      <div class="modal-icon">
-        <i class="fas fa-check-circle"></i>
-      </div>
+      <div class="modal-icon"><i class="fas fa-check-circle"></i></div>
       <h3 class="modal-title">Congratulations! 🎉</h3>
-      <p class="modal-text">You've successfully claimed your reward! The amount has been credited to your wallet.</p>
+      <p class="modal-text">You've successfully claimed your reward! The amount has been credited to your wallet instantly.</p>
       <div class="modal-details">
-        <div class="modal-detail-row">
-          <span class="modal-detail-label">Task</span>
-          <span class="modal-detail-value" id="claimedTaskName">-</span>
-        </div>
-        <div class="modal-detail-row">
-          <span class="modal-detail-label">Reward</span>
-          <span class="modal-detail-value" id="claimedReward">-</span>
-        </div>
+        <div class="modal-row"><span class="modal-label">Task</span><span class="modal-value" id="claimedTaskName">-</span></div>
+        <div class="modal-row"><span class="modal-label">Reward</span><span class="modal-value green" id="claimedReward">-</span></div>
+        <div class="modal-row"><span class="modal-label">New Balance</span><span class="modal-value green" id="claimedBalance">-</span></div>
       </div>
-      <button class="modal-btn modal-btn-primary" onclick="closeModal('claimSuccessModal')">
-        Awesome!
-      </button>
+      <button class="mbtn mbtn-primary" onclick="closeModal('claimSuccessModal')">Awesome! 🎊</button>
     </div>
   </div>
 
-  <!-- Header -->
   <header class="header">
-    <div class="header-left" onclick="goHome()">
+    <div class="header-left" onclick="window.location.href='home.html'">
       <div class="logo">P</div>
       <div class="brand">Prime<span>vest</span></div>
     </div>
-    <div class="header-right">
-      <div class="profile-btn" onclick="goToProfile()" id="profileInitial">P</div>
-    </div>
+    <div class="profile-btn" id="profileInitial" onclick="window.location.href='profile.html'">P</div>
   </header>
 
-  <!-- Main Content -->
   <div class="container">
-    <!-- Hero Section -->
+
     <div class="hero-section">
       <div class="hero-content">
-        <div class="hero-icon">
-          <i class="fas fa-trophy"></i>
-        </div>
+        <div class="hero-icon"><i class="fas fa-trophy"></i></div>
         <h1>💰 Invite • Invest • Earn 💰</h1>
         <p>Take part in our special event and earn amazing cash rewards by inviting depositors!</p>
-        
         <div class="hero-stats">
           <div class="hero-stat">
             <div class="value" id="totalQualified">0</div>
@@ -1004,329 +225,237 @@
       </div>
     </div>
 
-    <!-- Tasks Grid -->
     <div class="section-title">
       <i class="fas fa-fire"></i>
       <span>🔥 EVENT TASKS & REWARDS 🔥</span>
     </div>
 
     <div class="tasks-grid" id="tasksGrid">
-      <!-- Tasks will be populated by JavaScript -->
-      <div class="loading-state" style="grid-column: 1/-1; text-align: center; padding: 40px;">
-        <div class="spinner" style="width: 40px; height: 40px; margin: 0 auto;"></div>
-        <p style="margin-top: 16px;">Loading tasks...</p>
+      <div class="load-msg" style="grid-column:1/-1;">
+        <div class="big-spinner"></div>
+        <p>Loading tasks…</p>
       </div>
     </div>
 
-    <!-- Leaderboard Section -->
     <div class="leaderboard-section">
       <div class="leaderboard-header">
-        <h2>
-          <i class="fas fa-crown" style="color: var(--gold);"></i>
-          Top Referrers Leaderboard
-        </h2>
-        <div class="leaderboard-tabs">
-          <span style="font-size: 13px; color: var(--gray-500);">This Month</span>
-        </div>
+        <h2><i class="fas fa-crown" style="color:var(--gold);"></i> Top Referrers Leaderboard</h2>
+        <span style="font-size:13px;color:var(--gray-500);">This Month</span>
       </div>
-
       <div class="leaderboard-list" id="leaderboardList">
-        <!-- Will be populated by JavaScript -->
-        <div style="text-align: center; padding: 20px; color: var(--gray-500);">
-          <i class="fas fa-spinner fa-spin"></i> Loading leaderboard...
-        </div>
+        <div class="load-msg"><i class="fas fa-spinner fa-spin"></i> Loading leaderboard…</div>
       </div>
     </div>
+
   </div>
 
-  <!-- Bottom Navigation -->
   <nav class="bottom-nav">
-    <a href="home.html" class="nav-item">
-      <i class="fas fa-home"></i>
-      <span>Home</span>
-    </a>
-    <a href="plans.html" class="nav-item">
-      <i class="fas fa-chart-pie"></i>
-      <span>Plans</span>
-    </a>
-    <a href="investments.html" class="nav-center">
-      <i class="fas fa-wallet"></i>
-    </a>
-    <a href="referrals.html" class="nav-item">
-      <i class="fas fa-users"></i>
-      <span>Refer</span>
-    </a>
-    <a href="profile.html" class="nav-item">
-      <i class="fas fa-user"></i>
-      <span>Profile</span>
-    </a>
+    <a href="home.html"        class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="plans.html"       class="nav-item"><i class="fas fa-chart-pie"></i><span>Plans</span></a>
+    <a href="investments.html" class="nav-center"><i class="fas fa-wallet"></i></a>
+    <a href="referrals.html"   class="nav-item"><i class="fas fa-users"></i><span>Refer</span></a>
+    <a href="profile.html"     class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
   </nav>
 
   <script>
-    // ==================== FIREBASE CONFIG ====================
     const firebaseConfig = {
-      apiKey: "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
-      authDomain: "primevest-5208c.firebaseapp.com",
-      projectId: "primevest-5208c",
-      storageBucket: "primevest-5208c.firebasestorage.app",
+      apiKey:            "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain:        "primevest-5208c.firebaseapp.com",
+      projectId:         "primevest-5208c",
+      storageBucket:     "primevest-5208c.firebasestorage.app",
       messagingSenderId: "76160486147",
-      appId: "1:76160486147:web:5b5853f9772503daa7b736"
+      appId:             "1:76160486147:web:5b5853f9772503daa7b736"
     };
-
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    
     const auth = firebase.auth();
-    const db = firebase.firestore();
-    const FieldValue = firebase.firestore.FieldValue;
+    const db   = firebase.firestore();
+    const FV   = firebase.firestore.FieldValue;
 
-    // ==================== GLOBAL VARIABLES ====================
-    let currentUser = null;
-    let userData = null;
-    let contestTasks = [
-      {
-        id: 'task1',
-        title: 'Starter Challenge',
-        description: 'Invite 3 depositors to invest ₦100,000 each',
-        icon: '🥇',
-        requirement: {
-          count: 3,
-          amount: 100000
-        },
-        reward: 50000,
-        color: 'gold'
-      },
-      {
-        id: 'task2',
-        title: 'Bronze Challenge',
-        description: 'Invite 3 depositors to invest ₦50,000 each',
-        icon: '🥉',
-        requirement: {
-          count: 3,
-          amount: 50000
-        },
-        reward: 25000,
-        color: 'bronze'
-      },
-      {
-        id: 'task3',
-        title: 'Silver Challenge',
-        description: 'Invite 3 depositors to invest ₦25,000 each',
-        icon: '🥈',
-        requirement: {
-          count: 3,
-          amount: 25000
-        },
-        reward: 10000,
-        color: 'silver'
-      },
-      {
-        id: 'task4',
-        title: 'Basic Challenge',
-        description: 'Invite 5 depositors to invest ₦4,000 each',
-        icon: '🌱',
-        requirement: {
-          count: 5,
-          amount: 4000
-        },
-        reward: 4000,
-        color: 'green'
-      },
-      {
-        id: 'task5',
-        title: 'Advanced Challenge',
-        description: 'Invite 5 depositors to invest ₦150,000 each',
-        icon: '💎',
-        requirement: {
-          count: 5,
-          amount: 150000
-        },
-        reward: 150000,
-        color: 'purple'
-      },
-      {
-        id: 'task6',
-        title: 'Elite Challenge',
-        description: 'Invite 5 depositors to invest ₦300,000 each',
-        icon: '👑',
-        requirement: {
-          count: 5,
-          amount: 300000
-        },
-        reward: 300000,
-        color: 'gold'
-      }
+    let currentUser       = null;
+    let userData          = null;
+    let userTaskProgress  = {};
+
+    const fmt = n => '₦' + Number(n||0).toLocaleString('en-NG');
+
+    // ── Task definitions ─────────────────────────────────────
+    const TASKS = [
+      { id:'task1', title:'Starter Challenge',  description:'Invite 3 depositors to invest ₦100,000 each', icon:'🥇', req:{ count:3, amount:100000 }, reward:50000  },
+      { id:'task2', title:'Bronze Challenge',   description:'Invite 3 depositors to invest ₦50,000 each',  icon:'🥉', req:{ count:3, amount:50000  }, reward:25000  },
+      { id:'task3', title:'Silver Challenge',   description:'Invite 3 depositors to invest ₦25,000 each',  icon:'🥈', req:{ count:3, amount:25000  }, reward:10000  },
+      { id:'task4', title:'Basic Challenge',    description:'Invite 5 depositors to invest ₦4,000 each',   icon:'🌱', req:{ count:5, amount:4000   }, reward:4000   },
+      { id:'task5', title:'Advanced Challenge', description:'Invite 5 depositors to invest ₦150,000 each', icon:'💎', req:{ count:5, amount:150000 }, reward:150000 },
+      { id:'task6', title:'Elite Challenge',    description:'Invite 5 depositors to invest ₦300,000 each', icon:'👑', req:{ count:5, amount:300000 }, reward:300000 },
     ];
 
-    let userTaskProgress = {};
+    // ── Toast ─────────────────────────────────────────────────
+    function showToast({ type='info', title, message, duration=4500 }) {
+      const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.innerHTML = `<div class="ti"><i class="fas ${icons[type]}"></i></div><div class="tc"><div class="tt">${title}</div><div class="tm">${message}</div></div><div class="tclose" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>`;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => el.classList.add('show'), 10);
+      if (duration) setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, duration);
+    }
 
-    // ==================== TOAST SYSTEM ====================
-    function showToast({ type = 'info', title, message, duration = 4000 }) {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      
-      const icons = {
-        success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
-        warning: 'fa-exclamation-triangle',
-        info: 'fa-info-circle'
-      };
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+    function openModal(id)  { document.getElementById(id).classList.add('show'); }
 
-      toast.innerHTML = `
-        <div class="toast-icon">
-          <i class="fas ${icons[type]}"></i>
-        </div>
-        <div class="toast-content">
-          <div class="toast-title">${title}</div>
-          <div class="toast-message">${message}</div>
-        </div>
-        <div class="toast-close" onclick="this.parentElement.remove()">
-          <i class="fas fa-times"></i>
-        </div>
-      `;
+    // ══════════════════════════════════════════════════════════
+    //  BUG FIX 1: MULTI-FIELD REFERRAL LOOKUP
+    //
+    //  Old code only tried: .where('referrerUid','==', uid)
+    //  If signup stored the referrer under 'referredBy' or
+    //  'referredByCode', it found zero referrals and showed 0
+    //  progress on every task even for users with real downlines.
+    //
+    //  Fix: try all three field names in sequence, merge results,
+    //  deduplicate by doc ID so no referral is double-counted.
+    // ══════════════════════════════════════════════════════════
+    async function fetchMyReferralIds(uid) {
+      const fields = ['referrerUid', 'referredBy', 'referredByUid'];
+      const seen   = new Set();
+      const ids    = [];
 
-      container.appendChild(toast);
-      setTimeout(() => toast.classList.add('show'), 10);
-
-      if (duration) {
-        setTimeout(() => {
-          toast.classList.remove('show');
-          setTimeout(() => toast.remove(), 400);
-        }, duration);
+      for (const field of fields) {
+        try {
+          const snap = await db.collection('users').where(field, '==', uid).get();
+          snap.forEach(doc => {
+            if (!seen.has(doc.id)) { seen.add(doc.id); ids.push(doc.id); }
+          });
+        } catch (e) {
+          console.warn(`[contest] referral lookup (${field}):`, e.message);
+        }
       }
+      return ids;
     }
 
-    // ==================== MODAL FUNCTIONS ====================
-    function openModal(modalId) {
-      document.getElementById(modalId).classList.add('show');
-    }
+    // ══════════════════════════════════════════════════════════
+    //  BUG FIX 2: CHUNKED INVESTMENT QUERIES
+    //
+    //  Old code ran one Firestore query per referral inside a
+    //  sequential for-loop — very slow with many referrals.
+    //  Firestore 'in' queries support max 10 values per call.
+    //
+    //  Fix: chunk referral IDs into groups of 10, run those
+    //  batches in parallel with Promise.all(), then merge.
+    // ══════════════════════════════════════════════════════════
+    async function fetchInvestmentTotals(referralIds) {
+      // Returns { [userId]: totalInvested }
+      const totals = {};
+      if (!referralIds.length) return totals;
 
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('show');
-    }
+      // Chunk into groups of 10 (Firestore 'in' limit)
+      const chunks = [];
+      for (let i = 0; i < referralIds.length; i += 10) {
+        chunks.push(referralIds.slice(i, i + 10));
+      }
 
-    // ==================== NAVIGATION ====================
-    function goHome() {
-      window.location.href = 'home.html';
-    }
-
-    function goToProfile() {
-      window.location.href = 'profile.html';
-    }
-
-    // ==================== FORMAT MONEY ====================
-    function formatMoney(amount) {
-      return Number(amount || 0).toLocaleString('en-NG', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      });
-    }
-
-    // ==================== CALCULATE TASK PROGRESS ====================
-    async function calculateTaskProgress() {
-      if (!currentUser || !userData) return;
-
-      try {
-        // Get all referrals of this user
-        const referralsSnap = await db.collection('users')
-          .where('referrerUid', '==', currentUser.uid)
-          .get();
-
-        const referralIds = [];
-        referralsSnap.forEach(doc => {
-          referralIds.push(doc.id);
-        });
-
-        // Get all investments from these referrals
-        const qualifiedReferrals = new Set();
-        const referralInvestments = {};
-
-        for (const refId of referralIds) {
-          const investmentsSnap = await db.collection('investments')
-            .where('userId', '==', refId)
+      // Run all chunks in parallel
+      await Promise.all(chunks.map(async chunk => {
+        try {
+          const snap = await db.collection('investments')
+            .where('userId', 'in', chunk)
             .get();
 
-          let totalInvested = 0;
-          investmentsSnap.forEach(doc => {
-            totalInvested += doc.data().amount || 0;
+          snap.forEach(doc => {
+            const d  = doc.data();
+            const id = d.userId;
+            if (!totals[id]) totals[id] = 0;
+            totals[id] += Number(d.amount || 0);
           });
-
-          if (totalInvested > 0) {
-            qualifiedReferrals.add(refId);
-            referralInvestments[refId] = totalInvested;
-          }
+        } catch (e) {
+          console.warn('[contest] investment chunk query failed:', e.message);
+          // Fallback: query each ID individually for this chunk
+          await Promise.all(chunk.map(async uid => {
+            try {
+              const s = await db.collection('investments').where('userId','==',uid).get();
+              s.forEach(doc => {
+                if (!totals[uid]) totals[uid] = 0;
+                totals[uid] += Number(doc.data().amount || 0);
+              });
+            } catch (e2) { console.warn('[contest] individual fallback failed:', e2.message); }
+          }));
         }
+      }));
 
-        // Calculate progress for each task
+      return totals;
+    }
+
+    // ── Calculate task progress ───────────────────────────────
+    async function calculateTaskProgress() {
+      if (!currentUser || !userData) return;
+      try {
+        const referralIds     = await fetchMyReferralIds(currentUser.uid);
+        const investmentTotals = await fetchInvestmentTotals(referralIds);
+
+        // Who has invested anything?
+        const qualifiedSet = new Set(
+          referralIds.filter(id => (investmentTotals[id] || 0) > 0)
+        );
+
         userTaskProgress = {};
 
-        contestTasks.forEach(task => {
-          const { count: requiredCount, amount: requiredAmount } = task.requirement;
-          
-          // Count referrals that meet the investment requirement
-          let qualifyingCount = 0;
-          for (const refId of referralIds) {
-            const totalInvested = referralInvestments[refId] || 0;
-            if (totalInvested >= requiredAmount) {
-              qualifyingCount++;
-            }
-          }
+        TASKS.forEach(task => {
+          const { count: reqCount, amount: reqAmount } = task.req;
 
-          // Check if user has already claimed this task
-          const claimed = userData.claimedTasks && userData.claimedTasks.includes(task.id);
+          // Count referrals whose total invested >= required amount
+          const qualifyingCount = referralIds.filter(
+            id => (investmentTotals[id] || 0) >= reqAmount
+          ).length;
+
+          const claimed = Array.isArray(userData.claimedTasks) &&
+                          userData.claimedTasks.includes(task.id);
 
           userTaskProgress[task.id] = {
-            current: qualifyingCount,
-            required: requiredCount,
-            percentage: Math.min(100, Math.round((qualifyingCount / requiredCount) * 100)),
-            canClaim: qualifyingCount >= requiredCount && !claimed,
-            claimed: claimed || false
+            current:    qualifyingCount,
+            required:   reqCount,
+            percentage: Math.min(100, Math.round((qualifyingCount / reqCount) * 100)),
+            canClaim:   qualifyingCount >= reqCount && !claimed,
+            claimed
           };
         });
 
-        // Update hero stats
-        const totalQualified = Object.values(userTaskProgress).filter(t => t.current >= t.required).length;
-        const totalEarned = (userData.contestEarnings || 0);
-        const uniqueReferrals = qualifiedReferrals.size;
+        // Hero stats
+        const tasksCompleted   = Object.values(userTaskProgress).filter(t => t.current >= t.required).length;
+        const totalEarned      = userData.contestEarnings || 0;
+        const uniqueQualified  = qualifiedSet.size;
 
-        document.getElementById('totalQualified').textContent = totalQualified;
-        document.getElementById('totalEarned').textContent = '₦' + formatMoney(totalEarned);
-        document.getElementById('totalReferrals').textContent = uniqueReferrals;
+        document.getElementById('totalQualified').textContent = tasksCompleted;
+        document.getElementById('totalEarned').textContent    = fmt(totalEarned);
+        document.getElementById('totalReferrals').textContent = uniqueQualified;
 
         renderTasks();
 
-      } catch (error) {
-        console.error('Error calculating progress:', error);
+      } catch (err) {
+        console.error('[contest] calculateTaskProgress:', err);
+        showToast({ type:'error', title:'Load Error', message:'Could not load task progress. Please refresh.' });
       }
     }
 
-    // ==================== RENDER TASKS ====================
+    // ── Render tasks ──────────────────────────────────────────
     function renderTasks() {
       const grid = document.getElementById('tasksGrid');
-      
-      let html = '';
+      grid.innerHTML = TASKS.map((task, i) => {
+        const p = userTaskProgress[task.id] || { current:0, required:task.req.count, percentage:0, canClaim:false, claimed:false };
 
-      contestTasks.forEach(task => {
-        const progress = userTaskProgress[task.id] || { current: 0, required: 0, percentage: 0, canClaim: false, claimed: false };
-        
-        let statusClass = 'pending';
-        let statusText = 'In Progress';
-        let badgeClass = 'badge-pending';
-        
-        if (progress.claimed) {
-          statusClass = 'claimed';
-          statusText = 'Claimed ✓';
-          badgeClass = 'badge-claimed';
-        } else if (progress.canClaim) {
-          statusClass = 'completed';
-          statusText = 'Ready to Claim!';
-          badgeClass = 'badge-completed';
-        }
+        let cardClass   = 'pending';
+        let badgeClass  = 'badge-pending';
+        let badgeText   = 'In Progress';
+        if (p.claimed)       { cardClass = 'claimed';   badgeClass = 'badge-claimed';   badgeText = 'Claimed ✓'; }
+        else if (p.canClaim) { cardClass = 'completed'; badgeClass = 'badge-completed'; badgeText = 'Ready to Claim!'; }
 
-        html += `
-          <div class="task-card ${statusClass}" data-task-id="${task.id}">
-            <div class="task-badge ${badgeClass}">${statusText}</div>
-            
+        const btnClass = p.canClaim ? 'available' : (p.claimed ? 'claimed' : 'disabled');
+        const btnInner = p.canClaim
+          ? '<i class="fas fa-gift"></i> Claim Reward'
+          : p.claimed
+          ? '<i class="fas fa-check"></i> Already Claimed'
+          : '<i class="fas fa-lock"></i> Not Yet Available';
+
+        return `
+          <div class="task-card ${cardClass}" style="animation-delay:${i*0.05}s">
+            <div class="task-badge ${badgeClass}">${badgeText}</div>
+
             <div class="task-header">
               <div class="task-icon">${task.icon}</div>
               <div class="task-title">
@@ -1336,223 +465,247 @@
             </div>
 
             <div class="task-content">
-              <div class="requirement-item">
-                <span class="requirement-label">
-                  <i class="fas fa-users"></i> Required Referrals
-                </span>
-                <span class="requirement-value">${task.requirement.count}</span>
+              <div class="req-item">
+                <span class="req-label"><i class="fas fa-users"></i> Required Referrals</span>
+                <span class="req-value">${task.req.count}</span>
               </div>
-              
-              <div class="requirement-item">
-                <span class="requirement-label">
-                  <i class="fas fa-coins"></i> Min. Investment
-                </span>
-                <span class="requirement-value">₦${formatMoney(task.requirement.amount)}</span>
+              <div class="req-item">
+                <span class="req-label"><i class="fas fa-coins"></i> Min. Investment</span>
+                <span class="req-value">${fmt(task.req.amount)}</span>
               </div>
 
               <div class="progress-section">
                 <div class="progress-header">
                   <span class="progress-title">Your Progress</span>
-                  <span class="progress-percent">${progress.current}/${progress.required}</span>
+                  <span class="progress-pct">${p.current} / ${p.required}</span>
                 </div>
                 <div class="progress-bar">
-                  <div class="progress-fill" style="width: ${progress.percentage}%;"></div>
+                  <div class="progress-fill" style="width:${p.percentage}%"></div>
                 </div>
               </div>
 
               <div class="count-display">
-                <div class="count-number">${progress.current}</div>
-                <div class="count-label">Qualified Referrals</div>
+                <div class="count-number">${p.current}</div>
+                <div class="count-label">Qualifying Referrals</div>
               </div>
 
               <div class="reward-box">
                 <h4>🎁 Reward</h4>
-                <div class="reward-amount">₦${formatMoney(task.reward)}</div>
+                <div class="reward-amount">${fmt(task.reward)}</div>
               </div>
             </div>
 
             <div class="task-footer">
-              <button class="claim-btn ${progress.canClaim ? 'available' : (progress.claimed ? 'claimed' : 'disabled')}" 
-                      onclick="claimReward('${task.id}')"
-                      ${!progress.canClaim ? 'disabled' : ''}>
-                ${progress.canClaim ? '<i class="fas fa-gift"></i> Claim Reward' : 
-                  (progress.claimed ? '<i class="fas fa-check"></i> Already Claimed' : 
-                  '<i class="fas fa-lock"></i> Not Yet Available')}
+              <button class="claim-btn ${btnClass}" id="claimBtn-${task.id}"
+                onclick="claimReward('${task.id}')" ${!p.canClaim ? 'disabled' : ''}>
+                ${btnInner}
               </button>
             </div>
-          </div>
-        `;
-      });
-
-      grid.innerHTML = html;
+          </div>`;
+      }).join('');
     }
 
-    // ==================== CLAIM REWARD ====================
+    // ══════════════════════════════════════════════════════════
+    //  BUG FIX 3: ATOMIC CLAIM (Firestore Transaction)
+    //
+    //  Old code: read claimedTasks → check → write (3 separate
+    //  steps). In two browser tabs, both could pass the check
+    //  before either finishes writing, paying the reward twice.
+    //
+    //  Fix: wrap the entire check+write in a Firestore
+    //  transaction so it's atomic — the second claim attempt
+    //  reads the already-updated claimedTasks and rejects.
+    // ══════════════════════════════════════════════════════════
     async function claimReward(taskId) {
       if (!currentUser || !userData) return;
 
-      const task = contestTasks.find(t => t.id === taskId);
+      const task = TASKS.find(t => t.id === taskId);
       if (!task) return;
 
       const progress = userTaskProgress[taskId];
-      if (!progress || !progress.canClaim) {
-        showToast({
-          type: 'warning',
-          title: 'Cannot Claim',
-          message: 'You have not completed this task yet'
-        });
+      if (!progress?.canClaim) {
+        showToast({ type:'warning', title:'Not Ready', message:'Complete the task requirements first.' });
         return;
       }
 
+      const btn = document.getElementById(`claimBtn-${taskId}`);
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Claiming…'; }
+
       try {
-        // Update user document
-        const claimedTasks = userData.claimedTasks || [];
-        claimedTasks.push(taskId);
-        
-        const newEarnings = (userData.contestEarnings || 0) + task.reward;
+        const userRef = db.collection('users').doc(currentUser.uid);
 
-        await db.collection('users').doc(currentUser.uid).update({
-          claimedTasks: claimedTasks,
-          contestEarnings: newEarnings,
-          balance: FieldValue.increment(task.reward)
+        // Atomic transaction — prevents double-claiming
+        await db.runTransaction(async tx => {
+          const userSnap = await tx.get(userRef);
+          if (!userSnap.exists) throw new Error('User not found.');
+
+          const data         = userSnap.data();
+          const claimedTasks = Array.isArray(data.claimedTasks) ? data.claimedTasks : [];
+
+          // Double-claim guard inside the transaction
+          if (claimedTasks.includes(taskId)) {
+            throw new Error('ALREADY_CLAIMED');
+          }
+
+          tx.update(userRef, {
+            claimedTasks:    [...claimedTasks, taskId],
+            contestEarnings: FV.increment(task.reward),
+            balance:         FV.increment(task.reward),
+            lastUpdated:     FV.serverTimestamp()
+          });
         });
 
-        // Create transaction record
-        await db.collection('transactions').add({
-          userId: currentUser.uid,
-          userName: userData.fullName || userData.username || 'User',
-          type: 'contest_reward',
-          amount: task.reward,
-          taskId: taskId,
-          taskName: task.title,
-          createdAt: FieldValue.serverTimestamp()
-        });
+        // Create transaction record outside the tx (non-critical)
+        db.collection('transactions').add({
+          userId:      currentUser.uid,
+          userName:    userData.fullName || userData.username || 'User',
+          type:        'contest_reward',
+          amount:      task.reward,
+          taskId,
+          taskName:    task.title,
+          description: `Contest reward claimed: ${task.title}`,
+          status:      'completed',
+          createdAt:   FV.serverTimestamp()
+        }).catch(e => console.warn('[contest] tx record failed:', e));
 
-        // Update local data
-        userData.claimedTasks = claimedTasks;
-        userData.contestEarnings = newEarnings;
-        userData.balance = (userData.balance || 0) + task.reward;
+        // Update local state
+        const claimedTasks     = Array.isArray(userData.claimedTasks) ? userData.claimedTasks : [];
+        userData.claimedTasks  = [...claimedTasks, taskId];
+        userData.contestEarnings = (userData.contestEarnings || 0) + task.reward;
+        userData.balance        = (userData.balance || 0) + task.reward;
 
-        // Show success modal
+        // Success modal
         document.getElementById('claimedTaskName').textContent = task.title;
-        document.getElementById('claimedReward').textContent = '₦' + formatMoney(task.reward);
+        document.getElementById('claimedReward').textContent   = fmt(task.reward);
+        document.getElementById('claimedBalance').textContent  = fmt(userData.balance);
         openModal('claimSuccessModal');
 
-        // Recalculate progress
+        // Refresh progress display
         await calculateTaskProgress();
 
-        showToast({
-          type: 'success',
-          title: 'Reward Claimed! 🎉',
-          message: `You've received ₦${formatMoney(task.reward)}`
-        });
+        showToast({ type:'success', title:'Reward Claimed! 🎉', message:`${fmt(task.reward)} credited to your wallet.` });
 
-      } catch (error) {
-        console.error('Error claiming reward:', error);
-        showToast({
-          type: 'error',
-          title: 'Error',
-          message: 'Failed to claim reward'
-        });
+      } catch (err) {
+        console.error('[contest] claimReward error:', err);
+        if (err.message === 'ALREADY_CLAIMED') {
+          showToast({ type:'warning', title:'Already Claimed', message:'You have already claimed this reward.' });
+          await calculateTaskProgress(); // refresh UI state
+        } else {
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-gift"></i> Claim Reward'; }
+          showToast({ type:'error', title:'Claim Failed', message: err.message || 'Please try again.' });
+        }
       }
     }
 
-    // ==================== LOAD LEADERBOARD ====================
+    // ══════════════════════════════════════════════════════════
+    //  BUG FIX 4: LEADERBOARD WITHOUT COMPOSITE INDEX
+    //
+    //  Old code: .orderBy('contestEarnings','desc')
+    //  This requires a Firestore single-field index on
+    //  contestEarnings, which may not exist. Without it
+    //  Firestore throws an error, the catch swallows it,
+    //  and the leaderboard silently shows nothing.
+    //
+    //  Fix: fetch users without orderBy (no index needed),
+    //  filter to those with contestEarnings > 0 in JS,
+    //  then sort descending in JS.
+    // ══════════════════════════════════════════════════════════
     async function loadLeaderboard() {
+      const el = document.getElementById('leaderboardList');
       try {
-        const usersSnap = await db.collection('users')
-          .orderBy('contestEarnings', 'desc')
-          .limit(10)
+        // No orderBy — avoids missing index error
+        const snap = await db.collection('users')
+          .where('contestEarnings', '>', 0)
           .get();
 
-        const leaderboard = [];
-        usersSnap.forEach(doc => {
-          const data = doc.data();
-          if (data.contestEarnings && data.contestEarnings > 0) {
-            leaderboard.push({
-              id: doc.id,
-              name: data.fullName || data.username || 'User',
-              earnings: data.contestEarnings || 0,
-              tasks: (data.claimedTasks || []).length
-            });
-          }
+        let leaders = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          leaders.push({
+            id:       doc.id,
+            name:     d.fullName || d.username || 'User',
+            earnings: d.contestEarnings || 0,
+            tasks:    (d.claimedTasks || []).length
+          });
         });
 
-        const leaderboardEl = document.getElementById('leaderboardList');
-        
-        if (leaderboard.length === 0) {
-          leaderboardEl.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: var(--gray-500);">
-              <i class="fas fa-trophy" style="font-size: 32px; margin-bottom: 12px; opacity: 0.5;"></i>
-              <p>No winners yet. Be the first!</p>
-            </div>
-          `;
+        // Sort in JS
+        leaders.sort((a, b) => b.earnings - a.earnings);
+        leaders = leaders.slice(0, 10);
+
+        if (!leaders.length) {
+          el.innerHTML = `
+            <div style="text-align:center;padding:24px;color:var(--gray-500);">
+              <i class="fas fa-trophy" style="font-size:32px;margin-bottom:12px;opacity:0.4;display:block;"></i>
+              <p>No winners yet — be the first!</p>
+            </div>`;
           return;
         }
 
-        let html = '';
-        leaderboard.forEach((user, index) => {
-          const rankClass = index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : (index === 2 ? 'rank-3' : ''));
-          const rankDisplay = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index + 1}`));
-          
-          html += `
-            <div class="leaderboard-item">
-              <div class="rank-badge ${rankClass}">${rankDisplay}</div>
-              <div class="leaderboard-info">
-                <h4>${user.name}</h4>
-                <p>${user.tasks} tasks completed</p>
+        el.innerHTML = leaders.map((user, i) => {
+          const rankCls  = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+          const rankDisp = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+          // Highlight current user
+          const isMe = currentUser && user.id === currentUser.uid;
+          const style = isMe ? 'background:var(--primary-soft);border:1px solid var(--primary-light);' : '';
+          return `
+            <div class="leaderboard-item" style="${style}">
+              <div class="rank-badge ${rankCls}">${rankDisp}</div>
+              <div class="lb-info">
+                <h4>${user.name}${isMe ? ' <span style="color:var(--primary);font-size:11px;">(You)</span>' : ''}</h4>
+                <p>${user.tasks} task${user.tasks !== 1 ? 's' : ''} completed</p>
               </div>
-              <div class="leaderboard-stats">
-                <div class="points">₦${formatMoney(user.earnings)}</div>
+              <div class="lb-stats">
+                <div class="points">${fmt(user.earnings)}</div>
                 <div class="tasks">earned</div>
               </div>
-            </div>
-          `;
-        });
+            </div>`;
+        }).join('');
 
-        leaderboardEl.innerHTML = html;
-
-      } catch (error) {
-        console.error('Error loading leaderboard:', error);
-      }
-    }
-
-    // ==================== LOAD USER DATA ====================
-    async function loadUserData() {
-      if (!currentUser) return;
-
-      try {
-        const userDoc = await db.collection('users').doc(currentUser.uid).get();
-        if (userDoc.exists) {
-          userData = userDoc.data();
-          
-          // Update profile initial
-          const firstName = (userData.fullName || 'User').split(' ')[0];
-          document.getElementById('profileInitial').textContent = firstName.charAt(0).toUpperCase();
-
-          // Calculate task progress
-          await calculateTaskProgress();
+      } catch (err) {
+        console.warn('[contest] leaderboard error:', err.message);
+        // Graceful fallback — fetch all users and filter in JS
+        try {
+          const snap = await db.collection('users').limit(200).get();
+          let leaders = [];
+          snap.forEach(doc => {
+            const d = doc.data();
+            if ((d.contestEarnings || 0) > 0) {
+              leaders.push({ id:doc.id, name:d.fullName||d.username||'User', earnings:d.contestEarnings||0, tasks:(d.claimedTasks||[]).length });
+            }
+          });
+          leaders.sort((a,b) => b.earnings - a.earnings);
+          leaders = leaders.slice(0,10);
+          if (!leaders.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray-500);">No winners yet.</div>'; return; }
+          el.innerHTML = leaders.map((u,i) => {
+            const rc = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
+            const rd = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+            return `<div class="leaderboard-item"><div class="rank-badge ${rc}">${rd}</div><div class="lb-info"><h4>${u.name}</h4><p>${u.tasks} tasks</p></div><div class="lb-stats"><div class="points">${fmt(u.earnings)}</div><div class="tasks">earned</div></div></div>`;
+          }).join('');
+        } catch (e2) {
+          el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray-500);">Could not load leaderboard.</div>';
         }
-      } catch (error) {
-        console.error('Error loading user data:', error);
       }
     }
 
-    // ==================== AUTH STATE ====================
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
-      }
+    // ── Load user data ────────────────────────────────────────
+    async function loadUserData() {
+      const doc = await db.collection('users').doc(currentUser.uid).get();
+      if (!doc.exists) { window.location.href = 'login.html'; return; }
+      userData = doc.data();
+      document.getElementById('profileInitial').textContent =
+        (userData.fullName || userData.username || 'P').charAt(0).toUpperCase();
+      await calculateTaskProgress();
+    }
 
+    // ── Auth ──────────────────────────────────────────────────
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
       currentUser = user;
-      await loadUserData();
-      await loadLeaderboard();
+      try {
+        await Promise.all([ loadUserData(), loadLeaderboard() ]);
+      } catch (e) { console.error('[contest] init error:', e); }
     });
-
-    // Make functions global
-    window.claimReward = claimReward;
-    window.closeModal = closeModal;
   </script>
 </body>
 </html>
