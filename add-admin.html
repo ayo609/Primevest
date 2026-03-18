@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Primevest | Create Admin</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --primary:#1E7B4B;--primary-dark:#0B4F2E;--primary-light:#4CAF7C;
+      --primary-soft:#E8F5E9;--white:#fff;
+      --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;
+      --gray-400:#9CA3AF;--gray-500:#6B7280;--gray-700:#374151;--gray-800:#1F2937;
+      --success:#10B981;--warning:#F59E0B;--error:#EF4444;
+      --shadow-lg:0 10px 25px rgba(0,0,0,0.12);--shadow-xl:0 20px 40px rgba(0,0,0,0.15);
+    }
+    body{
+      font-family:'Plus Jakarta Sans',sans-serif;
+      min-height:100vh;
+      background:linear-gradient(135deg,#0B4F2E 0%,#1E7B4B 40%,#155a38 100%);
+      display:flex;align-items:center;justify-content:center;
+      padding:20px;
+    }
+
+    /* ── CARD ── */
+    .card{
+      background:var(--white);border-radius:28px;
+      width:100%;max-width:460px;
+      box-shadow:var(--shadow-xl);
+      overflow:hidden;
+      position:relative;
+    }
+
+    /* top decorative strip */
+    .card-top{
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      padding:36px 36px 28px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .card-top::before{
+      content:'';position:absolute;top:-60px;right:-60px;
+      width:200px;height:200px;background:rgba(255,255,255,0.07);border-radius:50%;
+    }
+    .card-top::after{
+      content:'';position:absolute;bottom:-50px;left:-50px;
+      width:150px;height:150px;background:rgba(255,255,255,0.07);border-radius:50%;
+    }
+    .logo-wrap{
+      width:72px;height:72px;
+      background:rgba(255,255,255,0.15);
+      border:2px solid rgba(255,255,255,0.3);
+      border-radius:22px;
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 16px;font-size:32px;color:#fff;
+      position:relative;z-index:1;
+    }
+    .card-top h1{
+      font-family:'Outfit',sans-serif;
+      font-size:26px;font-weight:800;color:#fff;
+      margin-bottom:6px;position:relative;z-index:1;
+    }
+    .card-top p{
+      font-size:13px;color:rgba(255,255,255,0.8);
+      position:relative;z-index:1;
+    }
+
+    /* mode badges */
+    .mode-badge{
+      display:inline-flex;align-items:center;gap:6px;
+      border-radius:50px;padding:5px 14px;
+      font-size:12px;font-weight:700;margin-top:12px;
+      position:relative;z-index:1;
+    }
+    .mode-badge.setup{background:rgba(245,158,11,0.2);color:#FCD34D;}
+    .mode-badge.secure{background:rgba(16,185,129,0.2);color:#6EE7B7;}
+    .mode-dot{width:7px;height:7px;border-radius:50%;background:currentColor;
+      animation:pulse 1.5s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+    /* ── BODY ── */
+    .card-body{padding:32px 36px 36px;}
+
+    /* error / info banners */
+    .banner{
+      border-radius:12px;padding:12px 16px;margin-bottom:20px;
+      font-size:13px;font-weight:600;display:none;align-items:center;gap:10px;
+    }
+    .banner.show{display:flex;}
+    .banner.error{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#B91C1C;}
+    .banner.warning{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#92400E;}
+    .banner.success{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);color:#065F46;}
+    .banner i{font-size:16px;flex-shrink:0;}
+
+    /* field */
+    .field{margin-bottom:18px;}
+    .field label{
+      display:flex;align-items:center;gap:6px;
+      font-size:13px;font-weight:700;color:var(--gray-700);
+      margin-bottom:8px;
+    }
+    .field label i{color:var(--primary);width:16px;}
+    .input-wrap{position:relative;}
+    .input-wrap input{
+      width:100%;padding:13px 44px 13px 16px;
+      background:var(--gray-50);
+      border:2px solid var(--gray-200);
+      border-radius:12px;
+      font-size:14px;font-family:inherit;
+      transition:all 0.2s;color:var(--gray-800);
+    }
+    .input-wrap input:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 4px rgba(30,123,75,0.08);}
+    .input-wrap input.valid{border-color:var(--success);}
+    .input-wrap input.invalid{border-color:var(--error);}
+    .input-wrap .toggle-pw{
+      position:absolute;right:14px;top:50%;transform:translateY(-50%);
+      color:var(--gray-400);cursor:pointer;font-size:15px;
+      background:none;border:none;padding:0;
+    }
+    .field-hint{font-size:11px;color:var(--gray-400);margin-top:5px;display:flex;align-items:center;gap:4px;}
+    .field-hint.err{color:var(--error);}
+
+    /* password strength */
+    .strength-bar{height:4px;background:var(--gray-200);border-radius:4px;margin-top:8px;overflow:hidden;}
+    .strength-fill{height:100%;border-radius:4px;transition:all 0.3s;width:0%;}
+    .strength-fill.weak{background:var(--error);width:33%;}
+    .strength-fill.medium{background:var(--warning);width:66%;}
+    .strength-fill.strong{background:var(--success);width:100%;}
+    .strength-label{font-size:11px;margin-top:4px;font-weight:600;}
+    .strength-label.weak{color:var(--error);}
+    .strength-label.medium{color:var(--warning);}
+    .strength-label.strong{color:var(--success);}
+
+    /* submit button */
+    .submit-btn{
+      width:100%;padding:15px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      border:none;border-radius:14px;
+      color:#fff;font-size:15px;font-weight:700;font-family:inherit;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+      transition:all 0.25s;margin-top:8px;
+    }
+    .submit-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,123,75,0.35);}
+    .submit-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+    .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* ── SUCCESS SCREEN ── */
+    .success-screen{
+      display:none;padding:40px 36px;text-align:center;
+    }
+    .success-screen.show{display:block;}
+    .success-icon{
+      width:80px;height:80px;
+      background:rgba(16,185,129,0.1);border-radius:40px;
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 20px;font-size:36px;color:var(--success);
+    }
+    .success-screen h2{font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;color:var(--gray-800);margin-bottom:10px;}
+    .success-screen p{font-size:14px;color:var(--gray-500);margin-bottom:24px;line-height:1.6;}
+    .success-details{background:var(--gray-50);border-radius:14px;padding:16px;margin-bottom:24px;text-align:left;}
+    .sd-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--gray-200);}
+    .sd-row:last-child{border-bottom:none;}
+    .sd-label{color:var(--gray-500);}
+    .sd-value{font-weight:700;color:var(--gray-800);}
+    .login-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:13px 32px;
+      background:var(--primary);border:none;border-radius:12px;
+      color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;
+      transition:all 0.2s;text-decoration:none;
+    }
+    .login-btn:hover{background:var(--primary-dark);}
+
+    /* ── LOADING OVERLAY ── */
+    .page-loader{
+      position:fixed;inset:0;
+      background:linear-gradient(135deg,#0B4F2E,#1E7B4B);
+      display:flex;align-items:center;justify-content:center;
+      z-index:9999;
+      transition:opacity 0.4s;
+    }
+    .page-loader.hidden{opacity:0;pointer-events:none;}
+    .loader-inner{text-align:center;color:#fff;}
+    .loader-inner .big-spinner{
+      width:48px;height:48px;
+      border:3px solid rgba(255,255,255,0.2);border-top-color:#fff;
+      border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;
+    }
+    .loader-inner p{font-size:14px;opacity:0.8;}
+
+    @media(max-width:480px){
+      .card-body,.success-screen{padding:24px 24px 28px;}
+      .card-top{padding:28px 24px 22px;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page loading overlay while we check auth state -->
+  <div class="page-loader" id="pageLoader">
+    <div class="loader-inner">
+      <div class="big-spinner"></div>
+      <p>Checking access…</p>
+    </div>
+  </div>
+
+  <div class="card" id="mainCard">
+
+    <!-- Card Top -->
+    <div class="card-top">
+      <div class="logo-wrap"><i class="fas fa-shield-alt"></i></div>
+      <h1>Create Admin</h1>
+      <p>Set up an administrator account for Primevest</p>
+      <!-- Badge changes depending on setup vs secure mode -->
+      <div class="mode-badge setup" id="modeBadge">
+        <span class="mode-dot"></span>
+        <span id="modeText">First-time Setup</span>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="card-body" id="formSection">
+
+      <!-- Error / warning banners -->
+      <div class="banner error" id="accessBanner">
+        <i class="fas fa-lock"></i>
+        <span id="accessBannerText">Access denied. You must be a logged-in admin to create additional admins.</span>
+      </div>
+      <div class="banner warning" id="warnBanner">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="warnText"></span>
+      </div>
+      <div class="banner success" id="infoBanner">
+        <i class="fas fa-info-circle"></i>
+        <span id="infoText"></span>
+      </div>
+
+      <div class="field">
+        <label><i class="fas fa-user"></i> Full Name</label>
+        <div class="input-wrap">
+          <input type="text" id="fullName" placeholder="e.g. John Adeyemi" oninput="validateField('fullName')">
+        </div>
+        <div class="field-hint" id="fullNameHint"><i class="fas fa-info-circle"></i> Enter the admin's real full name</div>
+      </div>
+
+      <div class="field">
+        <label><i class="fas fa-envelope"></i> Email Address</label>
+        <div class="input-wrap">
+          <input type="email" id="email" placeholder="admin@example.com" oninput="validateField('email')">
+        </div>
+        <div class="field-hint" id="emailHint"><i class="fas fa-info-circle"></i> Used to log in to the admin panel</div>
+      </div>
+
+      <div class="field">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <div class="input-wrap">
+          <input type="password" id="password" placeholder="Min 8 characters" oninput="checkStrength(); validateField('password')">
+          <button class="toggle-pw" type="button" onclick="togglePw('password',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="strength-label" id="strengthLabel"></div>
+      </div>
+
+      <div class="field">
+        <label><i class="fas fa-lock"></i> Confirm Password</label>
+        <div class="input-wrap">
+          <input type="password" id="confirmPassword" placeholder="Repeat password" oninput="validateField('confirmPassword')">
+          <button class="toggle-pw" type="button" onclick="togglePw('confirmPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="field-hint err" id="confirmHint" style="display:none;"><i class="fas fa-times-circle"></i> Passwords do not match</div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="createAdmin()">
+        <i class="fas fa-plus-circle"></i> Create Admin Account
+      </button>
+
+    </div>
+
+    <!-- Success screen (shown after creation) -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+      <h2>Admin Created! 🎉</h2>
+      <p>The admin account has been set up successfully and is ready to use.</p>
+      <div class="success-details">
+        <div class="sd-row"><span class="sd-label">Name</span><span class="sd-value" id="createdName">—</span></div>
+        <div class="sd-row"><span class="sd-label">Email</span><span class="sd-value" id="createdEmail">—</span></div>
+        <div class="sd-row"><span class="sd-label">Role</span><span class="sd-value" style="color:var(--primary);">Super Admin</span></div>
+      </div>
+      <a href="admin-login.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> Go to Admin Login</a>
+    </div>
+
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey:            "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain:        "primevest-5208c.firebaseapp.com",
+      projectId:         "primevest-5208c",
+      storageBucket:     "primevest-5208c.firebasestorage.app",
+      messagingSenderId: "76160486147",
+      appId:             "1:76160486147:web:5b5853f9772503daa7b736"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+    const FV   = firebase.firestore.FieldValue;
+
+    let isFirstSetup    = false;  // true = no admins exist yet, page is open for bootstrap
+    let currentAdmin    = null;   // logged-in admin (if any)
+    let pageUnlocked    = false;  // true = allowed to submit
+
+    // ══════════════════════════════════════════════════════════
+    //  SECURITY CHECK ON PAGE LOAD
+    //
+    //  Two cases where creating an admin is allowed:
+    //
+    //  Case A — First-time setup:
+    //    Query users where isAdmin == true. If none exist,
+    //    this is a fresh Primevest installation and we allow
+    //    the first admin to be created without any auth.
+    //
+    //  Case B — Existing admin adding another admin:
+    //    A user is already logged in AND their Firestore doc
+    //    has isAdmin == true.
+    //
+    //  Every other case → show locked banner, disable form.
+    // ══════════════════════════════════════════════════════════
+    auth.onAuthStateChanged(async user => {
+      currentAdmin = user;
+      try {
+        // Count existing admins (single-field query — no index needed)
+        const adminSnap = await db.collection('users').where('isAdmin','==',true).get();
+        const adminCount = adminSnap.size;
+
+        if (adminCount === 0) {
+          // ── Case A: No admins exist yet — first-time setup ──
+          isFirstSetup = true;
+          pageUnlocked = true;
+          document.getElementById('modeBadge').className = 'mode-badge setup';
+          document.getElementById('modeText').textContent = 'First-time Setup';
+          showInfo('No admin accounts exist yet. Create the first Super Admin below.');
+        } else if (user) {
+          // Check if the currently logged-in user is an admin
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          if (userDoc.exists && userDoc.data().isAdmin === true) {
+            // ── Case B: Logged-in admin adding another admin ──
+            isFirstSetup = false;
+            pageUnlocked = true;
+            document.getElementById('modeBadge').className = 'mode-badge secure';
+            document.getElementById('modeText').textContent = 'Admin Verified';
+            showInfo(`Logged in as ${userDoc.data().fullName || user.email}. You can create additional admins.`);
+          } else {
+            // Logged in but NOT an admin
+            lockPage('Your account does not have admin privileges.');
+          }
+        } else {
+          // Not logged in AND admins already exist
+          lockPage('Admins already exist. Please log in as an existing admin first.');
+        }
+      } catch (err) {
+        console.error('[create-admin] auth check:', err);
+        lockPage('Could not verify access. Check your connection and try again.');
+      } finally {
+        // Hide page loader
+        document.getElementById('pageLoader').classList.add('hidden');
+        setTimeout(() => document.getElementById('pageLoader').remove(), 500);
+      }
+    });
+
+    function lockPage(reason) {
+      pageUnlocked = false;
+      document.getElementById('accessBannerText').textContent = reason;
+      document.getElementById('accessBanner').classList.add('show');
+      document.getElementById('submitBtn').disabled = true;
+      // Dim all inputs
+      ['fullName','email','password','confirmPassword'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.disabled = true; el.style.opacity = '0.5'; }
+      });
+    }
+
+    function showInfo(msg) {
+      document.getElementById('infoText').textContent = msg;
+      document.getElementById('infoBanner').classList.add('show');
+    }
+
+    function showWarn(msg) {
+      document.getElementById('warnText').textContent = msg;
+      document.getElementById('warnBanner').classList.add('show');
+    }
+
+    function hideWarn() {
+      document.getElementById('warnBanner').classList.remove('show');
+    }
+
+    // ── Password visibility toggle ──
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      btn.innerHTML = `<i class="fas fa-eye${showing ? '' : '-slash'}"></i>`;
+    }
+
+    // ── Password strength ──
+    function checkStrength() {
+      const pw  = document.getElementById('password').value;
+      const bar = document.getElementById('strengthFill');
+      const lbl = document.getElementById('strengthLabel');
+      if (!pw) { bar.className = 'strength-fill'; bar.style.width='0'; lbl.textContent=''; return; }
+      const strong = pw.length >= 10 && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+      const medium = pw.length >= 8 && (/[A-Z]/.test(pw) || /[0-9]/.test(pw));
+      if (strong)      { bar.className='strength-fill strong'; lbl.className='strength-label strong'; lbl.textContent='Strong password ✓'; }
+      else if (medium) { bar.className='strength-fill medium'; lbl.className='strength-label medium'; lbl.textContent='Medium — add symbols or uppercase'; }
+      else             { bar.className='strength-fill weak';   lbl.className='strength-label weak';   lbl.textContent='Weak — too short'; }
+    }
+
+    // ── Field validation ──
+    function validateField(id) {
+      const el = document.getElementById(id);
+      const v  = el.value.trim();
+      if (id === 'email') {
+        const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        el.className = v ? (ok ? 'valid' : 'invalid') : '';
+      } else if (id === 'password') {
+        el.className = v.length >= 8 ? 'valid' : (v ? 'invalid' : '');
+      } else if (id === 'confirmPassword') {
+        const match = v === document.getElementById('password').value;
+        el.className = v ? (match ? 'valid' : 'invalid') : '';
+        document.getElementById('confirmHint').style.display = (v && !match) ? 'flex' : 'none';
+      } else {
+        el.className = v.length >= 2 ? 'valid' : (v ? 'invalid' : '');
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  CREATE ADMIN
+    //
+    //  Flow:
+    //  1. Validate all fields client-side
+    //  2. createUserWithEmailAndPassword() — Firebase Auth
+    //     automatically signs the new user in. Since their
+    //     UID now matches the doc we're creating, the Firestore
+    //     rule (allow create: if auth.uid == userId) passes. ✓
+    //  3. Write the user doc to users/{uid} with isAdmin:true
+    //  4. If this was NOT first-time setup (an existing admin
+    //     did this), sign out the NEW user and sign the existing
+    //     admin back in — we can't do that without their password,
+    //     so instead we just sign out completely and redirect to
+    //     admin login so the original admin can re-authenticate.
+    //  5. Show success screen.
+    // ══════════════════════════════════════════════════════════
+    async function createAdmin() {
+      if (!pageUnlocked) return;
+      hideWarn();
+
+      const fullName       = document.getElementById('fullName').value.trim();
+      const email          = document.getElementById('email').value.trim();
+      const password       = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      // ── Client-side validation ──
+      if (!fullName || fullName.length < 2) { showWarn('Please enter the admin\'s full name.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showWarn('Please enter a valid email address.'); return; }
+      if (password.length < 8) { showWarn('Password must be at least 8 characters long.'); return; }
+      if (password !== confirmPassword) { showWarn('Passwords do not match.'); return; }
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creating account…';
+
+      try {
+        // ── Step 1: Create Firebase Auth account ──
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        const user = cred.user;
+
+        btn.innerHTML = '<span class="spinner"></span> Setting up admin role…';
+
+        // ── Step 2: Write the admin Firestore document ──
+        // At this point Firebase has auto-signed-in the new user.
+        // request.auth.uid === user.uid, so the Firestore create rule passes.
+        await db.collection('users').doc(user.uid).set({
+          uid:              user.uid,
+          email:            email,
+          fullName:         fullName,
+          username:         email.split('@')[0],
+          phone:            '',
+          isAdmin:          true,
+          role:             'super_admin',
+          balance:          0,
+          totalInvested:    0,
+          totalEarnings:    0,
+          totalRefEarnings: 0,
+          referralCount:    0,
+          level1Count:      0,
+          level2Count:      0,
+          level3Count:      0,
+          welcomeBonusPaid: true,
+          permissions: [
+            'manage_users',
+            'manage_deposits',
+            'manage_withdrawals',
+            'manage_investments',
+            'manage_gifts',
+            'manage_proofs',
+            'view_reports',
+            'manage_settings'
+          ],
+          createdAt:        FV.serverTimestamp(),
+          lastLogin:        FV.serverTimestamp()
+        });
+
+        // ── Step 3: Sign out ──
+        // Whether this was first-time setup or an existing admin adding
+        // a new one, we sign out after creation. This prevents the new
+        // admin account from being left logged in silently, and prevents
+        // the original admin from losing their session without warning.
+        await auth.signOut();
+
+        // ── Step 4: Show success screen ──
+        document.getElementById('createdName').textContent  = fullName;
+        document.getElementById('createdEmail').textContent = email;
+        document.getElementById('formSection').style.display  = 'none';
+        document.getElementById('successScreen').classList.add('show');
+
+      } catch (err) {
+        console.error('[create-admin] error:', err);
+
+        let msg = err.message || 'An unexpected error occurred.';
+        if (err.code === 'auth/email-already-in-use')  msg = 'This email is already registered. Use a different email.';
+        if (err.code === 'auth/invalid-email')         msg = 'The email address format is invalid.';
+        if (err.code === 'auth/weak-password')         msg = 'Password is too weak. Use at least 8 characters.';
+        if (err.code === 'permission-denied')          msg = 'Firestore permission denied. Check your security rules.';
+        if (err.code === 'auth/network-request-failed') msg = 'Network error. Check your internet connection.';
+
+        showWarn(msg);
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Admin Account';
+      }
+    }
+
+    window.createAdmin  = createAdmin;
+    window.togglePw     = togglePw;
+    window.checkStrength = checkStrength;
+    window.validateField = validateField;
+  </script>
+</body>
+</html>
