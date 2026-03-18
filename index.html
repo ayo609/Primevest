@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Primevest — Grow Your Wealth Daily.</title>
+  <meta name="description" content="Primevest is Nigeria's next-gen investment platform. Earn daily returns, withdraw instantly, and grow your wealth starting from just ₦4,000."/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
+  <style>
+    /* ══════════════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════════════ */
+    :root {
+      --bg:        #04090d;
+      --deep:      #060e14;
+      --surface:   rgba(255,255,255,0.032);
+      --surface-h: rgba(255,255,255,0.06);
+      --border:    rgba(255,255,255,0.075);
+      --border-h:  rgba(30,230,120,0.4);
+
+      --green:     #1be896;
+      --green-dim: #0fa864;
+      --teal:      #2DD4BF;
+      --sky:       #38bdf8;
+      --amber:     #fbbf24;
+      --coral:     #fb7185;
+      --iris:      #818cf8;
+
+      --text-1:    #eef6f0;
+      --text-2:    #7da890;
+      --text-3:    #3d6050;
+
+      --grad:      linear-gradient(135deg, #1be896, #2DD4BF);
+      --grad-alt:  linear-gradient(135deg, #0fa864, #1be896);
+
+      --r-card: 24px;
+      --r-pill: 999px;
+      --glow:   0 0 40px rgba(27,232,150,0.25);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════════════════════════════
+       CANVAS + NOISE
+    ══════════════════════════════════════════════ */
+    #cv {
+      position: fixed; inset: 0;
+      z-index: 0; pointer-events: none;
+    }
+    .noise {
+      position: fixed; inset: 0; z-index: 1;
+      pointer-events: none; opacity: 0.022;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ══════════════════════════════════════════════
+       SHELL
+    ══════════════════════════════════════════════ */
+    .shell {
+      position: relative; z-index: 10;
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ══════════════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════════════ */
+    .navbar {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 1.5rem;
+      position: sticky; top: 0; z-index: 500;
+      background: rgba(4,9,13,0.72);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+      margin: 0 -1.5rem;
+    }
+    .navbar.scrolled {
+      border-bottom-color: var(--border);
+      background: rgba(4,9,13,0.92);
+    }
+
+    .logo { display:flex; align-items:center; gap:0.7rem; text-decoration:none; }
+    .logo-mark {
+      width:42px; height:42px;
+      background: var(--grad);
+      border-radius:13px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.1rem; color:#000; font-weight:900;
+      box-shadow: 0 0 22px rgba(27,232,150,0.45);
+      transform: rotate(-5deg);
+      transition: transform 0.3s;
+    }
+    .logo:hover .logo-mark { transform: rotate(0deg) scale(1.06); }
+    .logo-text {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size:1.35rem; font-weight:800;
+      color: var(--text-1); letter-spacing:-0.5px;
+    }
+    .logo-text span { color: var(--green); }
+
+    /* Desktop nav links */
+    .nav-links {
+      display:flex; align-items:center; gap:0.25rem; list-style:none;
+    }
+    .nav-links a {
+      color: var(--text-2); text-decoration:none;
+      font-size:0.92rem; font-weight:500;
+      padding:0.5rem 0.9rem; border-radius:10px;
+      transition: all 0.25s;
+    }
+    .nav-links a:hover { color:var(--text-1); background:var(--surface-h); }
+
+    /* Desktop buttons */
+    .nav-btns { display:flex; align-items:center; gap:0.7rem; }
+    .btn-nav-ghost {
+      padding:0.55rem 1.3rem;
+      border-radius:var(--r-pill);
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--text-2); font-size:0.88rem; font-weight:600;
+      text-decoration:none; transition:all 0.25s; white-space:nowrap;
+    }
+    .btn-nav-ghost:hover { border-color:var(--green); color:var(--green); }
+    .btn-nav-solid {
+      padding:0.55rem 1.4rem;
+      border-radius:var(--r-pill);
+      background: var(--grad);
+      color:#000; font-size:0.88rem; font-weight:700;
+      text-decoration:none; transition:all 0.3s;
+      box-shadow: 0 6px 20px rgba(27,232,150,0.35);
+      white-space:nowrap; overflow:hidden; position:relative;
+    }
+    .btn-nav-solid::before {
+      content:''; position:absolute; top:0; left:-100%;
+      width:100%; height:100%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+      transition:left 0.5s;
+    }
+    .btn-nav-solid:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(27,232,150,0.5); }
+    .btn-nav-solid:hover::before { left:100%; }
+
+    /* Hamburger */
+    .hamburger {
+      display:none; flex-direction:column;
+      gap:5px; cursor:pointer;
+      background:none; border:none; padding:6px;
+      border-radius:10px; transition:background 0.2s;
+    }
+    .hamburger:hover { background:var(--surface-h); }
+    .hamburger span {
+      display:block; width:22px; height:2px;
+      background:var(--text-1); border-radius:3px;
+      transition:all 0.35s cubic-bezier(0.4,0,0.2,1);
+      transform-origin:center;
+    }
+    .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    /* ══════════════════════════════════════════════
+       MOBILE MENU
+    ══════════════════════════════════════════════ */
+    .mobile-menu {
+      position: fixed;
+      top:0; left:0; right:0;
+      background: rgba(3,8,11,0.97);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-bottom: 1px solid var(--border);
+      z-index: 499;
+      padding: 88px 1.5rem 2.5rem;
+      transform: translateY(-105%);
+      transition: transform 0.42s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    }
+    .mobile-menu.open { transform:translateY(0); }
+
+    .mm-links {
+      list-style:none; display:flex;
+      flex-direction:column; gap:4px; margin-bottom:1.75rem;
+    }
+    .mm-links li a {
+      display:flex; align-items:center; gap:14px;
+      color:var(--text-2); text-decoration:none;
+      font-size:1.1rem; font-weight:600;
+      padding:14px 16px; border-radius:16px;
+      transition:all 0.25s;
+    }
+    .mm-links li a .mm-icon {
+      width:38px; height:38px; flex-shrink:0;
+      background:rgba(27,232,150,0.08);
+      border:1px solid rgba(27,232,150,0.15);
+      border-radius:11px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.88rem; color:var(--green);
+    }
+    .mm-links li a:hover { color:var(--text-1); background:var(--surface-h); }
+    .mm-links li a:hover .mm-icon { background:rgba(27,232,150,0.15); }
+
+    .mm-divider { height:1px; background:var(--border); margin:4px 0 1.5rem; }
+
+    .mm-btns { display:flex; flex-direction:column; gap:10px; }
+    .mm-btns a {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:15px; border-radius:var(--r-pill);
+      font-weight:700; font-size:1rem; text-decoration:none; transition:all 0.3s;
+    }
+    .mm-login {
+      background:var(--surface-h); border:1px solid var(--border); color:var(--text-1);
+    }
+    .mm-login:hover { border-color:var(--green); color:var(--green); }
+    .mm-signup {
+      background:var(--grad); color:#000;
+      box-shadow:0 6px 22px rgba(27,232,150,0.35);
+    }
+    .mm-signup:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(27,232,150,0.5); }
+
+    /* ══════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════ */
+    .hero {
+      min-height:100vh;
+      display:flex; align-items:center;
+      padding: 5rem 0 4rem;
+    }
+    .hero-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:4rem; align-items:center; width:100%;
+    }
+
+    /* Left */
+    .hero-left { animation: riseIn 0.9s ease-out both; }
+
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      background:rgba(27,232,150,0.08);
+      border:1px solid rgba(27,232,150,0.2);
+      border-radius:var(--r-pill);
+      padding:0.45rem 1.05rem;
+      font-size:0.78rem; font-weight:700;
+      letter-spacing:1.5px; text-transform:uppercase;
+      color:var(--green); margin-bottom:1.75rem;
+    }
+    .badge-dot {
+      width:7px; height:7px; border-radius:50%;
+      background:var(--green);
+      animation:blink 2s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.35; transform:scale(0.65); }
+    }
+
+    .hero-h1 {
+      font-family:'Bricolage Grotesque', sans-serif;
+      font-size:clamp(2.5rem, 5.8vw, 4.2rem);
+      font-weight:800; line-height:1.07;
+      letter-spacing:-1.5px; margin-bottom:1.35rem;
+    }
+    .hero-h1 .grad {
+      background: var(--grad);
+      background-size:200% 200%;
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      animation:gradFlow 7s ease infinite;
+    }
+    @keyframes gradFlow {
+      0%,100% { background-position:0% 50%; }
+      50%      { background-position:100% 50%; }
+    }
+
+    .hero-sub {
+      font-size:1.05rem; color:var(--text-2);
+      line-height:1.7; max-width:490px; margin-bottom:2.5rem;
+    }
+
+    .hero-actions {
+      display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:3rem;
+    }
+    .btn-hero {
+      padding:0.95rem 2.2rem;
+      border-radius:var(--r-pill);
+      font-size:0.97rem; font-weight:700;
+      text-decoration:none; display:inline-flex;
+      align-items:center; gap:0.5rem; transition:all 0.3s;
+      position:relative; overflow:hidden;
+    }
+    .btn-hero.primary {
+      background:var(--grad); color:#000;
+      box-shadow:0 10px 32px rgba(27,232,150,0.4);
+    }
+    .btn-hero.primary::before {
+      content:''; position:absolute; top:0; left:-100%;
+      width:100%; height:100%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+      transition:left 0.5s;
+    }
+    .btn-hero.primary:hover { transform:translateY(-3px); box-shadow:0 18px 40px rgba(27,232,150,0.55); }
+    .btn-hero.primary:hover::before { left:100%; }
+    .btn-hero.outline {
+      background:var(--surface);
+      border:1px solid var(--border);
+      color:var(--text-1); backdrop-filter:blur(12px);
+    }
+    .btn-hero.outline:hover { border-color:var(--border-h); background:var(--surface-h); transform:translateY(-3px); }
+
+    /* Trust row */
+    .hero-trust { display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap; }
+    .trust-avs  { display:flex; }
+    .t-av-mini  {
+      width:34px; height:34px; border-radius:50%;
+      border:2px solid var(--bg);
+      font-size:0.65rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      margin-left:-10px; color:#000;
+    }
+    .t-av-mini:first-child { margin-left:0; }
+    .av-a { background:linear-gradient(135deg,#1be896,#2dd4bf); }
+    .av-b { background:linear-gradient(135deg,#38bdf8,#818cf8); }
+    .av-c { background:linear-gradient(135deg,#fbbf24,#f97316); }
+    .av-d { background:linear-gradient(135deg,#fb7185,#ec4899); }
+    .av-e { background:linear-gradient(135deg,#a78bfa,#6366f1); color:#fff; }
+
+    .trust-copy { font-size:0.85rem; color:var(--text-2); line-height:1.4; }
+    .trust-copy strong { color:var(--text-1); }
+
+    /* Hero Right Card */
+    .hero-right { animation:riseIn 0.9s 0.2s ease-out both; }
+    .hero-card {
+      background:rgba(5,14,10,0.7);
+      backdrop-filter:blur(28px); -webkit-backdrop-filter:blur(28px);
+      border:1px solid var(--border);
+      border-radius:32px; padding:2rem;
+      box-shadow:0 40px 80px -20px rgba(0,0,0,0.65),
+                 inset 0 1px 0 rgba(255,255,255,0.06);
+      animation:floatCard 6s ease-in-out infinite;
+      position:relative;
+    }
+    .hero-card::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 30% 0%, rgba(27,232,150,0.1) 0%, transparent 55%);
+      border-radius:inherit; pointer-events:none;
+    }
+    @keyframes floatCard {
+      0%,100% { transform:translateY(0) rotate(0.4deg); }
+      50%      { transform:translateY(-14px) rotate(-0.4deg); }
+    }
+
+    .hc-top {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:1.5rem;
+    }
+    .hc-label { font-size:0.75rem; color:var(--text-3); font-weight:500; letter-spacing:0.5px; }
+    .hc-live  {
+      display:flex; align-items:center; gap:0.4rem;
+      font-size:0.75rem; color:var(--green); font-weight:600;
+    }
+    .live-dot {
+      width:8px; height:8px; border-radius:50%; background:var(--green);
+      animation:pulseDot 2s ease-in-out infinite;
+    }
+    @keyframes pulseDot {
+      0%   { box-shadow:0 0 0 0 rgba(27,232,150,0.5); }
+      70%  { box-shadow:0 0 0 8px rgba(27,232,150,0); }
+      100% { box-shadow:0 0 0 0 rgba(27,232,150,0); }
+    }
+
+    .hc-amount {
+      font-family:'DM Mono', monospace;
+      font-size:2.4rem; font-weight:500;
+      color:var(--text-1); letter-spacing:-1px; margin-bottom:0.4rem;
+    }
+    .hc-gain {
+      display:inline-flex; align-items:center; gap:0.3rem;
+      background:rgba(27,232,150,0.1);
+      border:1px solid rgba(27,232,150,0.2);
+      border-radius:var(--r-pill);
+      padding:0.25rem 0.75rem;
+      font-size:0.78rem; font-weight:700; color:var(--green);
+      margin-bottom:1.75rem;
+    }
+
+    /* Mini chart bars */
+    .hc-chart {
+      display:flex; align-items:flex-end; gap:5px;
+      height:56px; margin-bottom:1.5rem;
+    }
+    .hc-bar {
+      flex:1; border-radius:5px 5px 0 0;
+      background:linear-gradient(to top, rgba(27,232,150,0.12), rgba(27,232,150,0.55));
+      transition:height 0.4s ease;
+    }
+
+    .hc-rule { height:1px; background:var(--border); margin-bottom:1.5rem; }
+
+    .hc-stats { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .hcs-item {}
+    .hcs-lbl { font-size:0.72rem; color:var(--text-3); margin-bottom:0.25rem; }
+    .hcs-val { font-size:1rem; font-weight:700; color:var(--text-1); }
+    .hcs-val.up { color:var(--green); }
+    .hcs-val.teal { color:var(--teal); }
+
+    .hc-footer {
+      margin-top:1.5rem;
+      background:var(--grad);
+      border-radius:14px; padding:0.85rem 1.2rem;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .hc-footer-txt { font-size:0.85rem; font-weight:700; color:#000; }
+    .hc-footer-ico {
+      width:28px; height:28px; border-radius:9px;
+      background:rgba(0,0,0,0.15);
+      display:flex; align-items:center; justify-content:center;
+      color:#000; font-size:0.85rem;
+    }
+
+    /* ══════════════════════════════════════════════
+       STATS BAR  (animated counters)
+    ══════════════════════════════════════════════ */
+    .stats-bar {
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      padding:2.75rem 0;
+      margin-bottom:5rem;
+    }
+    .stats-grid {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:1.5rem; text-align:center;
+    }
+    .stat-block { animation:riseIn 0.7s ease-out both; }
+    .stat-block:nth-child(1) { animation-delay:0.05s; }
+    .stat-block:nth-child(2) { animation-delay:0.15s; }
+    .stat-block:nth-child(3) { animation-delay:0.25s; }
+    .stat-block:nth-child(4) { animation-delay:0.35s; }
+
+    .stat-count {
+      font-family:'Bricolage Grotesque', sans-serif;
+      font-size:2.5rem; font-weight:800;
+      background:var(--grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      line-height:1.1; letter-spacing:-1px;
+    }
+    .stat-caption { font-size:0.85rem; color:var(--text-3); margin-top:0.3rem; font-weight:500; }
+
+    /* ══════════════════════════════════════════════
+       SECTION COMMONS
+    ══════════════════════════════════════════════ */
+    section { margin-bottom:5.5rem; }
+    .sec-eyebrow {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      font-size:0.72rem; font-weight:700; letter-spacing:2px;
+      text-transform:uppercase; color:var(--green); margin-bottom:0.85rem;
+    }
+    .sec-eyebrow::before {
+      content:''; display:block; width:22px; height:2px;
+      background:var(--green); border-radius:2px;
+    }
+    .sec-title {
+      font-family:'Bricolage Grotesque', sans-serif;
+      font-size:clamp(1.85rem,3.8vw,2.9rem);
+      font-weight:800; letter-spacing:-0.8px; line-height:1.15;
+      margin-bottom:0.85rem;
+    }
+    .sec-sub {
+      font-size:0.97rem; color:var(--text-2);
+      max-width:500px; line-height:1.7;
+    }
+    .sec-head {
+      display:flex; justify-content:space-between;
+      align-items:flex-end; margin-bottom:2.75rem;
+      gap:2rem; flex-wrap:wrap;
+    }
+
+    /* ══════════════════════════════════════════════
+       HOW IT WORKS
+    ══════════════════════════════════════════════ */
+    .steps-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:4rem; align-items:center;
+    }
+    .steps-visual { position:relative; }
+    .steps-glow {
+      position:absolute; width:340px; height:340px;
+      border-radius:50%; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      background:radial-gradient(circle, rgba(27,232,150,0.1) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .steps-list { display:flex; flex-direction:column; gap:0.75rem; position:relative; z-index:1; }
+
+    .step-item {
+      display:flex; align-items:flex-start; gap:1.1rem;
+      padding:1.25rem 1.35rem;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:20px; backdrop-filter:blur(14px);
+      transition:all 0.3s; position:relative; overflow:hidden;
+    }
+    .step-item::before {
+      content:''; position:absolute; top:0; left:0;
+      width:3px; height:100%;
+      background:var(--grad); opacity:0; transition:opacity 0.3s;
+    }
+    .step-item:hover { border-color:rgba(27,232,150,0.25); transform:translateX(6px); }
+    .step-item:hover::before { opacity:1; }
+
+    .step-num {
+      width:38px; height:38px; flex-shrink:0;
+      border-radius:12px; background:var(--grad);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'DM Mono', monospace;
+      font-size:0.88rem; font-weight:500; color:#000;
+    }
+    .step-content h4 { font-size:0.97rem; font-weight:700; margin-bottom:0.3rem; }
+    .step-content p  { font-size:0.85rem; color:var(--text-2); line-height:1.55; }
+
+    /* ══════════════════════════════════════════════
+       FEATURES
+    ══════════════════════════════════════════════ */
+    .feat-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:1.25rem;
+    }
+    .feat-card {
+      background:var(--surface);
+      backdrop-filter:blur(18px);
+      border:1px solid var(--border);
+      border-radius:var(--r-card);
+      padding:2rem; position:relative; overflow:hidden;
+      transition:all 0.35s;
+    }
+    .feat-card::after {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 50% 0%, rgba(27,232,150,0.08) 0%, transparent 65%);
+      opacity:0; transition:opacity 0.35s;
+    }
+    .feat-card:hover { transform:translateY(-6px); border-color:rgba(27,232,150,0.28); box-shadow:0 28px 56px -18px rgba(0,0,0,0.5); }
+    .feat-card:hover::after { opacity:1; }
+
+    .feat-ico {
+      width:52px; height:52px; border-radius:16px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.3rem; margin-bottom:1.4rem;
+      position:relative; z-index:1;
+    }
+    .fi-g  { background:linear-gradient(135deg,#1be896,#2dd4bf); color:#000; box-shadow:0 8px 20px rgba(27,232,150,0.4); }
+    .fi-sk { background:linear-gradient(135deg,#38bdf8,#0ea5e9); color:#000; box-shadow:0 8px 20px rgba(56,189,248,0.4); }
+    .fi-ir { background:linear-gradient(135deg,#818cf8,#6366f1); color:#fff; box-shadow:0 8px 20px rgba(129,140,248,0.4); }
+    .fi-co { background:linear-gradient(135deg,#fb7185,#f43f5e); color:#fff; box-shadow:0 8px 20px rgba(251,113,133,0.4); }
+    .fi-am { background:linear-gradient(135deg,#fbbf24,#f97316); color:#000; box-shadow:0 8px 20px rgba(251,191,36,0.35); }
+    .fi-tl { background:linear-gradient(135deg,#2dd4bf,#0d9488); color:#000; box-shadow:0 8px 20px rgba(45,212,191,0.4); }
+
+    .feat-title { font-size:1.05rem; font-weight:700; margin-bottom:0.55rem; position:relative; z-index:1; }
+    .feat-desc  { font-size:0.87rem; color:var(--text-2); line-height:1.65; position:relative; z-index:1; }
+
+    /* ══════════════════════════════════════════════
+       PLANS PREVIEW
+    ══════════════════════════════════════════════ */
+    .plans-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+    .plan-card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:28px; padding:2rem;
+      backdrop-filter:blur(18px);
+      transition:all 0.35s; position:relative; overflow:hidden;
+    }
+    .plan-card.featured {
+      background:linear-gradient(145deg, rgba(27,232,150,0.09), rgba(45,212,191,0.07));
+      border-color:rgba(27,232,150,0.28);
+      box-shadow:0 0 48px -12px rgba(27,232,150,0.2);
+    }
+    .plan-card:hover { transform:translateY(-8px); box-shadow:0 32px 64px -20px rgba(0,0,0,0.5); }
+
+    .plan-badge {
+      display:inline-flex; align-items:center; gap:0.35rem;
+      border-radius:var(--r-pill); padding:0.28rem 0.8rem;
+      font-size:0.7rem; font-weight:700; letter-spacing:1px;
+      text-transform:uppercase; margin-bottom:1.25rem;
+    }
+    .pb-green { background:rgba(27,232,150,0.1); border:1px solid rgba(27,232,150,0.25); color:var(--green); }
+    .pb-amber { background:rgba(251,191,36,0.1);  border:1px solid rgba(251,191,36,0.25); color:var(--amber); }
+    .pb-iris  { background:rgba(129,140,248,0.1); border:1px solid rgba(129,140,248,0.25); color:var(--iris); }
+
+    .plan-name { font-size:1.25rem; font-weight:700; margin-bottom:0.5rem; }
+    .plan-roi  {
+      font-family:'DM Mono', monospace;
+      font-size:2.8rem; font-weight:500;
+      background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      line-height:1; margin-bottom:0.4rem;
+    }
+    .plan-roi-sub { font-size:0.78rem; color:var(--text-3); margin-bottom:1.5rem; }
+    .plan-rule  { height:1px; background:var(--border); margin-bottom:1.5rem; }
+
+    .plan-perks { list-style:none; display:flex; flex-direction:column; gap:0.6rem; margin-bottom:2rem; }
+    .plan-perks li {
+      display:flex; align-items:center; gap:0.6rem;
+      font-size:0.87rem; color:var(--text-2);
+    }
+    .plan-perks li i { color:var(--green); font-size:0.75rem; flex-shrink:0; }
+
+    .plan-min {
+      background:rgba(255,255,255,0.025);
+      border:1px solid var(--border); border-radius:14px;
+      padding:0.8rem 1rem;
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:1.25rem;
+    }
+    .pm-lbl { font-size:0.75rem; color:var(--text-3); }
+    .pm-val { font-weight:700; font-size:1rem; color:var(--text-1); }
+
+    .btn-plan {
+      width:100%; padding:0.88rem;
+      border-radius:var(--r-pill); font-weight:700;
+      font-size:0.93rem; text-decoration:none;
+      text-align:center; display:block; transition:all 0.3s;
+    }
+    .bp-primary {
+      background:var(--grad); color:#000;
+      box-shadow:0 8px 24px rgba(27,232,150,0.35);
+    }
+    .bp-primary:hover { transform:translateY(-2px); box-shadow:0 14px 32px rgba(27,232,150,0.5); }
+    .bp-outline { border:1px solid var(--border); color:var(--text-2); }
+    .bp-outline:hover { border-color:var(--green); color:var(--green); }
+
+    /* ══════════════════════════════════════════════
+       TRUST STRIP
+    ══════════════════════════════════════════════ */
+    .trust-strip {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      gap:1rem; margin-bottom:5.5rem;
+    }
+    .trust-block {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:20px; padding:1.4rem 1.25rem;
+      display:flex; align-items:center; gap:0.9rem;
+      transition:all 0.3s;
+    }
+    .trust-block:hover { border-color:rgba(27,232,150,0.28); }
+    .tb-ico {
+      width:42px; height:42px; border-radius:13px;
+      background:rgba(27,232,150,0.08);
+      border:1px solid rgba(27,232,150,0.12);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; color:var(--green); flex-shrink:0;
+    }
+    .tb-title { font-size:0.88rem; font-weight:700; margin-bottom:0.12rem; }
+    .tb-sub   { font-size:0.75rem; color:var(--text-3); }
+
+    /* ══════════════════════════════════════════════
+       TESTIMONIALS (SWIPER)
+    ══════════════════════════════════════════════ */
+    .swiper { width:100%; padding:10px 0 56px; }
+    .swiper-slide { height:auto; }
+
+    .t-card {
+      background:var(--surface);
+      backdrop-filter:blur(16px);
+      border:1px solid var(--border);
+      border-radius:var(--r-card);
+      padding:2rem; height:100%; transition:all 0.3s;
+    }
+    .t-card:hover { transform:translateY(-5px); border-color:rgba(27,232,150,0.22); box-shadow:0 20px 40px -14px rgba(0,0,0,0.45); }
+
+    .t-head { display:flex; align-items:center; gap:0.85rem; margin-bottom:1rem; }
+    .t-av   {
+      width:46px; height:46px; border-radius:14px;
+      background:var(--grad);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:0.82rem; color:#000; flex-shrink:0;
+    }
+    .t-name { font-size:0.95rem; font-weight:700; }
+    .t-loc  { font-size:0.76rem; color:var(--text-3); margin-top:0.12rem; }
+    .t-loc i { font-size:0.65rem; color:var(--green); margin-right:3px; }
+    .t-stars { font-size:0.82rem; color:var(--amber); letter-spacing:2px; margin-bottom:0.85rem; }
+    .t-text  { font-size:0.89rem; color:var(--text-2); line-height:1.7; font-style:italic; margin-bottom:1.25rem; }
+    .t-earn  { display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--text-3); }
+    .t-earn i { color:var(--green); font-size:0.75rem; }
+
+    .swiper-pagination-bullet { background:rgba(255,255,255,0.22); width:8px; height:8px; }
+    .swiper-pagination-bullet-active { background:var(--green); }
+    .swiper-button-next, .swiper-button-prev {
+      color:var(--green);
+      background:rgba(255,255,255,0.06);
+      width:46px; height:46px; border-radius:50%;
+      border:1px solid var(--border);
+      backdrop-filter:blur(10px); transition:all 0.3s;
+    }
+    .swiper-button-next:hover, .swiper-button-prev:hover { background:var(--green); color:#000; border-color:var(--green); }
+    .swiper-button-next::after, .swiper-button-prev::after { font-size:0.95rem; font-weight:700; }
+
+    /* ══════════════════════════════════════════════
+       FINAL CTA
+    ══════════════════════════════════════════════ */
+    .cta-box {
+      border-radius:40px; padding:5rem 3rem;
+      text-align:center; position:relative; overflow:hidden;
+      background:linear-gradient(135deg,
+        rgba(27,232,150,0.09) 0%,
+        rgba(45,212,191,0.07) 50%,
+        rgba(129,140,248,0.07) 100%);
+      border:1px solid rgba(27,232,150,0.15);
+      margin-bottom:5.5rem;
+    }
+    .cta-box::before {
+      content:''; position:absolute; top:-40%; left:50%;
+      transform:translateX(-50%);
+      width:600px; height:600px;
+      background:radial-gradient(circle, rgba(27,232,150,0.13) 0%, transparent 65%);
+      animation:ctaPulse 7s ease-in-out infinite; pointer-events:none;
+    }
+    @keyframes ctaPulse {
+      0%,100% { opacity:0.7; transform:translateX(-50%) scale(1); }
+      50%      { opacity:1;   transform:translateX(-50%) scale(1.08); }
+    }
+    .cta-box > * { position:relative; z-index:1; }
+    .cta-box .sec-eyebrow { justify-content:center; margin-bottom:1rem; }
+    .cta-box .sec-title { font-size:clamp(1.9rem,4.2vw,3rem); margin-bottom:0.85rem; }
+    .cta-box .sec-sub { margin:0 auto 2.5rem; text-align:center; }
+    .cta-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+    /* ══════════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════════ */
+    footer {
+      border-top:1px solid var(--border);
+      padding:3rem 0 2rem;
+    }
+    .footer-grid {
+      display:grid; grid-template-columns:2fr 1fr 1fr 1fr;
+      gap:3rem; margin-bottom:2.75rem;
+    }
+    .footer-brand p { font-size:0.86rem; color:var(--text-3); margin-top:1rem; line-height:1.7; max-width:265px; }
+    .social-row { display:flex; gap:0.65rem; margin-top:1.25rem; }
+    .soc-ico {
+      width:36px; height:36px; border-radius:11px;
+      background:var(--surface); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--text-3); font-size:0.88rem;
+      text-decoration:none; transition:all 0.3s;
+    }
+    .soc-ico:hover { background:var(--grad); color:#000; border-color:transparent; transform:translateY(-2px); }
+
+    .footer-col h5 {
+      font-family:'Bricolage Grotesque', sans-serif;
+      font-size:0.9rem; font-weight:700; margin-bottom:1.1rem;
+    }
+    .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:0.55rem; }
+    .footer-col ul li { display:flex; align-items:center; gap:7px; }
+    .footer-col ul li i { font-size:0.72rem; color:var(--green); }
+    .footer-col ul li a { color:var(--text-3); text-decoration:none; font-size:0.87rem; transition:color 0.25s; }
+    .footer-col ul li a:hover { color:var(--green); }
+    .footer-col ul li span { color:var(--text-3); font-size:0.87rem; }
+
+    .footer-bottom {
+      border-top:1px solid var(--border); padding-top:1.5rem;
+      display:flex; justify-content:space-between;
+      align-items:center; flex-wrap:wrap; gap:1rem;
+    }
+    .footer-copy { font-size:0.81rem; color:var(--text-3); }
+    .footer-socials-bottom { display:flex; gap:0.6rem; }
+
+    /* ══════════════════════════════════════════════
+       ANIMATIONS + REVEAL
+    ══════════════════════════════════════════════ */
+    @keyframes riseIn {
+      from { opacity:0; transform:translateY(30px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .reveal {
+      opacity:0; transform:translateY(28px);
+      transition:opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.on { opacity:1; transform:translateY(0); }
+    .rd1 { transition-delay:0.08s; } .rd2 { transition-delay:0.16s; }
+    .rd3 { transition-delay:0.24s; } .rd4 { transition-delay:0.32s; }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════ */
+    @media (max-width:1024px) {
+      .feat-grid   { grid-template-columns:repeat(2,1fr); }
+      .plans-grid  { grid-template-columns:1fr 1fr; }
+      .trust-strip { grid-template-columns:1fr 1fr; }
+      .footer-grid { grid-template-columns:1fr 1fr; gap:2rem; }
+      .stats-grid  { grid-template-columns:repeat(2,1fr); gap:2rem; }
+    }
+
+    @media (max-width:768px) {
+      .nav-links { display:none; }
+      .nav-btns  { display:none; }
+      .hamburger { display:flex; }
+
+      .hero { padding:4.5rem 0 3rem; min-height:unset; }
+      .hero-grid { grid-template-columns:1fr; gap:2.5rem; }
+      .hero-right { order:-1; }
+      .hero-card  { max-width:100%; }
+      .hero-h1    { text-align:center; }
+      .hero-badge { display:flex; margin:0 auto 1.75rem; }
+      .hero-sub   { margin-left:auto; margin-right:auto; text-align:center; }
+      .hero-actions { justify-content:center; flex-direction:column; }
+      .btn-hero   { width:100%; justify-content:center; }
+      .hero-trust { justify-content:center; }
+
+      .steps-grid  { grid-template-columns:1fr; }
+      .steps-visual { display:none; }
+
+      .feat-grid   { grid-template-columns:1fr; }
+      .plans-grid  { grid-template-columns:1fr; }
+      .trust-strip { grid-template-columns:1fr 1fr; }
+      .footer-grid { grid-template-columns:1fr; gap:2rem; }
+      .stats-grid  { grid-template-columns:1fr 1fr; }
+
+      .cta-box { padding:3.5rem 1.5rem; border-radius:28px; }
+      .cta-btns { flex-direction:column; }
+      .cta-btns a { width:100%; justify-content:center; }
+
+      section { margin-bottom:4rem; }
+    }
+
+    @media (max-width:480px) {
+      .trust-strip { grid-template-columns:1fr; }
+      .stats-grid  { grid-template-columns:1fr 1fr; }
+      .hero-trust  { flex-direction:column; align-items:center; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+<div class="noise"></div>
+
+<!-- ─── MOBILE MENU ──────────────────────────── -->
+<div class="mobile-menu" id="mobileMenu">
+  <ul class="mm-links">
+    <li>
+      <a href="#about" class="mm-close-on-click">
+        <span class="mm-icon"><i class="fas fa-list-ol"></i></span>
+        How It Works
+      </a>
+    </li>
+    <li>
+      <a href="#features" class="mm-close-on-click">
+        <span class="mm-icon"><i class="fas fa-rocket"></i></span>
+        Features
+      </a>
+    </li>
+    <li>
+      <a href="#plans" class="mm-close-on-click">
+        <span class="mm-icon"><i class="fas fa-layer-group"></i></span>
+        Plans
+      </a>
+    </li>
+    <li>
+      <a href="#testimonials" class="mm-close-on-click">
+        <span class="mm-icon"><i class="fas fa-star"></i></span>
+        Testimonials
+      </a>
+    </li>
+  </ul>
+  <div class="mm-divider"></div>
+  <div class="mm-btns">
+    <a href="login.html"  class="mm-login  mm-close-on-click"><i class="fas fa-arrow-right-to-bracket"></i> Login</a>
+    <a href="signup.html" class="mm-signup mm-close-on-click"><i class="fas fa-user-plus"></i> Create Free Account</a>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ─── NAVBAR ────────────────────────────── -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="logo">
+      <div class="logo-mark"><i class="fas fa-chart-line"></i></div>
+      <span class="logo-text">Prime<span>vest</span></span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#about">How It Works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#plans">Plans</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+    </ul>
+
+    <div class="nav-btns">
+      <a href="login.html"  class="btn-nav-ghost">Login</a>
+      <a href="signup.html" class="btn-nav-solid">Get Started</a>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ─── HERO ──────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-grid">
+
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Nigeria's #1 Investment Platform
+        </div>
+        <h1 class="hero-h1">
+          Grow Your<br>
+          <span class="grad">Wealth Exponentially</span><br>
+          Every Single Day
+        </h1>
+        <p class="hero-sub">
+          Join over <strong style="color:var(--text-1)">1,526+</strong> smart investors earning consistent daily returns. Your money works for you — automatically, around the clock.
+        </p>
+        <div class="hero-actions">
+          <a href="signup.html" class="btn-hero primary">
+            <i class="fas fa-rocket"></i> Start Earning Now
+          </a>
+          <a href="login.html" class="btn-hero outline">
+            <i class="fas fa-arrow-right-to-bracket"></i> Login
+          </a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-avs">
+            <div class="t-av-mini av-a">TK</div>
+            <div class="t-av-mini av-b">MO</div>
+            <div class="t-av-mini av-c">FA</div>
+            <div class="t-av-mini av-d">AB</div>
+            <div class="t-av-mini av-e">ZY</div>
+          </div>
+          <div class="trust-copy">
+            Trusted by <strong>1,526+</strong> investors<br>across Nigeria
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-card">
+          <div class="hc-top">
+            <div class="hc-label">PORTFOLIO OVERVIEW</div>
+            <div class="hc-live"><span class="live-dot"></span> Live</div>
+          </div>
+          <div class="hc-amount">₦847,500</div>
+          <div class="hc-gain"><i class="fas fa-arrow-trend-up"></i>&nbsp;+₦24,320 today</div>
+          <div class="hc-chart" id="chartBars"></div>
+          <div class="hc-rule"></div>
+          <div class="hc-stats">
+            <div class="hcs-item">
+              <div class="hcs-lbl">Daily ROI</div>
+              <div class="hcs-val up">+20%</div>
+            </div>
+            <div class="hcs-item">
+              <div class="hcs-lbl">Active Plans</div>
+              <div class="hcs-val teal">3 Plans</div>
+            </div>
+            <div class="hcs-item">
+              <div class="hcs-lbl">Total Earned</div>
+              <div class="hcs-val up">₦312,000</div>
+            </div>
+            <div class="hcs-item">
+              <div class="hcs-lbl">Referrals</div>
+              <div class="hcs-val">12 People</div>
+            </div>
+          </div>
+          <div class="hc-footer">
+            <span class="hc-footer-txt"><i class="fas fa-bolt"></i>&nbsp; Withdraw Instantly</span>
+            <span class="hc-footer-ico"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── STATS BAR ─────────────────────────── -->
+  <div class="stats-bar reveal">
+    <div class="stats-grid">
+      <div class="stat-block reveal rd1">
+        <div class="stat-count" data-target="1526" data-suffix="+" data-prefix="">0</div>
+        <div class="stat-caption">Active Investors</div>
+      </div>
+      <div class="stat-block reveal rd2">
+        <div class="stat-count" data-target="150" data-suffix="M+" data-prefix="₦">0</div>
+        <div class="stat-caption">Total Paid Out</div>
+      </div>
+      <div class="stat-block reveal rd3">
+        <div class="stat-count" data-target="20" data-suffix="%" data-prefix="">0</div>
+        <div class="stat-caption">Max Daily ROI</div>
+      </div>
+      <div class="stat-block reveal rd4">
+        <div class="stat-count" data-target="99" data-suffix=".9%" data-prefix="">0</div>
+        <div class="stat-caption">Payout Success Rate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── HOW IT WORKS ──────────────────────── -->
+  <section id="about">
+    <div class="steps-grid">
+
+      <div class="steps-visual">
+        <div class="steps-glow"></div>
+        <div class="steps-list">
+          <div class="step-item reveal rd1">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <h4>Create Your Free Account</h4>
+              <p>Sign up in under 2 minutes. No bank verification, no paperwork — just your phone number and a password.</p>
+            </div>
+          </div>
+          <div class="step-item reveal rd2">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <h4>Choose an Investment Plan</h4>
+              <p>Pick a plan that fits your budget — from ₦4,000 upward. Every plan earns daily returns automatically.</p>
+            </div>
+          </div>
+          <div class="step-item reveal rd3">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <h4>Fund & Start Earning</h4>
+              <p>Deposit via bank transfer. Your returns start accumulating from the very next day — no action needed.</p>
+            </div>
+          </div>
+          <div class="step-item reveal rd4">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <h4>Withdraw Anytime</h4>
+              <p>Cash out your earnings straight to your Nigerian bank account within minutes, Monday to Saturday.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="sec-eyebrow">How It Works</div>
+        <h2 class="sec-title">Earning is as easy<br>as 1, 2, 3, 4.</h2>
+        <p class="sec-sub" style="margin-bottom:2.5rem">
+          We've stripped away every barrier between you and financial growth. No complex charts, no confusing jargon — just smart investing that works.
+        </p>
+        <a href="signup.html" class="btn-hero primary" style="display:inline-flex">
+          <i class="fas fa-user-plus"></i> Create Free Account
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── FEATURES ──────────────────────────── -->
+  <section id="features">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-eyebrow">Why Primevest</div>
+        <h2 class="sec-title">Everything you need<br>to grow your money.</h2>
+      </div>
+      <p class="sec-sub" style="max-width:340px">Built from the ground up for Nigerian investors — reliable, transparent, and always working for you.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal rd1">
+        <div class="feat-ico fi-g"><i class="fas fa-chart-line"></i></div>
+        <h3 class="feat-title">Daily Auto-Returns</h3>
+        <p class="feat-desc">Earnings are calculated and credited to your wallet every single day — no clicks, no effort required from you.</p>
+      </div>
+      <div class="feat-card reveal rd2">
+        <div class="feat-ico fi-sk"><i class="fas fa-bolt"></i></div>
+        <h3 class="feat-title">Instant Withdrawals</h3>
+        <p class="feat-desc">Request a payout and receive it in your Nigerian bank account within minutes — Monday through Saturday.</p>
+      </div>
+      <div class="feat-card reveal rd3">
+        <div class="feat-ico fi-ir"><i class="fas fa-shield-alt"></i></div>
+        <h3 class="feat-title">Bank-Level Security</h3>
+        <p class="feat-desc">Military-grade encryption and multi-layer security protocols protect every naira in your account at all times.</p>
+      </div>
+      <div class="feat-card reveal rd1">
+        <div class="feat-ico fi-co"><i class="fas fa-share-nodes"></i></div>
+        <h3 class="feat-title">Referral Commissions</h3>
+        <p class="feat-desc">Earn lifetime commissions across 3 referral levels every time your network deposits. Share your link, grow your income.</p>
+      </div>
+      <div class="feat-card reveal rd2">
+        <div class="feat-ico fi-am"><i class="fas fa-headset"></i></div>
+        <h3 class="feat-title">24/7 Live Support</h3>
+        <p class="feat-desc">Our dedicated team is always a message away on WhatsApp and Telegram to help you at any hour.</p>
+      </div>
+      <div class="feat-card reveal rd3">
+        <div class="feat-ico fi-tl"><i class="fas fa-mobile-screen"></i></div>
+        <h3 class="feat-title">Any Device, Anytime</h3>
+        <p class="feat-desc">Manage your investments from any phone, tablet, or computer. Fully optimised for every screen size.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PLANS ─────────────────────────────── -->
+  <section id="plans">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-eyebrow">Investment Plans</div>
+        <h2 class="sec-title">Pick your plan.<br>Start earning today.</h2>
+      </div>
+      <p class="sec-sub" style="max-width:340px">Flexible plans for every investor — whether you're just starting out or ready to scale up.</p>
+    </div>
+    <div class="plans-grid">
+      <div class="plan-card reveal rd1">
+        <div class="plan-badge pb-amber"><i class="fas fa-seedling"></i> Starter</div>
+        <div class="plan-name">Starter Plan</div>
+        <div class="plan-roi">5%</div>
+        <div class="plan-roi-sub">Daily returns on your deposit</div>
+        <div class="plan-rule"></div>
+        <ul class="plan-perks">
+          <li><i class="fas fa-check-circle"></i> Daily automatic earnings</li>
+          <li><i class="fas fa-check-circle"></i> Instant bank withdrawals</li>
+          <li><i class="fas fa-check-circle"></i> Referral commissions</li>
+          <li><i class="fas fa-check-circle"></i> 24/7 support access</li>
+        </ul>
+        <div class="plan-min">
+          <span class="pm-lbl">Minimum Deposit</span>
+          <span class="pm-val">₦4,000</span>
+        </div>
+        <a href="signup.html" class="btn-plan bp-outline">Get Started</a>
+      </div>
+
+      <div class="plan-card featured reveal rd2">
+        <div class="plan-badge pb-green"><i class="fas fa-fire"></i> Most Popular</div>
+        <div class="plan-name">Growth Plan</div>
+        <div class="plan-roi">12%</div>
+        <div class="plan-roi-sub">Daily returns on your deposit</div>
+        <div class="plan-rule"></div>
+        <ul class="plan-perks">
+          <li><i class="fas fa-check-circle"></i> Higher daily ROI</li>
+          <li><i class="fas fa-check-circle"></i> Priority withdrawals</li>
+          <li><i class="fas fa-check-circle"></i> Double referral bonus</li>
+          <li><i class="fas fa-check-circle"></i> Dedicated account support</li>
+        </ul>
+        <div class="plan-min">
+          <span class="pm-lbl">Minimum Deposit</span>
+          <span class="pm-val">₦20,000</span>
+        </div>
+        <a href="signup.html" class="btn-plan bp-primary">Start This Plan</a>
+      </div>
+
+      <div class="plan-card reveal rd3">
+        <div class="plan-badge pb-iris"><i class="fas fa-crown"></i> Elite</div>
+        <div class="plan-name">Elite Plan</div>
+        <div class="plan-roi">20%</div>
+        <div class="plan-roi-sub">Daily returns on your deposit</div>
+        <div class="plan-rule"></div>
+        <ul class="plan-perks">
+          <li><i class="fas fa-check-circle"></i> Maximum daily returns</li>
+          <li><i class="fas fa-check-circle"></i> VIP instant withdrawals</li>
+          <li><i class="fas fa-check-circle"></i> Triple referral commissions</li>
+          <li><i class="fas fa-check-circle"></i> Personal investment advisor</li>
+        </ul>
+        <div class="plan-min">
+          <span class="pm-lbl">Minimum Deposit</span>
+          <span class="pm-val">₦100,000</span>
+        </div>
+        <a href="signup.html" class="btn-plan bp-outline">Get Started</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TRUST STRIP ───────────────────────── -->
+  <div class="trust-strip reveal">
+    <div class="trust-block rd1 reveal">
+      <div class="tb-ico"><i class="fas fa-lock"></i></div>
+      <div><div class="tb-title">SSL Secured</div><div class="tb-sub">256-bit encryption</div></div>
+    </div>
+    <div class="trust-block rd2 reveal">
+      <div class="tb-ico"><i class="fas fa-clock"></i></div>
+      <div><div class="tb-title">Always Online</div><div class="tb-sub">99.9% uptime</div></div>
+    </div>
+    <div class="trust-block rd3 reveal">
+      <div class="tb-ico"><i class="fas fa-users"></i></div>
+      <div><div class="tb-title">1,526+ Investors</div><div class="tb-sub">Verified community</div></div>
+    </div>
+    <div class="trust-block rd4 reveal">
+      <div class="tb-ico"><i class="fas fa-headset"></i></div>
+      <div><div class="tb-title">Live Support</div><div class="tb-sub">WhatsApp & Telegram</div></div>
+    </div>
+  </div>
+
+  <!-- ─── TESTIMONIALS ──────────────────────── -->
+  <section id="testimonials">
+    <div class="sec-head reveal">
+      <div>
+        <div class="sec-eyebrow">Testimonials</div>
+        <h2 class="sec-title">Real people.<br>Real returns.</h2>
+      </div>
+      <p class="sec-sub" style="max-width:340px">Don't take our word for it — hear from investors already earning daily with Primevest.</p>
+    </div>
+    <div class="swiper testimonialSwiper reveal">
+      <div class="swiper-wrapper" id="tWrapper"></div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ─────────────────────────── -->
+  <div class="cta-box reveal">
+    <div class="sec-eyebrow">Start Today</div>
+    <h2 class="sec-title">Your financial future<br>starts with one click.</h2>
+    <p class="sec-sub">Join 1,526+ Nigerians building wealth every day. No experience needed — just ₦4,000 and the willingness to grow.</p>
+    <div class="cta-btns">
+      <a href="signup.html" class="btn-hero primary">
+        <i class="fas fa-rocket"></i> Create Free Account
+      </a>
+      <a href="login.html" class="btn-hero outline">
+        <i class="fas fa-arrow-right-to-bracket"></i> Login to Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- ─── FOOTER ────────────────────────────── -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <div class="logo-mark"><i class="fas fa-chart-line"></i></div>
+          <span class="logo-text">Prime<span>vest</span></span>
+        </a>
+        <p>Nigeria's next-generation investment platform helping everyday people achieve financial freedom through smart daily returns.</p>
+        <div class="social-row">
+          <a href="#" class="soc-ico"><i class="fab fa-telegram"></i></a>
+          <a href="#" class="soc-ico"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" class="soc-ico"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="soc-ico"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <ul>
+          <li><i class="fas fa-chevron-right"></i><a href="#plans">Investment Plans</a></li>
+          <li><i class="fas fa-chevron-right"></i><a href="#features">Features</a></li>
+          <li><i class="fas fa-chevron-right"></i><a href="signup.html">Register</a></li>
+          <li><i class="fas fa-chevron-right"></i><a href="login.html">Login</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><i class="fas fa-chevron-right"></i><a href="#">About Us</a></li>
+          <li><i class="fas fa-chevron-right"></i><a href="#">Blog</a></li>
+          <li><i class="fas fa-chevron-right"></i><a href="#">FAQs</a></li>
+          <li><i class="fas fa-chevron-right"></i><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <ul>
+          <li><i class="fas fa-envelope"></i><a href="mailto:support@primevest.ng">support@primevest.ng</a></li>
+          <li><i class="fas fa-phone"></i><span>+234 916 737 8733</span></li>
+          <li><i class="fas fa-map-marker-alt"></i><span>Lagos, Nigeria</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Primevest. All rights reserved.</div>
+      <div class="footer-socials-bottom">
+        <a href="#" class="soc-ico"><i class="fab fa-telegram"></i></a>
+        <a href="#" class="soc-ico"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" class="soc-ico"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /shell -->
+
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script>
+/* ════════════════════════════════
+   PARTICLE CANVAS
+════════════════════════════════ */
+const cv  = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W, H, pts = [];
+
+function resize() {
+  W = cv.width  = window.innerWidth;
+  H = cv.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize, { passive:true });
+
+for (let i = 0; i < 55; i++) {
+  pts.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx:(Math.random()-0.5)*0.38,
+    vy:(Math.random()-0.5)*0.38,
+    r: Math.random()*1.4+0.5,
+    a: Math.random()*0.38+0.08
+  });
+}
+
+function drawCanvas() {
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if(p.x<0) p.x=W; if(p.x>W) p.x=0;
+    if(p.y<0) p.y=H; if(p.y>H) p.y=0;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = `rgba(27,232,150,${p.a})`;
+    ctx.fill();
+  });
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<125){
+        ctx.beginPath();
+        ctx.moveTo(pts[i].x,pts[i].y);
+        ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(27,232,150,${0.06*(1-d/125)})`;
+        ctx.lineWidth=0.55;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawCanvas);
+}
+drawCanvas();
+
+/* ════════════════════════════════
+   CHART BARS
+════════════════════════════════ */
+const bars = [30,50,38,65,48,80,58,88,70,95];
+const chartEl = document.getElementById('chartBars');
+bars.forEach((h,i) => {
+  const b = document.createElement('div');
+  b.className = 'hc-bar';
+  b.style.height = '0%';
+  b.style.transitionDelay = (i*0.06)+'s';
+  chartEl.appendChild(b);
+  setTimeout(() => { b.style.height = h+'%'; }, 400 + i*65);
+});
+
+/* ════════════════════════════════
+   HAMBURGER / MOBILE MENU
+════════════════════════════════ */
+const burger    = document.getElementById('hamburger');
+const mobileMenu= document.getElementById('mobileMenu');
+
+function menuToggle(open) {
+  burger.classList.toggle('open', open);
+  mobileMenu.classList.toggle('open', open);
+  burger.setAttribute('aria-expanded', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
+burger.addEventListener('click', () => menuToggle(!mobileMenu.classList.contains('open')));
+
+document.querySelectorAll('.mm-close-on-click').forEach(el =>
+  el.addEventListener('click', () => menuToggle(false))
+);
+
+document.addEventListener('click', e => {
+  if (mobileMenu.classList.contains('open') &&
+      !mobileMenu.contains(e.target) &&
+      !burger.contains(e.target)) menuToggle(false);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') menuToggle(false);
+});
+
+/* ════════════════════════════════
+   NAVBAR SCROLL
+════════════════════════════════ */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive:true });
+
+/* ════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════ */
+const revEls = document.querySelectorAll('.reveal');
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('on'); revObs.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+revEls.forEach(el => revObs.observe(el));
+
+/* ════════════════════════════════
+   ANIMATED COUNTERS
+════════════════════════════════ */
+function animateCounter(el) {
+  const target = +el.dataset.target;
+  const suffix = el.dataset.suffix || '';
+  const prefix = el.dataset.prefix || '';
+  const duration = 2200;
+  const startTime = performance.now();
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // ease-out cubic
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = Math.floor(ease * target);
+    el.textContent = prefix + current.toLocaleString() + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = prefix + target.toLocaleString() + suffix;
+  }
+  requestAnimationFrame(step);
+}
+
+const counterEls = document.querySelectorAll('.stat-count[data-target]');
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateCounter(e.target);
+      counterObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+counterEls.forEach(el => counterObs.observe(el));
+
+/* ════════════════════════════════
+   TESTIMONIALS DATA
+════════════════════════════════ */
+const testimonials = [
+  { av:'TA', name:'Tunde Adebayo',     loc:'Lagos',         text:'Primevest has completely transformed my investment journey. The daily returns are consistent and withdrawals always on time. Best decision ever!',                          earn:'₦4.2M earned' },
+  { av:'CO', name:'Chioma Okonkwo',    loc:'Lagos',         text:'Started with ₦10,000 and within 6 months I\'ve made over ₦200,000 in profits. The referral program is incredible!',                                                          earn:'₦200k+ earned' },
+  { av:'MA', name:'Musa Ahmed',        loc:'Abuja',         text:'As a civil servant, this has become my primary source of passive income. Absolutely life-changing platform!',                                                                 earn:'₦3.5M earned' },
+  { av:'CN', name:'Chibuzor Nwosu',    loc:'Port Harcourt', text:'This platform helped me grow my small business capital in just 3 months. The returns are consistent and unmatched!',                                                          earn:'₦2.7M earned' },
+  { av:'OA', name:'Oluwaseun Adeyemi', loc:'Ibadan',        text:'Ibadan people, this one na real deal! My money dey work for me 24/7 without me lifting a finger. Primevest is unbeatable.',                                                   earn:'₦2.2M earned' },
+  { av:'HY', name:'Hauwa Yusuf',       loc:'Abuja',         text:'The platform is so easy to use. I love how I can track investments in real-time and withdrawals always come through same day.',                                                earn:'₦780k earned' },
+  { av:'ID', name:'Ibrahim Danjuma',   loc:'Abuja',         text:'6 months and counting — never missed a single payment. Finally a platform I can fully trust with my hard-earned money.',                                                       earn:'₦2.8M earned' },
+  { av:'FO', name:'Folasade Ojo',      loc:'Ibadan',        text:'The referral bonuses are insane. I now earn more from referrals than my actual day job! I\'ve introduced 30+ people.',                                                        earn:'₦1.8M referrals' },
+  { av:'EO', name:'Emeka Okoro',       loc:'Port Harcourt', text:'Been with Primevest for 8 months and I\'ve already doubled my investment. This is genuinely the real deal.',                                                                   earn:'₦3.8M earned' },
+  { av:'NE', name:'Ngozi Eze',         loc:'Lagos',         text:'As a single mother, Primevest gave me real financial independence. I can now comfortably pay my children\'s school fees.',                                                     earn:'₦1.8M earned' },
+  { av:'AK', name:'Aminu Kabir',       loc:'Kano',          text:'Northern Nigeria needed a platform like this. I\'m grateful for Primevest every single day. Life-changing is an understatement.',                                             earn:'₦1.9M earned' },
+  { av:'ZA', name:'Zainab Abubakar',   loc:'Kano',          text:'I recommended Primevest to my whole community. We\'re all earning together now. The 3-level referral system is genius!',                                                      earn:'₦980k earned' },
+];
+
+const wrap = document.getElementById('tWrapper');
+const colors = ['av-a','av-b','av-c','av-d','av-e','av-a','av-b','av-c','av-d','av-e','av-a','av-b'];
+testimonials.forEach((t,i) => {
+  const div = document.createElement('div');
+  div.className = 'swiper-slide';
+  div.innerHTML = `
+    <div class="t-card">
+      <div class="t-head">
+        <div class="t-av ${colors[i]}">${t.av}</div>
+        <div>
+          <div class="t-name">${t.name}</div>
+          <div class="t-loc"><i class="fas fa-map-marker-alt"></i>${t.loc}, Nigeria</div>
+        </div>
+      </div>
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"${t.text}"</p>
+      <div class="t-earn"><i class="fas fa-trophy"></i>${t.earn}</div>
+    </div>`;
+  wrap.appendChild(div);
+});
+
+/* ════════════════════════════════
+   SWIPER INIT
+════════════════════════════════ */
+new Swiper('.testimonialSwiper', {
+  slidesPerView: 1,
+  spaceBetween: 20,
+  loop: true,
+  autoplay: { delay:3500, disableOnInteraction:false, pauseOnMouseEnter:true },
+  pagination: { el:'.swiper-pagination', clickable:true },
+  navigation: { nextEl:'.swiper-button-next', prevEl:'.swiper-button-prev' },
+  breakpoints: {
+    640:  { slidesPerView:2, spaceBetween:20 },
+    1024: { slidesPerView:3, spaceBetween:24 },
+  }
+});
+</script>
+</body>
+</html>
