@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Primevest | Admin Dashboard</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    /* ══════════════════════════════════
+       THEME TOKENS
+    ══════════════════════════════════ */
+    :root,[data-theme="light"]{
+      --bg:            #F9FAFB;
+      --bg-card:       #FFFFFF;
+      --bg-card-2:     #F9FAFB;
+      --bg-item:       #F3F4F6;
+      --sidebar-bg:    #FFFFFF;
+      --header-bg:     #FFFFFF;
+      --border:        #E5E7EB;
+      --border-soft:   #F3F4F6;
+      --text-primary:  #1F2937;
+      --text-secondary:#6B7280;
+      --text-muted:    #9CA3AF;
+
+      --primary:       #1E7B4B;
+      --primary-dark:  #0B4F2E;
+      --primary-light: #4CAF7C;
+      --primary-soft:  #E8F5E9;
+
+      --success:#10B981;--warning:#F59E0B;--error:#EF4444;--info:#3B82F6;--purple:#8B5CF6;
+
+      --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1);
+      --shadow-xl:0 20px 25px -5px rgba(0,0,0,0.1);
+
+      --toggle-bg:    #E5E7EB;
+      --toggle-thumb: #FFFFFF;
+
+      --chart-grid:   rgba(0,0,0,0.06);
+      --chart-label:  #6B7280;
+    }
+
+    [data-theme="dark"]{
+      --bg:            #0D1117;
+      --bg-card:       #161B22;
+      --bg-card-2:     #1C2128;
+      --bg-item:       #1C2128;
+      --sidebar-bg:    #161B22;
+      --header-bg:     #161B22;
+      --border:        #30363D;
+      --border-soft:   #21262D;
+      --text-primary:  #E6EDF3;
+      --text-secondary:#8B949E;
+      --text-muted:    #484F58;
+
+      --primary:       #2DD47A;
+      --primary-dark:  #1E7B4B;
+      --primary-light: #4CAF7C;
+      --primary-soft:  rgba(45,212,122,0.12);
+
+      --shadow-sm:0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,0.4);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,0.4);
+      --shadow-xl:0 20px 25px -5px rgba(0,0,0,0.5);
+
+      --toggle-bg:    #30363D;
+      --toggle-thumb: #0D1117;
+
+      --chart-grid:   rgba(255,255,255,0.06);
+      --chart-label:  #8B949E;
+    }
+
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;overflow-x:hidden;transition:background 0.3s,color 0.3s;}
+
+    /* ── SIDEBAR ── */
+    .sidebar{position:fixed;top:0;left:0;bottom:0;width:260px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;overflow-y:auto;transition:transform 0.3s ease, background 0.3s;z-index:1000;}
+    .sidebar.collapsed{transform:translateX(-260px);}
+    .sidebar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding:0 8px;}
+    .logo-area{display:flex;align-items:center;gap:10px;}
+    .logo-icon{width:40px;height:40px;background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;}
+    .logo-text{font-family:'Outfit',sans-serif;font-weight:700;font-size:18px;color:var(--text-primary);}
+    .logo-text span{color:var(--primary);}
+    .close-sidebar{display:none;width:32px;height:32px;border-radius:10px;background:var(--bg-item);border:none;color:var(--text-secondary);cursor:pointer;font-size:16px;align-items:center;justify-content:center;}
+    .admin-profile{display:flex;align-items:center;gap:12px;padding:14px 8px;background:var(--primary-soft);border-radius:18px;margin-bottom:24px;transition:background 0.3s;}
+    .admin-avatar{width:48px;height:48px;background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;flex-shrink:0;}
+    .admin-info h4{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:2px;}
+    .admin-info p{font-size:11px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;}
+    .nav-section{margin-bottom:20px;}
+    .nav-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-muted);padding:0 12px;margin-bottom:8px;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;color:var(--text-secondary);text-decoration:none;transition:all 0.2s;margin-bottom:3px;font-size:14px;font-weight:500;}
+    .nav-item:hover{background:var(--bg-item);color:var(--primary);}
+    .nav-item.active{background:var(--primary-soft);color:var(--primary);font-weight:700;}
+    .nav-item i{width:18px;font-size:16px;flex-shrink:0;}
+    .nav-item .badge{margin-left:auto;background:var(--error);color:#fff;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;}
+    /* special highlight for Data Manager */
+    .nav-item.danger-nav{color:#EF4444;}
+    .nav-item.danger-nav:hover{background:rgba(239,68,68,0.1);}
+    .nav-item.danger-nav.active{background:rgba(239,68,68,0.12);color:#EF4444;}
+
+    /* ── MAIN ── */
+    .main-content{margin-left:260px;transition:margin-left 0.3s ease;min-height:100vh;}
+    .main-content.expanded{margin-left:0;}
+
+    /* ── HEADER ── */
+    .header{height:70px;background:var(--header-bg);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;transition:background 0.3s,border-color 0.3s;}
+    .header-left{display:flex;align-items:center;gap:14px;}
+    .menu-toggle{width:38px;height:38px;border-radius:10px;background:var(--bg-item);border:none;color:var(--text-secondary);cursor:pointer;font-size:17px;display:none;align-items:center;justify-content:center;}
+    .page-title{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--text-primary);}
+    .header-right{display:flex;align-items:center;gap:12px;}
+    .date-badge{background:var(--bg-item);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--text-secondary);}
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle{position:relative;width:56px;height:28px;cursor:pointer;flex-shrink:0;}
+    .theme-toggle input{opacity:0;width:0;height:0;position:absolute;}
+    .toggle-track{position:absolute;inset:0;background:var(--toggle-bg);border-radius:14px;transition:background 0.3s;display:flex;align-items:center;padding:0 4px;justify-content:space-between;}
+    .tog-sun{font-size:11px;color:#F59E0B;}
+    .tog-moon{font-size:11px;color:#C4B5FD;}
+    .toggle-thumb{position:absolute;top:3px;left:3px;width:22px;height:22px;background:var(--toggle-thumb);border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.25);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),background 0.3s;}
+    [data-theme="dark"] .toggle-thumb{transform:translateX(28px);}
+
+    .notif-btn{width:38px;height:38px;border-radius:10px;background:var(--bg-item);border:none;color:var(--text-secondary);cursor:pointer;font-size:17px;position:relative;display:flex;align-items:center;justify-content:center;}
+    .notif-badge{position:absolute;top:-3px;right:-3px;width:17px;height:17px;background:var(--error);border-radius:50%;border:2px solid var(--header-bg);font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;}
+    .logout-btn{padding:7px 18px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:20px;color:var(--error);font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all 0.2s;font-family:inherit;}
+    .logout-btn:hover{background:rgba(239,68,68,0.14);}
+
+    /* ── CONTENT ── */
+    .content-area{padding:24px;}
+
+    /* ── STAT CARDS ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:22px;}
+    .stat-card{background:var(--bg-card);border-radius:18px;padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border-soft);transition:transform 0.2s,box-shadow 0.2s,background 0.3s;}
+    .stat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+    .stat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .stat-icon{width:46px;height:46px;background:var(--primary-soft);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:20px;transition:background 0.3s;}
+    .stat-badge{background:rgba(16,185,129,0.1);color:var(--success);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+    .stat-badge.warn{background:rgba(245,158,11,0.1);color:var(--warning);}
+    .stat-value{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
+    .stat-label{font-size:13px;color:var(--text-secondary);}
+
+    /* ── QUICK ACTIONS ── */
+    .section-label{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .section-label i{color:var(--primary);}
+    .qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+    .qa-card{background:var(--bg-card);border-radius:18px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;transition:all 0.2s;border:1.5px solid var(--border-soft);position:relative;overflow:hidden;}
+    .qa-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--primary-light));opacity:0;transition:opacity 0.2s;}
+    .qa-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--primary-light);}
+    .qa-card:hover::before{opacity:1;}
+    .qa-icon{width:52px;height:52px;background:var(--primary-soft);border-radius:26px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:22px;margin-bottom:10px;transition:all 0.2s;}
+    .qa-card:hover .qa-icon{transform:scale(1.1);background:var(--primary);color:#fff;}
+    .qa-title{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:3px;}
+    .qa-sub{font-size:11px;color:var(--text-secondary);margin-bottom:8px;}
+    .qa-badge{display:inline-block;padding:3px 10px;background:var(--warning);color:#fff;border-radius:20px;font-size:11px;font-weight:700;}
+    .qa-badge.green{background:var(--primary);}
+    .qa-badge.red{background:var(--error);}
+    .qa-badge.purple{background:var(--purple);}
+
+    /* ── CHARTS ── */
+    .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:22px;}
+    .chart-card{background:var(--bg-card);border-radius:18px;padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border-soft);transition:background 0.3s;}
+    .chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+    .chart-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);}
+    .chart-period{display:flex;gap:6px;}
+    .period-btn{padding:4px 12px;border:1px solid var(--border);border-radius:20px;background:transparent;font-size:11px;font-weight:600;color:var(--text-secondary);cursor:pointer;transition:all 0.2s;font-family:inherit;}
+    .period-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .period-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+    .chart-container{height:280px;position:relative;}
+
+    /* ── RECENT ACTIVITY ── */
+    .section-card{background:var(--bg-card);border-radius:18px;padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border-soft);margin-bottom:20px;transition:background 0.3s;}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+    .section-header h3{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;}
+    .section-header h3 i{color:var(--primary);}
+    .view-all{color:var(--primary);font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:4px;}
+    .activity-list{display:flex;flex-direction:column;gap:10px;}
+    .activity-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg-item);border-radius:12px;transition:background 0.3s;}
+    .activity-info{display:flex;align-items:center;gap:12px;}
+    .activity-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .activity-icon.deposit{background:rgba(16,185,129,0.12);color:var(--success);}
+    .activity-icon.withdrawal{background:rgba(245,158,11,0.12);color:var(--warning);}
+    .activity-icon.user{background:rgba(59,130,246,0.12);color:var(--info);}
+    .activity-icon.investment{background:rgba(139,92,246,0.12);color:var(--purple);}
+    .activity-icon.proof{background:rgba(30,123,75,0.12);color:var(--primary);}
+    .activity-details h4{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:2px;}
+    .activity-details p{font-size:11px;color:var(--text-secondary);}
+    .activity-time{font-size:11px;color:var(--text-muted);}
+
+    /* ── PLATFORM STATS ── */
+    .platform-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+    .plat-item{background:var(--bg-item);border-radius:14px;padding:16px;text-align:center;transition:background 0.3s;}
+    .plat-value{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--primary);margin-bottom:4px;}
+    .plat-label{font-size:11px;color:var(--text-secondary);}
+
+    /* ── MODAL ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:10000;padding:20px;}
+    .modal-overlay.show{display:flex;}
+    .modal-card{background:var(--bg-card);border-radius:22px;width:90%;max-width:360px;padding:26px;box-shadow:var(--shadow-xl);animation:popIn 0.22s cubic-bezier(0.68,-0.55,0.265,1.55);}
+    @keyframes popIn{from{transform:scale(0.88);opacity:0;}to{transform:scale(1);opacity:1;}}
+    .modal-icon{width:56px;height:56px;background:rgba(239,68,68,0.1);border-radius:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:var(--error);}
+    .modal-title{font-family:'Outfit',sans-serif;font-size:19px;font-weight:700;text-align:center;color:var(--text-primary);margin-bottom:8px;}
+    .modal-text{font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:20px;line-height:1.5;}
+    .modal-actions{display:flex;gap:10px;}
+    .mbtn{flex:1;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+    .mbtn-danger{background:var(--error);color:#fff;}
+    .mbtn-danger:hover{background:#DC2626;}
+    .mbtn-secondary{background:var(--bg-item);color:var(--text-secondary);}
+    .mbtn-secondary:hover{background:var(--border);}
+
+    /* ── TOAST ── */
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+    @media(max-width:480px){.toast-container{top:14px;right:14px;left:14px;}}
+    .toast{background:var(--bg-card);border-radius:14px;padding:13px 16px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;max-width:380px;transform:translateX(120%);transition:transform 0.3s cubic-bezier(0.68,-0.55,0.265,1.55);border-left:4px solid;pointer-events:auto;}
+    @media(max-width:480px){.toast{max-width:100%;}}
+    .toast.show{transform:translateX(0);}
+    .toast.success{border-left-color:var(--success);}.toast.success .ti{color:var(--success);background:rgba(16,185,129,0.1);}
+    .toast.error{border-left-color:var(--error);}.toast.error .ti{color:var(--error);background:rgba(239,68,68,0.1);}
+    .toast.warning{border-left-color:var(--warning);}.toast.warning .ti{color:var(--warning);background:rgba(245,158,11,0.1);}
+    .toast.info{border-left-color:var(--primary);}.toast.info .ti{color:var(--primary);background:rgba(30,123,75,0.1);}
+    .ti{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .tc{flex:1;}.tt{font-weight:700;font-size:13px;color:var(--text-primary);margin-bottom:1px;}.tm{font-size:11px;color:var(--text-secondary);}
+    .tclose{color:var(--text-muted);cursor:pointer;padding:4px;font-size:13px;}
+
+    /* spinner */
+    .spinner{width:18px;height:18px;border:2px solid rgba(30,123,75,0.2);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:1200px){
+      .qa-grid{grid-template-columns:repeat(3,1fr);}
+    }
+    @media(max-width:1024px){
+      .stats-grid{grid-template-columns:repeat(2,1fr);}
+      .charts-row{grid-template-columns:1fr;}
+      .platform-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    @media(max-width:900px){
+      .qa-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-260px);}
+      .sidebar.mobile-open{transform:translateX(0);}
+      .main-content{margin-left:0;}
+      .menu-toggle{display:flex;}
+      .close-sidebar{display:flex;}
+      .date-badge{display:none;}
+    }
+    @media(max-width:480px){
+      .stats-grid{grid-template-columns:1fr;}
+      .qa-grid{grid-template-columns:repeat(2,1fr);}
+      .platform-grid{grid-template-columns:1fr;}
+      .content-area{padding:16px;}
+      .header{padding:0 16px;}
+      .logout-btn span{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Logout Modal -->
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal-card">
+      <div class="modal-icon"><i class="fas fa-sign-out-alt"></i></div>
+      <h3 class="modal-title">Logout</h3>
+      <p class="modal-text">Are you sure you want to logout from the admin panel?</p>
+      <div class="modal-actions">
+        <button class="mbtn mbtn-danger"    onclick="confirmLogout()">Yes, Logout</button>
+        <button class="mbtn mbtn-secondary" onclick="closeLogoutModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="logo-text">Prime<span>vest</span></div>
+      </div>
+      <button class="close-sidebar" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="admin-profile">
+      <div class="admin-avatar" id="adminAvatar">A</div>
+      <div class="admin-info">
+        <h4 id="adminName">Admin User</h4>
+        <p  id="adminEmail">admin@primevest.com</p>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="admin-dashboard.html"       class="nav-item active"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="admin-users.html"           class="nav-item"><i class="fas fa-users"></i><span>Users</span><span class="badge" id="newUsersBadge" style="display:none;">0</span></a>
+      <a href="admin-deposits.html"        class="nav-item"><i class="fas fa-arrow-down"></i><span>Deposits</span><span class="badge" id="pendingDepositsBadge">0</span></a>
+      <a href="admin-withdrawals.html"     class="nav-item"><i class="fas fa-arrow-up"></i><span>Withdrawals</span><span class="badge" id="pendingWithdrawalsBadge">0</span></a>
+      <a href="admin-proofs.html"          class="nav-item"><i class="fas fa-image"></i><span>Proof Gallery</span><span class="badge" id="pendingProofsBadge">0</span></a>
+      <a href="admin-investments.html"     class="nav-item"><i class="fas fa-chart-pie"></i><span>Investments</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Management</div>
+      <a href="admin-plans.html"           class="nav-item"><i class="fas fa-box"></i><span>Plans</span></a>
+      <a href="admin-referrals.html"       class="nav-item"><i class="fas fa-gift"></i><span>Referrals</span></a>
+      <a href="admin-transactions.html"    class="nav-item"><i class="fas fa-history"></i><span>Transactions</span></a>
+      <a href="admin-gift-codes.html"      class="nav-item"><i class="fas fa-ticket"></i><span>Gift Codes</span></a>
+      <a href="create-admin.html"          class="nav-item"><i class="fas fa-user-shield"></i><span>Create Admin</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Settings &amp; Tools</div>
+      <a href="admin-settings.html"        class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+      <a href="admin-logs.html"            class="nav-item"><i class="fas fa-clipboard-list"></i><span>Activity Logs</span></a>
+      <a href="admin-reports.html"         class="nav-item"><i class="fas fa-file-pdf"></i><span>Reports</span></a>
+      <!-- Data Manager — new page from this session -->
+      <a href="admin-data-manager.html"    class="nav-item danger-nav"><i class="fas fa-database"></i><span>Data Manager</span></a>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main-content" id="mainContent">
+
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <h2 class="page-title">Dashboard</h2>
+      </div>
+      <div class="header-right">
+        <div class="date-badge" id="currentDateTime"></div>
+
+        <!-- ══ THEME TOGGLE ══ -->
+        <label class="theme-toggle" title="Toggle dark / light mode">
+          <input type="checkbox" id="themeToggle" onchange="toggleTheme(this.checked)">
+          <div class="toggle-track">
+            <span class="tog-sun"><i class="fas fa-sun"></i></span>
+            <span class="tog-moon"><i class="fas fa-moon"></i></span>
+          </div>
+          <div class="toggle-thumb"></div>
+        </label>
+
+        <button class="notif-btn" onclick="showNotifications()">
+          <i class="fas fa-bell"></i>
+          <span class="notif-badge" id="notificationBadge" style="display:none;">0</span>
+        </button>
+        <button class="logout-btn" onclick="showLogoutModal()">
+          <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content-area">
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <span class="stat-badge" id="userGrowth">+0%</span>
+          </div>
+          <div class="stat-value" id="totalUsers">—</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            <span class="stat-badge" id="investmentGrowth">Active</span>
+          </div>
+          <div class="stat-value" id="totalInvestments">₦—</div>
+          <div class="stat-label">Total Invested</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+            <span class="stat-badge warn" id="pendingDepositsCount">0 pending</span>
+          </div>
+          <div class="stat-value" id="totalDeposits">₦—</div>
+          <div class="stat-label">Total Deposits</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+            <span class="stat-badge warn" id="pendingWithdrawalsCount">0 pending</span>
+          </div>
+          <div class="stat-value" id="totalWithdrawals">₦—</div>
+          <div class="stat-label">Total Withdrawals</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section-label"><i class="fas fa-bolt"></i> Quick Actions</div>
+      <div class="qa-grid">
+
+        <div class="qa-card" onclick="window.location.href='admin-deposits.html'">
+          <div class="qa-icon"><i class="fas fa-arrow-down"></i></div>
+          <div class="qa-title">Deposits</div>
+          <div class="qa-sub">Review &amp; approve</div>
+          <span class="qa-badge" id="quickDepositBadge">0</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-withdrawals.html'">
+          <div class="qa-icon"><i class="fas fa-arrow-up"></i></div>
+          <div class="qa-title">Withdrawals</div>
+          <div class="qa-sub">Process requests</div>
+          <span class="qa-badge" id="quickWithdrawalBadge">0</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-proofs.html'">
+          <div class="qa-icon"><i class="fas fa-image"></i></div>
+          <div class="qa-title">Proof Gallery</div>
+          <div class="qa-sub">Review submissions</div>
+          <span class="qa-badge" id="quickProofBadge">0</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-users.html'">
+          <div class="qa-icon"><i class="fas fa-users"></i></div>
+          <div class="qa-title">Users</div>
+          <div class="qa-sub">Manage accounts</div>
+          <span class="qa-badge green" id="quickUsersBadge">0 new</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-gift-codes.html'">
+          <div class="qa-icon"><i class="fas fa-ticket"></i></div>
+          <div class="qa-title">Gift Codes</div>
+          <div class="qa-sub">Create &amp; manage codes</div>
+          <span class="qa-badge green">Manage</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-investments.html'">
+          <div class="qa-icon"><i class="fas fa-chart-pie"></i></div>
+          <div class="qa-title">Investments</div>
+          <div class="qa-sub">View all plans</div>
+          <span class="qa-badge green" id="quickActiveInv">0 active</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-settings.html'">
+          <div class="qa-icon"><i class="fas fa-cog"></i></div>
+          <div class="qa-title">Settings</div>
+          <div class="qa-sub">Platform configuration</div>
+          <span class="qa-badge green">Configure</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-reports.html'">
+          <div class="qa-icon"><i class="fas fa-file-pdf"></i></div>
+          <div class="qa-title">Reports</div>
+          <div class="qa-sub">Export financials</div>
+          <span class="qa-badge green">Export</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-referrals.html'">
+          <div class="qa-icon"><i class="fas fa-gift"></i></div>
+          <div class="qa-title">Referrals</div>
+          <div class="qa-sub">Commission overview</div>
+          <span class="qa-badge purple">3-Level</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='admin-transactions.html'">
+          <div class="qa-icon"><i class="fas fa-history"></i></div>
+          <div class="qa-title">Transactions</div>
+          <div class="qa-sub">Full ledger</div>
+          <span class="qa-badge green">View All</span>
+        </div>
+
+        <div class="qa-card" onclick="window.location.href='create-admin.html'">
+          <div class="qa-icon"><i class="fas fa-user-shield"></i></div>
+          <div class="qa-title">Create Admin</div>
+          <div class="qa-sub">Add administrator</div>
+          <span class="qa-badge purple">Access</span>
+        </div>
+
+        <!-- DATA MANAGER — the new page built this session -->
+        <div class="qa-card" onclick="window.location.href='admin-data-manager.html'" style="border-color:rgba(239,68,68,0.25);">
+          <div class="qa-icon" style="background:rgba(239,68,68,0.1);color:var(--error);"><i class="fas fa-database"></i></div>
+          <div class="qa-title" style="color:var(--error);">Data Manager</div>
+          <div class="qa-sub">Delete / Restore / Erase</div>
+          <span class="qa-badge red">Danger Zone</span>
+        </div>
+
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Investment Overview</h3>
+            <div class="chart-period">
+              <button class="period-btn active" onclick="changePeriod('week',this)">Week</button>
+              <button class="period-btn"        onclick="changePeriod('month',this)">Month</button>
+              <button class="period-btn"        onclick="changePeriod('year',this)">Year</button>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="investmentChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Plan Distribution</h3>
+          </div>
+          <div class="chart-container"><canvas id="distributionChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3><i class="fas fa-history"></i> Recent Activity</h3>
+          <a href="admin-logs.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="activity-list" id="recentActivity">
+          <div style="text-align:center;padding:24px;color:var(--text-muted);">
+            <div class="spinner" style="margin:0 auto 10px;"></div>
+            <p>Loading activity…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Stats -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3><i class="fas fa-chart-bar"></i> Platform Statistics</h3>
+        </div>
+        <div class="platform-grid">
+          <div class="plat-item"><div class="plat-value" id="activeInvestments">—</div><div class="plat-label">Active Investments</div></div>
+          <div class="plat-item"><div class="plat-value" id="totalReferrals">—</div><div class="plat-label">Total Referrals</div></div>
+          <div class="plat-item"><div class="plat-value" id="feesCollected">₦—</div><div class="plat-label">Fees Collected</div></div>
+          <div class="plat-item"><div class="plat-value" id="totalProofs">—</div><div class="plat-label">Proofs Submitted</div></div>
+        </div>
+      </div>
+
+    </div><!-- content-area -->
+  </div><!-- main-content -->
+
+  <script>
+    const firebaseConfig = {
+      apiKey:            "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain:        "primevest-5208c.firebaseapp.com",
+      projectId:         "primevest-5208c",
+      storageBucket:     "primevest-5208c.firebasestorage.app",
+      messagingSenderId: "76160486147",
+      appId:             "1:76160486147:web:5b5853f9772503daa7b736"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+
+    let currentAdmin = null;
+    let investmentChart = null;
+    let distributionChart = null;
+
+    const fmt = n => '₦' + Number(n||0).toLocaleString('en-NG');
+
+    // ── Theme ──
+    const THEME_KEY = 'primevest_admin_theme';
+    function applyTheme(dark) {
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      const t = document.getElementById('themeToggle');
+      if (t) t.checked = dark;
+      // Update chart colors if charts exist
+      if (investmentChart)   updateChartColors();
+    }
+    function toggleTheme(dark) {
+      localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
+      applyTheme(dark);
+    }
+    // Apply immediately (no flash)
+    applyTheme(localStorage.getItem(THEME_KEY) === 'dark');
+
+    // ── Toast ──
+    function showToast({ type='info', title, message, duration=4500 }) {
+      const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.innerHTML = `<div class="ti"><i class="fas ${icons[type]}"></i></div><div class="tc"><div class="tt">${title}</div><div class="tm">${message}</div></div><div class="tclose" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>`;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => el.classList.add('show'), 10);
+      if (duration) setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, duration);
+    }
+
+    // ── Sidebar ──
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+    }
+
+    // ── Logout ──
+    function showLogoutModal()  { document.getElementById('logoutModal').classList.add('show'); }
+    function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('show'); }
+    async function confirmLogout() {
+      closeLogoutModal();
+      showToast({ type:'info', title:'Logging out…', message:'Please wait' });
+      try { await auth.signOut(); window.location.href = 'admin-login.html'; }
+      catch (e) { showToast({ type:'error', title:'Error', message:'Logout failed' }); }
+    }
+
+    // ── Date/time ──
+    function updateDateTime() {
+      document.getElementById('currentDateTime').textContent =
+        new Date().toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    }
+    updateDateTime(); setInterval(updateDateTime, 60000);
+
+    // ── Notifications ──
+    function showNotifications() {
+      const d = document.getElementById('pendingDepositsBadge').textContent;
+      const w = document.getElementById('pendingWithdrawalsBadge').textContent;
+      const p = document.getElementById('pendingProofsBadge').textContent;
+      showToast({ type:'info', title:'Pending Items', message:`Deposits: ${d} | Withdrawals: ${w} | Proofs: ${p}` });
+    }
+
+    // ══════════════════════════════════════════
+    //  LOAD DASHBOARD DATA
+    // ══════════════════════════════════════════
+    async function loadDashboardData() {
+      try {
+        // Users
+        const usersSnap  = await db.collection('users').get();
+        const totalUsers = usersSnap.size;
+        document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
+
+        // Week growth
+        const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-7);
+        try {
+          const newUsersSnap = await db.collection('users').where('createdAt','>=',weekAgo).get();
+          const pct = totalUsers > 0 ? ((newUsersSnap.size/totalUsers)*100).toFixed(1) : 0;
+          document.getElementById('userGrowth').textContent = `+${pct}%`;
+          // New users today
+          const today = new Date(); today.setHours(0,0,0,0);
+          const todaySnap = await db.collection('users').where('createdAt','>=',today).get();
+          document.getElementById('quickUsersBadge').textContent = todaySnap.size + ' new';
+          if (todaySnap.size > 0) {
+            document.getElementById('newUsersBadge').style.display='';
+            document.getElementById('newUsersBadge').textContent = todaySnap.size;
+          }
+        } catch(e) { console.warn('[dash] user growth:', e.message); }
+
+        // Pending counts — single-field queries, no index needed
+        const [pendDep, pendWith, pendProof] = await Promise.all([
+          db.collection('deposits').where('status','==','pending').get(),
+          db.collection('withdrawals').where('status','==','pending').get(),
+          db.collection('withdrawalProofs').where('status','==','pending').get()
+        ]);
+
+        const pDep  = pendDep.size;
+        const pWith = pendWith.size;
+        const pProof= pendProof.size;
+
+        document.getElementById('pendingDepositsBadge').textContent    = pDep;
+        document.getElementById('pendingWithdrawalsBadge').textContent = pWith;
+        document.getElementById('pendingProofsBadge').textContent      = pProof;
+        document.getElementById('pendingDepositsCount').textContent    = pDep + ' pending';
+        document.getElementById('pendingWithdrawalsCount').textContent = pWith + ' pending';
+        document.getElementById('quickDepositBadge').textContent       = pDep;
+        document.getElementById('quickWithdrawalBadge').textContent    = pWith;
+        document.getElementById('quickProofBadge').textContent         = pProof;
+
+        // Notification badge
+        const totalPend = pDep + pWith + pProof;
+        const nb = document.getElementById('notificationBadge');
+        nb.style.display = totalPend > 0 ? 'flex' : 'none';
+        nb.textContent   = totalPend;
+
+        // Totals
+        let totalDep=0, totalWith=0, totalInv=0, fees=0;
+
+        const [approvedDep, approvedWith, allInv] = await Promise.all([
+          db.collection('deposits').where('status','==','approved').get(),
+          db.collection('withdrawals').where('status','==','approved').get(),
+          db.collection('investments').get()
+        ]);
+
+        approvedDep.forEach(d => { totalDep += Number(d.data().amount||0); });
+        approvedWith.forEach(d => { const w=d.data(); totalWith += Number(w.amount||0); fees += Number(w.fee||0); });
+        allInv.forEach(d => { totalInv += Number(d.data().amount||0); });
+
+        document.getElementById('totalDeposits').textContent    = fmt(totalDep);
+        document.getElementById('totalWithdrawals').textContent = fmt(totalWith);
+        document.getElementById('totalInvestments').textContent = fmt(totalInv);
+        document.getElementById('feesCollected').textContent    = fmt(fees);
+
+        // Active investments
+        const activeInvSnap = await db.collection('investments').where('status','==','active').get();
+        document.getElementById('activeInvestments').textContent  = activeInvSnap.size.toLocaleString();
+        document.getElementById('quickActiveInv').textContent     = activeInvSnap.size + ' active';
+
+        // Total proofs
+        const proofsSnap = await db.collection('withdrawalProofs').get();
+        document.getElementById('totalProofs').textContent = proofsSnap.size.toLocaleString();
+
+        // Total referrals — try all field names
+        let refCount = 0;
+        for (const field of ['referrerUid','referredBy','referredByUid']) {
+          try {
+            const s = await db.collection('users').where(field,'!=','').get();
+            if (s.size > refCount) refCount = s.size;
+          } catch(e){}
+        }
+        document.getElementById('totalReferrals').textContent = refCount.toLocaleString();
+
+        // Load activity + charts
+        await loadRecentActivity();
+        initCharts();
+
+      } catch (err) {
+        console.error('[dash] loadDashboardData:', err);
+        showToast({ type:'error', title:'Load Error', message:'Some dashboard data could not be loaded. Check your connection.' });
+      }
+    }
+
+    // ══════════════════════════════════════════
+    //  RECENT ACTIVITY
+    //  Each query uses single-field orderBy only
+    //  to avoid composite index requirements.
+    // ══════════════════════════════════════════
+    async function loadRecentActivity() {
+      const container = document.getElementById('recentActivity');
+      try {
+        const activities = [];
+
+        // Fetch from each collection independently — single-field orderBy only
+        const queries = [
+          { col:'deposits',         type:'deposit',    icon:'fa-arrow-down',  label:'New Deposit',    descFn: d => `${d.userName||'User'} deposited ${fmt(d.amount)}` },
+          { col:'withdrawals',      type:'withdrawal', icon:'fa-arrow-up',    label:'Withdrawal Req', descFn: d => `${d.userName||'User'} requested ${fmt(d.amount)}` },
+          { col:'withdrawalProofs', type:'proof',      icon:'fa-image',       label:'Proof Submitted',descFn: d => `${d.userName||'User'} shared withdrawal proof` },
+          { col:'users',            type:'user',       icon:'fa-user-plus',   label:'New User',       descFn: d => `${d.fullName||d.username||'User'} joined` },
+        ];
+
+        await Promise.all(queries.map(async q => {
+          try {
+            const snap = await db.collection(q.col).orderBy('createdAt','desc').limit(3).get();
+            snap.forEach(doc => {
+              const d = doc.data();
+              if (d.deleted) return; // skip soft-deleted items
+              activities.push({
+                type:   q.type,
+                icon:   q.icon,
+                title:  q.label,
+                desc:   q.descFn(d),
+                time:   d.createdAt?.toDate?.() || new Date(),
+                status: d.status || 'active'
+              });
+            });
+          } catch(e) { console.warn(`[dash] activity ${q.col}:`, e.message); }
+        }));
+
+        // Sort newest first, show top 10
+        activities.sort((a,b) => b.time - a.time);
+        const top = activities.slice(0,10);
+
+        if (!top.length) {
+          container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);"><i class="fas fa-history" style="font-size:28px;margin-bottom:10px;opacity:0.4;display:block;"></i><p>No recent activity</p></div>`;
+          return;
+        }
+
+        container.innerHTML = top.map(a => {
+          const dateStr = a.time.toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+          return `
+            <div class="activity-item">
+              <div class="activity-info">
+                <div class="activity-icon ${a.type}"><i class="fas ${a.icon}"></i></div>
+                <div class="activity-details"><h4>${a.title}</h4><p>${a.desc}</p></div>
+              </div>
+              <div class="activity-time">${dateStr}</div>
+            </div>`;
+        }).join('');
+
+      } catch (err) {
+        container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--error);"><i class="fas fa-exclamation-circle" style="font-size:24px;margin-bottom:8px;display:block;"></i><p>Failed to load activity</p></div>`;
+      }
+    }
+
+    // ══════════════════════════════════════════
+    //  CHARTS — colors adapt to theme
+    // ══════════════════════════════════════════
+    function getChartColors() {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return {
+        primary:    dark ? '#2DD47A' : '#1E7B4B',
+        primaryBg:  dark ? 'rgba(45,212,122,0.12)' : 'rgba(30,123,75,0.1)',
+        secondary:  dark ? '#4CAF7C' : '#4CAF7C',
+        grid:       dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+        label:      dark ? '#8B949E' : '#6B7280',
+        tooltip:    dark ? '#161B22' : '#FFFFFF'
+      };
+    }
+
+    const WEEK_DATA  = { labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],   data:[125000,85000,150000,110000,175000,210000,190000] };
+    const MONTH_DATA = { labels:['Week 1','Week 2','Week 3','Week 4'],         data:[650000,720000,880000,950000] };
+    const YEAR_DATA  = { labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], data:[2500000,2800000,3100000,2900000,3500000,3800000,4200000,3900000,4100000,4500000,4800000,5100000] };
+
+    function initCharts() {
+      const c = getChartColors();
+
+      // Line chart
+      if (investmentChart) investmentChart.destroy();
+      const ctx1 = document.getElementById('investmentChart').getContext('2d');
+      investmentChart = new Chart(ctx1, {
+        type:'line',
+        data:{
+          labels: WEEK_DATA.labels,
+          datasets:[{ label:'Investments', data:WEEK_DATA.data,
+            borderColor:c.primary, backgroundColor:c.primaryBg,
+            tension:0.4, fill:true, pointBackgroundColor:c.primary, pointRadius:4 }]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:c.tooltip, titleColor:c.label, bodyColor:c.label, borderColor:c.grid, borderWidth:1 } },
+          scales:{
+            x:{ grid:{ color:c.grid }, ticks:{ color:c.label } },
+            y:{ beginAtZero:true, grid:{ color:c.grid }, ticks:{ color:c.label, callback: v => '₦'+Number(v).toLocaleString() } }
+          }
+        }
+      });
+
+      // Doughnut chart
+      if (distributionChart) distributionChart.destroy();
+      const ctx2 = document.getElementById('distributionChart').getContext('2d');
+      distributionChart = new Chart(ctx2, {
+        type:'doughnut',
+        data:{
+          labels:['Daily Plans','Instant Plans'],
+          datasets:[{ data:[75,25], backgroundColor:[c.primary,c.secondary], borderWidth:0 }]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ position:'bottom', labels:{ color:c.label, padding:16, font:{ size:12 } } },
+            tooltip:{ backgroundColor:c.tooltip, titleColor:c.label, bodyColor:c.label } },
+          cutout:'65%'
+        }
+      });
+    }
+
+    function updateChartColors() {
+      // Re-init charts with new theme colors
+      if (investmentChart || distributionChart) initCharts();
+    }
+
+    function changePeriod(period, btn) {
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const d = period === 'week' ? WEEK_DATA : period === 'month' ? MONTH_DATA : YEAR_DATA;
+      if (!investmentChart) return;
+      investmentChart.data.labels = d.labels;
+      investmentChart.data.datasets[0].data = d.data;
+      investmentChart.update();
+    }
+
+    // ── Auth ──
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'admin-login.html'; return; }
+      try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        if (!doc.exists || !doc.data().isAdmin) { await auth.signOut(); window.location.href = 'admin-login.html'; return; }
+        currentAdmin = user;
+        const d = doc.data();
+        document.getElementById('adminAvatar').textContent = (d.fullName||'A').charAt(0).toUpperCase();
+        document.getElementById('adminName').textContent   = d.fullName || 'Admin User';
+        document.getElementById('adminEmail').textContent  = d.email || user.email;
+        await loadDashboardData();
+      } catch (err) {
+        console.error('[dash] auth:', err);
+        await auth.signOut();
+        window.location.href = 'admin-login.html';
+      }
+    });
+
+    window.toggleSidebar   = toggleSidebar;
+    window.showLogoutModal  = showLogoutModal;
+    window.closeLogoutModal = closeLogoutModal;
+    window.confirmLogout    = confirmLogout;
+    window.showNotifications= showNotifications;
+    window.changePeriod     = changePeriod;
+    window.toggleTheme      = toggleTheme;
+  </script>
+</body>
+</html>
