@@ -311,14 +311,25 @@
     const TS   = firebase.firestore.Timestamp;
 
     const DAILY_PLANS = [
-      { id:'d1', name:'Konga 1',     amount:4000,   daily:200,  total:6000,   duration:30,  icon:'🛒' },
-      { id:'d2', name:'Audiomack 2', amount:10000,  daily:350,  total:14000,  duration:40,  icon:'🎵' },
-      { id:'d3', name:'Slot 3',      amount:25000,  daily:500,  total:30000,  duration:60,  icon:'📱' },
-      { id:'d4', name:'Shopify 4',   amount:50000,  daily:700,  total:56000,  duration:80,  icon:'🛍️' },
-      { id:'d5', name:'Jumia 5',     amount:100000, daily:1200, total:120000, duration:100, icon:'📦' },
-      { id:'d6', name:'Temu 6',      amount:150000, daily:1500, total:165000, duration:110, icon:'🎁' },
-      { id:'d7', name:'Amazon 7',    amount:300000, daily:3500, total:385000, duration:110, icon:'📚' }
-    ];
+  { id:'d1',  name:'Starter 1',        amount:4000,   daily:300,   total:9000,    duration:30, icon:'💼' },
+  { id:'d2',  name:'Basic 2',          amount:6000,   daily:500,   total:15000,   duration:30, icon:'📊' },
+  { id:'d3',  name:'Bronze 3',         amount:8000,   daily:700,   total:21000,   duration:30, icon:'🥉' },
+  { id:'d4',  name:'Silver 4',         amount:10000,  daily:900,   total:27000,   duration:30, icon:'🥈' },
+  { id:'d5',  name:'Silver Plus 5',    amount:15000,  daily:1300,  total:39000,   duration:30, icon:'✨' },
+  { id:'d6',  name:'Gold 6',           amount:20000,  daily:1800,  total:54000,   duration:30, icon:'🥇' },
+  { id:'d7',  name:'Gold Plus 7',      amount:25000,  daily:2200,  total:66000,   duration:30, icon:'🏆' },
+  { id:'d8',  name:'Premium 8',        amount:30000,  daily:2700,  total:81000,   duration:30, icon:'💎' },
+  { id:'d9',  name:'Premium Plus 9',   amount:50000,  daily:4500,  total:135000,  duration:30, icon:'🚀' },
+  { id:'d10', name:'Advanced 10',      amount:100000, daily:9500,  total:285000,  duration:30, icon:'📈' },
+  { id:'d11', name:'Advanced Plus 11', amount:150000, daily:14000, total:420000,  duration:30, icon:'⚡' },
+  { id:'d12', name:'Pro 12',           amount:200000, daily:19000, total:570000,  duration:30, icon:'🔥' },
+  { id:'d13', name:'Pro Plus 13',      amount:250000, daily:24000, total:720000,  duration:30, icon:'💰' },
+  { id:'d14', name:'Elite 14',         amount:300000, daily:28500, total:855000,  duration:30, icon:'👑' },
+  { id:'d15', name:'Elite Plus 15',    amount:350000, daily:33000, total:990000,  duration:30, icon:'🌟' },
+  { id:'d16', name:'Master 16',        amount:400000, daily:38000, total:1140000, duration:30, icon:'🏅' },
+  { id:'d17', name:'Master Plus 17',   amount:450000, daily:43000, total:1290000, duration:30, icon:'🎯' },
+  { id:'d18', name:'Ultimate 18',      amount:500000, daily:48000, total:1440000, duration:30, icon:'💠' }
+];
 
     const INSTANT_PLANS = [
       { id:'i1', name:'Starter',  amount:10000, returnAmt:15000, duration:20, icon:'🌱' },
