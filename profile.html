@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Primevest | My Profile</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════ THEME TOKENS ═══════════════════════════ */
+    :root,[data-theme="light"]{
+      --bg:#F0F9F0;--bg-2:#FFFFFF;--bg-card:#FFFFFF;--bg-card-2:#F9FAFB;
+      --border:#E2E8F0;--border-soft:#F1F5F9;
+      --text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+      --nav-bg:#FFFFFF;--input-bg:#F8FAFC;
+      --primary:#1E7B4B;--primary-dark:#0B4F2E;--primary-light:#4CAF7C;--primary-soft:#E8F5E9;
+      --accent:#2DD4BF;
+      --success:#10B981;--warning:#F59E0B;--error:#EF4444;--info:#3B82F6;--purple:#8B5CF6;--gold:#F59E0B;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 6px -1px rgba(0,0,0,.08);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,.08);--shadow-xl:0 20px 25px -5px rgba(0,0,0,.1);
+      --toggle-bg:#E2E8F0;--toggle-thumb:#FFFFFF;
+    }
+    [data-theme="dark"]{
+      --bg:#0A0F0A;--bg-2:#111811;--bg-card:#161E16;--bg-card-2:#1E281E;
+      --border:#2A3A2A;--border-soft:#1E281E;
+      --text-1:#F0FDF4;--text-2:#A7C3A7;--text-3:#5A7A5A;
+      --nav-bg:#111811;--input-bg:#1E281E;
+      --primary:#2DD47A;--primary-dark:#1E7B4B;--primary-light:#4CAF7C;--primary-soft:rgba(45,212,122,.12);
+      --accent:#2DD4BF;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.3);--shadow-md:0 4px 6px -1px rgba(0,0,0,.4);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,.4);--shadow-xl:0 20px 25px -5px rgba(0,0,0,.5);
+      --toggle-bg:#2A3A2A;--toggle-thumb:#0A0F0A;
+    }
+
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-1);min-height:100vh;padding-bottom:95px;overflow-x:hidden;transition:background .35s,color .35s;}
+
+    /* ── TOAST ── */
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+    @media(max-width:480px){.toast-container{top:16px;right:16px;left:16px;}}
+    .toast{background:var(--bg-card);border-radius:16px;padding:14px 18px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:12px;max-width:380px;transform:translateX(120%);transition:transform .3s cubic-bezier(.68,-.55,.265,1.55);border-left:4px solid;pointer-events:auto;}
+    @media(max-width:480px){.toast{max-width:100%;}}
+    .toast.show{transform:translateX(0);}
+    .toast.success{border-left-color:var(--success);}.toast.success .ti{color:var(--success);background:rgba(16,185,129,.12);}
+    .toast.error  {border-left-color:var(--error);  }.toast.error   .ti{color:var(--error);  background:rgba(239,68,68,.12);}
+    .toast.warning{border-left-color:var(--warning);}.toast.warning .ti{color:var(--warning);background:rgba(245,158,11,.12);}
+    .toast.info   {border-left-color:var(--primary);}.toast.info    .ti{color:var(--primary);background:rgba(30,123,75,.12);}
+    .ti{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .tc{flex:1;}.tt{font-weight:700;font-size:14px;color:var(--text-1);margin-bottom:2px;}.tm{font-size:12px;color:var(--text-3);line-height:1.4;}
+    .tclose{color:var(--text-3);cursor:pointer;padding:4px;font-size:14px;}
+
+    /* ── MODAL ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:10000;padding:16px;}
+    .modal-overlay.show{display:flex;}
+    .modal-card{background:var(--bg-card);border-radius:24px;width:90%;max-width:340px;padding:28px 24px;box-shadow:var(--shadow-xl);text-align:center;animation:popIn .25s cubic-bezier(.68,-.55,.265,1.55);}
+    @keyframes popIn{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+    .modal-icon{width:60px;height:60px;background:rgba(239,68,68,.12);border-radius:30px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--error);font-size:28px;}
+    .modal-title{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--text-1);margin-bottom:8px;}
+    .modal-text {font-size:14px;color:var(--text-2);margin-bottom:24px;line-height:1.5;}
+    .modal-actions{display:flex;gap:12px;}
+    .mbtn{flex:1;padding:14px;border:none;border-radius:16px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+    .mbtn-danger   {background:var(--error);color:#fff;}.mbtn-danger:hover{background:#DC2626;}
+    .mbtn-secondary{background:var(--bg-card-2);color:var(--text-2);}.mbtn-secondary:hover{background:var(--border);}
+
+    /* ── HEADER ── */
+    .header{height:70px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:var(--nav-bg);border-bottom:1px solid var(--border-soft);position:sticky;top:0;z-index:100;transition:background .35s;}
+    .header-left{display:flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;}
+    .logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;}
+    .brand{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--text-1);}
+    .brand span{color:var(--primary);}
+    .header-right{display:flex;align-items:center;gap:10px;}
+
+    /* Theme toggle */
+    .theme-toggle{position:relative;width:58px;height:30px;cursor:pointer;flex-shrink:0;}
+    .theme-toggle input{opacity:0;width:0;height:0;position:absolute;}
+    .toggle-track{position:absolute;inset:0;background:var(--toggle-bg);border-radius:15px;transition:background .35s;display:flex;align-items:center;padding:0 4px;justify-content:space-between;}
+    .toggle-icon-sun{font-size:12px;line-height:1;z-index:1;color:#F59E0B;}
+    .toggle-icon-moon{font-size:12px;line-height:1;z-index:1;color:#C4B5FD;}
+    .toggle-thumb{position:absolute;top:3px;left:3px;width:24px;height:24px;background:var(--toggle-thumb);border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .35s;}
+    [data-theme="dark"] .toggle-thumb{transform:translateX(28px);}
+    .profile-btn{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;cursor:pointer;}
+
+    /* ── CONTAINER ── */
+    .container{max-width:600px;margin:0 auto;padding:20px;}
+
+    /* ── PROFILE HERO ── */
+    .profile-hero{
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      border-radius:24px;padding:28px 22px;margin-bottom:20px;
+      color:#fff;position:relative;overflow:hidden;
+    }
+    .profile-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,.07);border-radius:50%;}
+    .profile-hero::after {content:'';position:absolute;bottom:-50px;left:-50px;width:150px;height:150px;background:rgba(255,255,255,.06);border-radius:50%;}
+
+    .hero-top{display:flex;align-items:center;gap:18px;margin-bottom:20px;position:relative;z-index:1;}
+    .avatar{width:72px;height:72px;background:#fff;border-radius:22px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;color:var(--primary);border:3px solid rgba(255,255,255,.3);flex-shrink:0;}
+    .hero-info{}
+    .hero-name  {font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:3px;}
+    .hero-phone {font-size:14px;color:rgba(255,255,255,.82);margin-bottom:6px;}
+    .hero-uid   {font-size:11px;color:rgba(255,255,255,.55);font-family:'Plus Jakarta Sans';}
+    .hero-uid span{background:rgba(255,255,255,.12);border-radius:6px;padding:2px 7px;letter-spacing:.3px;}
+
+    .hero-balance-row{
+      background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);
+      border-radius:16px;padding:14px 18px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:relative;z-index:1;flex-wrap:wrap;gap:12px;
+    }
+    .hb-item{text-align:center;}
+    .hb-val{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;}
+    .hb-lbl{font-size:10px;color:rgba(255,255,255,.65);font-weight:600;text-transform:uppercase;margin-top:3px;}
+    .hb-div{width:1px;background:rgba(255,255,255,.2);height:36px;}
+
+    /* ── SECTION LABEL ── */
+    .sec-label{
+      display:flex;align-items:center;gap:10px;
+      font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;
+      color:var(--text-1);margin:22px 0 13px;
+    }
+    .sec-label-icon{width:32px;height:32px;background:var(--primary-soft);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:14px;}
+
+    /* ── TASK SUMMARY GRID ── */
+    .task-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px;}
+    @media(min-width:420px){.task-summary-grid{grid-template-columns:repeat(4,1fr);}}
+
+    .ts-card{
+      background:var(--bg-card);border:1px solid var(--border-soft);
+      border-radius:20px;padding:16px 10px;text-align:center;
+      box-shadow:var(--shadow-sm);transition:all .2s;
+      position:relative;overflow:hidden;
+    }
+    .ts-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--accent));opacity:0;transition:opacity .2s;}
+    .ts-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+    .ts-card:hover::before{opacity:1;}
+    .ts-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:16px;}
+    .ts-icon.green {background:rgba(30,123,75,.1);   color:var(--primary);}
+    .ts-icon.teal  {background:rgba(45,212,191,.1);  color:#0d9488;}
+    .ts-icon.orange{background:rgba(245,158,11,.1);  color:var(--warning);}
+    .ts-icon.purple{background:rgba(139,92,246,.1);  color:var(--purple);}
+    .ts-val{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:3px;}
+    .ts-lbl{font-size:10px;color:var(--text-3);font-weight:600;text-transform:uppercase;}
+
+    /* ── TASK PERFORMANCE CARD ── */
+    .perf-card{
+      background:var(--bg-card);border:1px solid var(--border-soft);
+      border-radius:20px;padding:18px;margin-bottom:18px;
+      box-shadow:var(--shadow-sm);
+    }
+    .perf-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .perf-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--text-1);}
+    .perf-badge{background:var(--primary-soft);color:var(--primary);border-radius:50px;padding:3px 12px;font-size:11px;font-weight:700;}
+
+    /* Progress bars */
+    .perf-row{margin-bottom:12px;}
+    .perf-row:last-child{margin-bottom:0;}
+    .perf-row-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+    .perf-row-label{font-size:13px;color:var(--text-2);display:flex;align-items:center;gap:6px;}
+    .perf-row-label i{font-size:11px;color:var(--primary);}
+    .perf-row-val  {font-size:13px;font-weight:700;color:var(--text-1);}
+    .perf-bar{height:7px;background:var(--border-soft);border-radius:50px;overflow:hidden;}
+    .perf-fill{height:100%;border-radius:50px;transition:width .6s ease;}
+    .perf-fill.green {background:linear-gradient(90deg,var(--primary-light),var(--primary));}
+    .perf-fill.teal  {background:linear-gradient(90deg,var(--accent),#0d9488);}
+    .perf-fill.orange{background:linear-gradient(90deg,#fbbf24,var(--warning));}
+
+    /* ── ACTIVE PLAN MINI CARD ── */
+    .active-plan-card{
+      background:linear-gradient(135deg,rgba(30,123,75,.07),rgba(45,212,191,.05));
+      border:1.5px solid rgba(30,123,75,.18);
+      border-radius:20px;padding:16px;margin-bottom:8px;
+      display:flex;align-items:center;gap:14px;
+      cursor:pointer;transition:all .25s;
+    }
+    .active-plan-card:hover{border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+    .ap-icon{width:46px;height:46px;background:var(--primary-soft);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .ap-info{flex:1;min-width:0;}
+    .ap-name{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;margin-bottom:3px;}
+    .ap-sub {font-size:12px;color:var(--text-3);}
+    .ap-right{text-align:right;flex-shrink:0;}
+    .ap-earn{font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;color:var(--primary);}
+    .ap-day {font-size:11px;color:var(--text-3);margin-top:2px;}
+
+    /* day progress inside active plan */
+    .ap-prog{margin-top:8px;}
+    .ap-prog-bar{height:5px;background:var(--border);border-radius:50px;overflow:hidden;}
+    .ap-prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--primary));border-radius:50px;}
+    .ap-prog-lbl{display:flex;justify-content:space-between;margin-bottom:4px;}
+    .ap-prog-txt{font-size:10px;color:var(--text-3);}
+
+    /* Task slots mini preview */
+    .ap-slots{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+    .ap-slot{
+      display:flex;align-items:center;gap:4px;
+      border-radius:50px;padding:3px 10px;font-size:11px;font-weight:600;
+    }
+    .ap-slot.done     {background:rgba(16,185,129,.1);color:var(--success);border:1px solid rgba(16,185,129,.2);}
+    .ap-slot.available{background:rgba(30,123,75,.1);color:var(--primary);border:1px solid rgba(30,123,75,.2);}
+    .ap-slot.locked   {background:var(--border-soft);color:var(--text-3);border:1px solid var(--border);}
+
+    /* ── COMPLETED TASKS LIST ── */
+    .task-history{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:20px;overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow-sm);}
+    .th-item{
+      display:flex;align-items:center;gap:14px;padding:14px 18px;
+      border-bottom:1px solid var(--border-soft);transition:background .15s;
+    }
+    .th-item:last-child{border-bottom:none;}
+    .th-item:hover{background:var(--bg-card-2);}
+    .th-icon{
+      width:40px;height:40px;border-radius:13px;
+      background:rgba(16,185,129,.1);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--success);font-size:16px;flex-shrink:0;
+    }
+    .th-info{flex:1;min-width:0;}
+    .th-name{font-size:13px;font-weight:700;color:var(--text-1);margin-bottom:2px;}
+    .th-sub {font-size:11px;color:var(--text-3);}
+    .th-right{text-align:right;flex-shrink:0;}
+    .th-earn{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--success);}
+    .th-time{font-size:11px;color:var(--text-3);margin-top:2px;}
+
+    /* Load more btn */
+    .load-more-btn{width:100%;padding:14px;background:var(--bg-card-2);border:1px solid var(--border);border-radius:0 0 20px 20px;font-size:13px;font-weight:600;color:var(--primary);cursor:pointer;transition:all .2s;font-family:inherit;}
+    .load-more-btn:hover{background:var(--primary-soft);}
+
+    /* Empty task history */
+    .th-empty{padding:36px 20px;text-align:center;color:var(--text-3);}
+    .th-empty i{font-size:32px;margin-bottom:10px;display:block;color:var(--border);}
+    .th-empty p{font-size:13px;}
+
+    /* ── STATS GRID (old) ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+    @media(max-width:420px){.stats-grid{grid-template-columns:1fr;}}
+    .stat-card{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:20px;padding:16px 12px;text-align:center;box-shadow:var(--shadow-sm);transition:background .35s,border .35s;}
+    .stat-icon{font-size:20px;color:var(--primary);margin-bottom:8px;}
+    .stat-value{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:4px;}
+    .stat-label{font-size:11px;color:var(--text-3);}
+
+    /* ── QUICK ACTIONS ── */
+    .quick-actions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+    .qa-card{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:20px;padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s;}
+    .qa-card:hover{border-color:var(--primary-light);transform:translateY(-3px);box-shadow:var(--shadow-md);}
+    .qa-icon{width:48px;height:48px;background:var(--primary-soft);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;color:var(--primary);font-size:20px;transition:background .35s;}
+    .qa-label{font-size:13px;font-weight:700;color:var(--text-1);}
+
+    /* ── MENU SECTION ── */
+    .menu-section{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:24px;padding:6px 0;margin-bottom:16px;overflow:hidden;transition:background .35s;}
+    .menu-item{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid var(--border-soft);cursor:pointer;transition:background .18s;}
+    .menu-item:last-child{border-bottom:none;}
+    .menu-item:hover{background:var(--primary-soft);}
+    .menu-item-left{display:flex;align-items:center;gap:14px;}
+    .menu-icon{width:40px;height:40px;background:var(--primary-soft);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:18px;flex-shrink:0;transition:background .35s;}
+    .menu-icon.red   {background:rgba(239,68,68,.1);   color:var(--error);}
+    .menu-icon.blue  {background:rgba(59,130,246,.1);  color:var(--info);}
+    .menu-icon.purple{background:rgba(139,92,246,.1);  color:var(--purple);}
+    .menu-icon.orange{background:rgba(245,158,11,.1);  color:var(--warning);}
+    .menu-icon.gold  {background:rgba(245,158,11,.1);  color:var(--gold);}
+    .menu-icon.teal  {background:rgba(45,212,191,.1);  color:#0d9488;}
+    .menu-content{flex:1;}
+    .menu-title{font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:3px;display:flex;align-items:center;gap:7px;}
+    .menu-subtitle{font-size:12px;color:var(--text-3);}
+    .menu-right{color:var(--text-3);font-size:13px;display:flex;align-items:center;gap:7px;}
+    .menu-badge{background:var(--primary);color:#fff;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;}
+    .menu-badge.warning{background:var(--warning);}
+    .menu-badge.success{background:var(--success);}
+
+    /* ── LOGOUT ── */
+    .logout-item{display:flex;align-items:center;gap:14px;padding:16px 20px;background:rgba(239,68,68,.06);border-radius:20px;margin-top:16px;cursor:pointer;transition:all .2s;border:1px solid rgba(239,68,68,.18);}
+    .logout-item:hover{background:rgba(239,68,68,.12);}
+    .logout-icon{width:48px;height:48px;background:rgba(239,68,68,.1);border-radius:16px;display:flex;align-items:center;justify-content:center;color:var(--error);font-size:20px;}
+    .logout-text h4{font-weight:700;color:var(--error);margin-bottom:3px;}
+    .logout-text p {font-size:12px;color:var(--text-3);}
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:75px;background:var(--nav-bg);border-top:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-around;padding:0 8px;z-index:100;transition:background .35s;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;border-radius:14px;flex:1;max-width:64px;color:var(--text-3);font-size:10px;font-weight:600;}
+    .nav-item i{font-size:18px;}
+    .nav-item.active{color:var(--primary);background:var(--primary-soft);}
+    .nav-center{width:50px;height:50px;background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;transform:translateY(-8px);box-shadow:0 4px 14px rgba(30,123,75,.4);text-decoration:none;}
+
+    /* ── SPINNER ── */
+    .spin-inline{width:16px;height:16px;border:2px solid rgba(30,123,75,.2);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* ── SKELETON ── */
+    .skel{background:linear-gradient(90deg,var(--border-soft) 25%,var(--border) 50%,var(--border-soft) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px;display:inline-block;}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  </style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Logout Modal -->
+<div class="modal-overlay" id="logoutModal">
+  <div class="modal-card">
+    <div class="modal-icon"><i class="fas fa-sign-out-alt"></i></div>
+    <h3 class="modal-title">Logout</h3>
+    <p class="modal-text">Are you sure you want to sign out of your account?</p>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-danger"     onclick="confirmLogout()">Yes, Logout</button>
+      <button class="mbtn mbtn-secondary"  onclick="closeLogoutModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <a href="home.html" class="header-left">
+    <div class="logo"><i class="fas fa-chart-line"></i></div>
+    <div class="brand">Prime<span>vest</span></div>
+  </a>
+  <div class="header-right">
+    <label class="theme-toggle" title="Toggle dark / light mode">
+      <input type="checkbox" id="themeToggle" onchange="toggleTheme(this.checked)">
+      <div class="toggle-track">
+        <span class="toggle-icon-sun"><i class="fas fa-sun"></i></span>
+        <span class="toggle-icon-moon"><i class="fas fa-moon"></i></span>
+      </div>
+      <div class="toggle-thumb"></div>
+    </label>
+    <div class="profile-btn" id="profileInitial">P</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ══════════════════════════════════════════
+       PROFILE HERO
+  ══════════════════════════════════════════ -->
+  <div class="profile-hero">
+    <div class="hero-top">
+      <div class="avatar" id="profileAvatar">P</div>
+      <div class="hero-info">
+        <div class="hero-name"  id="profileFullName">Loading…</div>
+        <div class="hero-phone" id="profilePhone">Loading…</div>
+        <div class="hero-uid">ID: <span id="profileUid">—</span></div>
+      </div>
+    </div>
+    <div class="hero-balance-row">
+      <div class="hb-item">
+        <div class="hb-val" id="heroBalance">₦0</div>
+        <div class="hb-lbl">Balance</div>
+      </div>
+      <div class="hb-div"></div>
+      <div class="hb-item">
+        <div class="hb-val" id="heroTotalEarned">₦0</div>
+        <div class="hb-lbl">Total Earned</div>
+      </div>
+      <div class="hb-div"></div>
+      <div class="hb-item">
+        <div class="hb-val" id="heroTotalInvested">₦0</div>
+        <div class="hb-lbl">Total Invested</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TASK PERFORMANCE SUMMARY
+  ══════════════════════════════════════════ -->
+  <div class="sec-label">
+    <div class="sec-label-icon"><i class="fas fa-tasks"></i></div>
+    Task Performance
+  </div>
+
+  <div class="task-summary-grid">
+    <div class="ts-card">
+      <div class="ts-icon green"><i class="fas fa-check-double"></i></div>
+      <div class="ts-val" id="totalTasksCompleted">0</div>
+      <div class="ts-lbl">Tasks Done</div>
+    </div>
+    <div class="ts-card">
+      <div class="ts-icon teal"><i class="fas fa-coins"></i></div>
+      <div class="ts-val" id="totalTaskEarnings">₦0</div>
+      <div class="ts-lbl">Task Earnings</div>
+    </div>
+    <div class="ts-card">
+      <div class="ts-icon orange"><i class="fas fa-calendar-check"></i></div>
+      <div class="ts-val" id="totalDaysCompleted">0</div>
+      <div class="ts-lbl">Days Done</div>
+    </div>
+    <div class="ts-card">
+      <div class="ts-icon purple"><i class="fas fa-trophy"></i></div>
+      <div class="ts-val" id="plansCompleted">0</div>
+      <div class="ts-lbl">Plans Done</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TASK PROGRESS ANALYTICS
+  ══════════════════════════════════════════ -->
+  <div class="perf-card">
+    <div class="perf-header">
+      <div class="perf-title">📊 Task Analytics</div>
+      <div class="perf-badge" id="perfBadge">Loading…</div>
+    </div>
+    <div class="perf-row">
+      <div class="perf-row-hdr">
+        <span class="perf-row-label"><i class="fas fa-calendar-alt"></i> Days Completed</span>
+        <span class="perf-row-val" id="analytDays">0 / 0</span>
+      </div>
+      <div class="perf-bar"><div class="perf-fill green" id="analytDaysBar" style="width:0%"></div></div>
+    </div>
+    <div class="perf-row">
+      <div class="perf-row-hdr">
+        <span class="perf-row-label"><i class="fas fa-chart-line"></i> Earnings Progress</span>
+        <span class="perf-row-val" id="analytEarn">₦0 / ₦0</span>
+      </div>
+      <div class="perf-bar"><div class="perf-fill teal" id="analytEarnBar" style="width:0%"></div></div>
+    </div>
+    <div class="perf-row">
+      <div class="perf-row-hdr">
+        <span class="perf-row-label"><i class="fas fa-fire"></i> Today's Tasks</span>
+        <span class="perf-row-val" id="analytToday">0 / 0</span>
+      </div>
+      <div class="perf-bar"><div class="perf-fill orange" id="analytTodayBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       ACTIVE PLANS MINI VIEW
+  ══════════════════════════════════════════ -->
+  <div class="sec-label">
+    <div class="sec-label-icon"><i class="fas fa-bolt"></i></div>
+    Active Task Plans
+    <span style="font-size:12px;color:var(--text-3);font-weight:500;" id="activePlanCount"></span>
+  </div>
+  <div id="activePlansContainer">
+    <div style="text-align:center;padding:24px;color:var(--text-3);font-size:13px;">
+      <span class="spin-inline"></span> Loading plans…
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COMPLETED TASK HISTORY
+  ══════════════════════════════════════════ -->
+  <div class="sec-label">
+    <div class="sec-label-icon"><i class="fas fa-history"></i></div>
+    Completed Tasks History
+  </div>
+  <div class="task-history" id="taskHistoryContainer">
+    <div class="th-empty"><i class="fas fa-tasks"></i><p>Loading task history…</p></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       ACCOUNT STATS
+  ══════════════════════════════════════════ -->
+  <div class="sec-label">
+    <div class="sec-label-icon"><i class="fas fa-user-circle"></i></div>
+    Account Stats
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-users"></i></div>
+      <div class="stat-value" id="teamCount">0</div>
+      <div class="stat-label">Team Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+      <div class="stat-value" id="totalReferralEarnings">₦0</div>
+      <div class="stat-label">Referral Bonus</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+      <div class="stat-value" id="memberSince">—</div>
+      <div class="stat-label">Member Since</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       QUICK ACTIONS
+  ══════════════════════════════════════════ -->
+  <div class="sec-label">
+    <div class="sec-label-icon"><i class="fas fa-grip-horizontal"></i></div>
+    Quick Actions
+  </div>
+  <div class="quick-actions-grid">
+    <div class="qa-card" onclick="nav('invite')">
+      <div class="qa-icon"><i class="fas fa-user-plus"></i></div>
+      <div class="qa-label">Invite Team</div>
+    </div>
+    <div class="qa-card" onclick="nav('investments')">
+      <div class="qa-icon"><i class="fas fa-tasks"></i></div>
+      <div class="qa-label">My Plans</div>
+    </div>
+    <div class="qa-card" onclick="nav('gift')">
+      <div class="qa-icon"><i class="fas fa-gift"></i></div>
+      <div class="qa-label">Daily Gift</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MENU — RECORDS
+  ══════════════════════════════════════════ -->
+  <div class="menu-section">
+    <div class="menu-item" onclick="nav('my-team')">
+      <div class="menu-item-left">
+        <div class="menu-icon"><i class="fas fa-users"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">My Team</div>
+          <div class="menu-subtitle">View your downlines & referral tree</div>
+        </div>
+      </div>
+      <div class="menu-right">
+        <span class="menu-badge" id="teamBadge">0</span>
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+
+    <div class="menu-item" onclick="nav('investments')">
+      <div class="menu-item-left">
+        <div class="menu-icon teal"><i class="fas fa-chart-pie"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">My Task Plans</div>
+          <div class="menu-subtitle">Active plans &amp; full task history</div>
+        </div>
+      </div>
+      <div class="menu-right">
+        <span class="menu-badge" id="activePlanBadge">0</span>
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+
+    <div class="menu-item" onclick="nav('recharge-history')">
+      <div class="menu-item-left">
+        <div class="menu-icon"><i class="fas fa-history"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">Recharge History</div>
+          <div class="menu-subtitle">All deposit transactions</div>
+        </div>
+      </div>
+      <div class="menu-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+
+    <div class="menu-item" onclick="nav('withdrawal-history')">
+      <div class="menu-item-left">
+        <div class="menu-icon orange"><i class="fas fa-arrow-up"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">Withdrawal History</div>
+          <div class="menu-subtitle">All your withdrawals</div>
+        </div>
+      </div>
+      <div class="menu-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MENU — REWARDS
+  ══════════════════════════════════════════ -->
+  <div class="menu-section">
+    <div class="menu-item" onclick="nav('contest')">
+      <div class="menu-item-left">
+        <div class="menu-icon gold"><i class="fas fa-trophy"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">
+            Referral Contest
+            <span class="menu-badge success" style="font-size:10px">NEW</span>
+          </div>
+          <div class="menu-subtitle">Earn rewards for top referrals</div>
+        </div>
+      </div>
+      <div class="menu-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+
+    <div class="menu-item" onclick="nav('gift')">
+      <div class="menu-item-left">
+        <div class="menu-icon orange"><i class="fas fa-gift"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">
+            Daily Gift
+            <span class="menu-badge warning" style="font-size:10px">DAILY</span>
+          </div>
+          <div class="menu-subtitle">Claim your daily free cash</div>
+        </div>
+      </div>
+      <div class="menu-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+
+    <div class="menu-item" onclick="nav('submit-proof')">
+      <div class="menu-item-left">
+        <div class="menu-icon blue"><i class="fas fa-upload"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">Share Withdrawal Proof</div>
+          <div class="menu-subtitle">Get ₦50 per approved proof</div>
+        </div>
+      </div>
+      <div class="menu-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MENU — SUPPORT
+  ══════════════════════════════════════════ -->
+  <div class="menu-section">
+    <div class="menu-item" onclick="nav('share-app')">
+      <div class="menu-item-left">
+        <div class="menu-icon blue"><i class="fas fa-share-alt"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">Share App</div>
+          <div class="menu-subtitle">Invite friends &amp; earn together</div>
+        </div>
+      </div>
+      <div class="menu-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+
+    <div class="menu-item" onclick="window.open('https://t.me/+05Kwm_tmrABlMjA0','_blank')">
+      <div class="menu-item-left">
+        <div class="menu-icon blue"><i class="fab fa-telegram-plane"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">Telegram Community</div>
+          <div class="menu-subtitle">1,526+ members · daily tips &amp; alerts</div>
+        </div>
+      </div>
+      <div class="menu-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+
+    <div class="menu-item" onclick="nav('faq')">
+      <div class="menu-item-left">
+        <div class="menu-icon purple"><i class="fas fa-question-circle"></i></div>
+        <div class="menu-content">
+          <div class="menu-title">FAQ &amp; Help</div>
+          <div class="menu-subtitle">Get your questions answered</div>
+        </div>
+      </div>
+      <div class="menu-right"><i class="fas fa-chevron-right"></i></div>
+    </div>
+  </div>
+
+  <!-- Logout -->
+  <div class="logout-item" onclick="showLogoutModal()">
+    <div class="logout-icon"><i class="fas fa-sign-out-alt"></i></div>
+    <div class="logout-text">
+      <h4>Logout</h4>
+      <p>Sign out from your account</p>
+    </div>
+  </div>
+
+  <div style="height:20px;"></div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <a href="home.html"        class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="plans.html"       class="nav-item"><i class="fas fa-chart-pie"></i><span>Plans</span></a>
+  <a href="investments.html" class="nav-center"><i class="fas fa-wallet"></i></a>
+  <a href="referrals.html"   class="nav-item"><i class="fas fa-users"></i><span>Refer</span></a>
+  <a href="profile.html"     class="nav-item active"><i class="fas fa-user"></i><span>Profile</span></a>
+</nav>
+
+<script>
+  /* ── FIREBASE ── */
+  const firebaseConfig = {
+    apiKey:"AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+    authDomain:"primevest-5208c.firebaseapp.com",
+    projectId:"primevest-5208c",
+    storageBucket:"primevest-5208c.firebasestorage.app",
+    messagingSenderId:"76160486147",
+    appId:"1:76160486147:web:5b5853f9772503daa7b736"
+  };
+  if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+  const auth=firebase.auth(),db=firebase.firestore();
+
+  const PLAN_ICONS={t1:'💼',t2:'📊',t3:'🥉',t4:'🥈',t5:'🥇',t6:'✨',t7:'💎',t8:'🚀',t9:'📈',t10:'👑',t11:'🏆',t12:'🔥',t13:'💠'};
+  const fmt  = n=>'₦'+Number(n||0).toLocaleString('en-NG');
+  const fmtn = n=>Number(n||0).toLocaleString('en-NG');
+
+  function toDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();if(v instanceof Date)return v;return new Date(v);}
+  function timeAgo(v){
+    const d=toDate(v);if(!d)return '';
+    const s=Math.floor((Date.now()-d.getTime())/1000);
+    if(s<60)return 'just now';
+    if(s<3600)return Math.floor(s/60)+'m ago';
+    if(s<86400)return Math.floor(s/3600)+'h ago';
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  }
+  function fmtShortDate(v){
+    const d=toDate(v);if(!d)return '—';
+    return d.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+  }
+
+  /* ── THEME ── */
+  const THEME_KEY='primevest_theme';
+  function applyTheme(dark){
+    document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+    const cb=document.getElementById('themeToggle');
+    if(cb)cb.checked=dark;
+  }
+  window.toggleTheme=function(dark){localStorage.setItem(THEME_KEY,dark?'dark':'light');applyTheme(dark);};
+  (function(){applyTheme(localStorage.getItem(THEME_KEY)==='dark');})();
+
+  /* ── TOAST ── */
+  function showToast({type='info',title,message,duration=4000}){
+    const icons={success:'fa-check-circle',error:'fa-exclamation-circle',warning:'fa-exclamation-triangle',info:'fa-info-circle'};
+    const el=document.createElement('div');
+    el.className=`toast ${type}`;
+    el.innerHTML=`<div class="ti"><i class="fas ${icons[type]}"></i></div><div class="tc"><div class="tt">${title}</div><div class="tm">${message}</div></div><div class="tclose" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>`;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(()=>el.classList.add('show'),10);
+    if(duration)setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),400);},duration);
+  }
+
+  /* ── NAV ── */
+  window.nav=function(page){
+    const routes={
+      'invite':'referrals.html','team':'referrals.html','my-team':'referrals.html',
+      'contest':'referral-contest.html','gift':'daily-gift.html',
+      'investments':'investments.html','recharge-history':'recharge-history.html',
+      'withdrawal-history':'withdrawal-history.html',
+      'submit-proof':'submit-proof.html','share-app':'share.html'
+    };
+    if(page==='faq'){showToast({type:'info',title:'FAQ',message:'Coming soon!'});return;}
+    const url=routes[page];
+    if(url)window.location.href=url;
+    else showToast({type:'info',title:'Coming Soon',message:'This feature is under development'});
+  };
+
+  /* ── LOGOUT ── */
+  window.showLogoutModal  = ()=>document.getElementById('logoutModal').classList.add('show');
+  window.closeLogoutModal = ()=>document.getElementById('logoutModal').classList.remove('show');
+  window.confirmLogout    = async()=>{
+    closeLogoutModal();
+    showToast({type:'info',title:'Logging out…',message:'Please wait'});
+    try{await auth.signOut();window.location.href='login.html';}
+    catch(e){showToast({type:'error',title:'Error',message:'Failed to logout'});}
+  };
+  document.getElementById('logoutModal').addEventListener('click',e=>{if(e.target===document.getElementById('logoutModal'))closeLogoutModal();});
+
+  /* ═══════════════════════════════════════════════════════════
+     SLOT BUILDER — identical to home/investments pages
+     builds today's slot states for a given investment
+  ═══════════════════════════════════════════════════════════ */
+  function buildSlots(inv){
+    const n=Number(inv.tasksPerDay||1);
+    const created=toDate(inv.createdAt);
+    if(!created)return[];
+    const now=Date.now();
+    const elapsed=now-created.getTime();
+    const cycleIndex=Math.floor(elapsed/86400000);
+    const cycleStart=created.getTime()+cycleIndex*86400000;
+    const slotMs=86400000/n;
+    const taskSlots=inv.taskSlots||[];
+    const todayDone=new Set(taskSlots.filter(s=>s.cycle===cycleIndex).map(s=>s.slot));
+    return Array.from({length:n},(_,i)=>{
+      const openAt=cycleStart+i*slotMs;
+      const closeAt=openAt+slotMs;
+      const isDone=todayDone.has(i);
+      const isOpen=now>=openAt&&now<closeAt;
+      let state;
+      if(isDone)state='done';
+      else if(isOpen)state='available';
+      else state='locked';
+      return{index:i,isDone,isOpen,state};
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     RENDER ACTIVE PLANS (mini cards)
+  ═══════════════════════════════════════════════════════════ */
+  function renderActivePlans(plans){
+    const container=document.getElementById('activePlansContainer');
+    document.getElementById('activePlanCount').textContent=`(${plans.length})`;
+    document.getElementById('activePlanBadge').textContent=plans.length;
+
+    if(!plans.length){
+      container.innerHTML=`
+        <div style="background:var(--bg-card);border:1.5px dashed var(--border);border-radius:20px;padding:28px 20px;text-align:center;margin-bottom:18px;">
+          <div style="font-size:28px;margin-bottom:10px;">📋</div>
+          <div style="font-size:14px;color:var(--text-3);margin-bottom:14px;">No active task plans yet.</div>
+          <a href="plans.html" style="display:inline-flex;align-items:center;gap:7px;padding:10px 24px;background:var(--primary);border-radius:50px;color:#fff;font-size:13px;font-weight:700;text-decoration:none;">
+            <i class="fas fa-plus"></i> Start a Plan
+          </a>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = plans.map(inv=>{
+      const slots   = buildSlots(inv);
+      const doneN   = slots.filter(s=>s.isDone).length;
+      const n       = slots.length;
+      const daysDone= Number(inv.daysCompleted||0);
+      const totalDays=Number(inv.totalDays||50);
+      const daysPct = Math.min(100,Math.round(daysDone/totalDays*100));
+      const earned  = Number(inv.totalPaidOut||0);
+      const total   = Number(inv.totalReturn||0);
+      const icon    = PLAN_ICONS[inv.planId]||'📋';
+
+      const slotChips=slots.map(s=>`
+        <div class="ap-slot ${s.state}">
+          <i class="fas ${s.state==='done'?'fa-check-circle':s.state==='available'?'fa-bolt':'fa-lock'}"></i>
+          Task ${s.index+1}
+        </div>`).join('');
+
+      return `
+        <div class="active-plan-card" onclick="window.location.href='investments.html'">
+          <div class="ap-icon">${icon}</div>
+          <div class="ap-info" style="flex:1;min-width:0;">
+            <div class="ap-name">${inv.planName||'Task Plan'}</div>
+            <div class="ap-sub">${n} tasks/day · Day ${daysDone}/${totalDays}</div>
+            <div class="ap-prog">
+              <div class="ap-prog-lbl">
+                <span class="ap-prog-txt">${daysDone} of ${totalDays} days</span>
+                <span class="ap-prog-txt">${fmt(earned)} / ${fmt(total)}</span>
+              </div>
+              <div class="ap-prog-bar"><div class="ap-prog-fill" style="width:${daysPct}%"></div></div>
+            </div>
+            <div class="ap-slots">${slotChips}</div>
+          </div>
+          <div class="ap-right">
+            <div class="ap-earn">₦${fmtn(inv.dailyReturn)}</div>
+            <div class="ap-day">/day</div>
+            <div style="font-size:11px;color:var(--primary);margin-top:5px;font-weight:600;">${doneN}/${n} today</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     RENDER TASK HISTORY
+     Reads from transactions where type === 'task_earning'
+     Shows last N completed tasks with plan, slot, amount, time
+  ═══════════════════════════════════════════════════════════ */
+  let allTaskHistory    = [];
+  let historyShowCount  = 10;
+
+  function renderTaskHistory(){
+    const container=document.getElementById('taskHistoryContainer');
+    if(!allTaskHistory.length){
+      container.innerHTML=`
+        <div class="th-empty">
+          <i class="fas fa-tasks"></i>
+          <p>No completed tasks yet. Start a plan to begin earning!</p>
+        </div>`;
+      return;
+    }
+
+    const visible=allTaskHistory.slice(0,historyShowCount);
+    const hasMore=allTaskHistory.length>historyShowCount;
+
+    const itemsHtml=visible.map(tx=>{
+      const slotNum=(tx.slot!=null)?tx.slot+1:null;
+      const name=slotNum
+        ?`Task ${slotNum} — ${tx.planName||'Task Plan'}`
+        :`Daily Earnings — ${tx.planName||'Task Plan'}`;
+      const sub=tx.description||`Slot ${slotNum} completed`;
+
+      return `
+        <div class="th-item">
+          <div class="th-icon">
+            ${tx.type==='task_earning'
+              ?'<i class="fas fa-check-circle"></i>'
+              :'<i class="fas fa-bolt"></i>'}
+          </div>
+          <div class="th-info">
+            <div class="th-name">${name}</div>
+            <div class="th-sub">${sub}</div>
+          </div>
+          <div class="th-right">
+            <div class="th-earn">+${fmt(tx.amount)}</div>
+            <div class="th-time">${timeAgo(tx.createdAt)}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const loadMoreHtml=hasMore
+      ?`<button class="load-more-btn" onclick="loadMore()">
+          <i class="fas fa-chevron-down" style="margin-right:6px"></i>
+          Load More (${allTaskHistory.length-historyShowCount} remaining)
+        </button>`
+      :'';
+
+    container.innerHTML=`<div>${itemsHtml}</div>${loadMoreHtml}`;
+  }
+
+  window.loadMore=function(){
+    historyShowCount+=10;
+    renderTaskHistory();
+  };
+
+  /* ═══════════════════════════════════════════════════════════
+     COMPUTE ANALYTICS from all active+completed investments
+  ═══════════════════════════════════════════════════════════ */
+  function computeAnalytics(investments){
+    let totalDays=0,maxDays=0,totalEarned=0,maxEarned=0,todayDone=0,todayMax=0;
+    let totalTasksDone=0,totalInvested=0,plansCompleted=0;
+
+    investments.forEach(inv=>{
+      const n         =Number(inv.tasksPerDay||0);
+      const daysDone  =Number(inv.daysCompleted||0);
+      const planTotal =Number(inv.totalDays||50);
+      const earned    =Number(inv.totalPaidOut||0);
+      const planROI   =Number(inv.totalReturn||0);
+
+      totalDays    +=daysDone;
+      maxDays      +=planTotal;
+      totalEarned  +=earned;
+      maxEarned    +=planROI;
+      totalInvested+=Number(inv.amount||0);
+      if(inv.status!=='active')plansCompleted++;
+
+      // Today's slots
+      if(inv.status==='active'&&n>0){
+        const slots=buildSlots(inv);
+        todayDone+=slots.filter(s=>s.isDone).length;
+        todayMax +=n;
+      }
+
+      // Count total tasks completed (all cycles)
+      const taskSlots=inv.taskSlots||[];
+      totalTasksDone+=taskSlots.length;
+    });
+
+    return{totalDays,maxDays,totalEarned,maxEarned,todayDone,todayMax,totalTasksDone,totalInvested,plansCompleted};
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     MAIN LOAD
+  ═══════════════════════════════════════════════════════════ */
+  async function loadAll(user){
+    try{
+      /* 1. User doc */
+      const uSnap=await db.collection('users').doc(user.uid).get();
+      if(!uSnap.exists){await auth.signOut();window.location.href='login.html';return;}
+      const d=uSnap.data();
+
+      const fullName=d.fullName||'Primevest User';
+      const initial =fullName.charAt(0).toUpperCase();
+      document.getElementById('profileAvatar').textContent   =initial;
+      document.getElementById('profileInitial').textContent  =initial;
+      document.getElementById('profileFullName').textContent =fullName;
+      document.getElementById('profilePhone').textContent    =d.phone||'Not provided';
+      document.getElementById('profileUid').textContent      =user.uid.slice(0,12)+'…';
+      document.getElementById('heroBalance').textContent     =fmt(d.balance||0);
+      document.getElementById('heroTotalEarned').textContent =fmt(d.totalEarnings||0);
+      document.getElementById('totalReferralEarnings').textContent=fmt(d.totalRefEarnings||0);
+      document.getElementById('memberSince').textContent     =fmtShortDate(d.createdAt||user.metadata.creationTime);
+
+      /* 2. Investments */
+      const invSnap=await db.collection('investments').where('userId','==',user.uid).get();
+      const investments=[];
+      invSnap.forEach(doc=>investments.push({id:doc.id,...doc.data()}));
+
+      const activePlans  =investments.filter(i=>i.status==='active');
+      const analytics    =computeAnalytics(investments);
+
+      // Hero total invested
+      document.getElementById('heroTotalInvested').textContent=fmt(analytics.totalInvested);
+
+      // Task summary cards
+      document.getElementById('totalTasksCompleted').textContent=analytics.totalTasksDone.toLocaleString();
+      document.getElementById('totalTaskEarnings').textContent  =fmt(analytics.totalEarned);
+      document.getElementById('totalDaysCompleted').textContent =analytics.totalDays.toLocaleString();
+      document.getElementById('plansCompleted').textContent     =analytics.plansCompleted;
+
+      // Analytics progress bars
+      const daysPct  =analytics.maxDays  >0?Math.min(100,Math.round(analytics.totalDays /analytics.maxDays  *100)):0;
+      const earnPct  =analytics.maxEarned>0?Math.min(100,Math.round(analytics.totalEarned/analytics.maxEarned*100)):0;
+      const todayPct =analytics.todayMax >0?Math.min(100,Math.round(analytics.todayDone /analytics.todayMax *100)):0;
+
+      document.getElementById('analytDays'   ).textContent=`${analytics.totalDays} / ${analytics.maxDays}`;
+      document.getElementById('analytEarn'   ).textContent=`${fmt(analytics.totalEarned)} / ${fmt(analytics.maxEarned)}`;
+      document.getElementById('analytToday'  ).textContent=`${analytics.todayDone} / ${analytics.todayMax}`;
+      document.getElementById('analytDaysBar').style.width=daysPct+'%';
+      document.getElementById('analytEarnBar').style.width=earnPct+'%';
+      document.getElementById('analytTodayBar').style.width=todayPct+'%';
+
+      // Performance badge
+      const badge=earnPct>=80?'🏆 Champion':earnPct>=60?'⭐ Great':earnPct>=30?'📈 Growing':'🌱 Starting';
+      document.getElementById('perfBadge').textContent=badge;
+
+      renderActivePlans(activePlans);
+
+      /* 3. Task history from transactions */
+      const txSnap=await db.collection('transactions')
+        .where('userId','==',user.uid)
+        .where('type','in',['task_earning','task_daily_earning'])
+        .get();
+
+      allTaskHistory=[];
+      txSnap.forEach(doc=>allTaskHistory.push({id:doc.id,...doc.data()}));
+      // Sort newest first in JS (avoid composite index)
+      allTaskHistory.sort((a,b)=>{
+        const ta=toDate(a.createdAt)?.getTime()||0;
+        const tb=toDate(b.createdAt)?.getTime()||0;
+        return tb-ta;
+      });
+      renderTaskHistory();
+
+      /* 4. Team count */
+      let teamCount=0;
+      for(const field of['referrerUid','referredBy','referredByUid']){
+        try{
+          const snap=await db.collection('users').where(field,'==',user.uid).get();
+          if(snap.size>teamCount)teamCount=snap.size;
+        }catch(e){}
+      }
+      document.getElementById('teamCount').textContent=teamCount;
+      document.getElementById('teamBadge').textContent=teamCount;
+
+    }catch(err){
+      console.error('[profile]',err);
+      showToast({type:'error',title:'Error',message:'Failed to load profile data'});
+    }
+  }
+
+  auth.onAuthStateChanged(async user=>{
+    if(!user){window.location.href='login.html';return;}
+    await loadAll(user);
+  });
+</script>
+</body>
+</html>
