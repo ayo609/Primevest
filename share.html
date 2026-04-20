@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
+  <title>Primevest | Share & Earn</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    /* ══════════════════════════════════════════
+       THEME TOKENS
+    ══════════════════════════════════════════ */
+    :root,
+    [data-theme="light"] {
+      --bg:           #F0F9F0;
+      --bg-2:         #FFFFFF;
+      --bg-card:      #FFFFFF;
+      --bg-card-2:    #F9FAFB;
+      --bg-item:      #F1F5F9;
+      --border:       #E2E8F0;
+      --border-soft:  #F1F5F9;
+      --text-primary: #0F172A;
+      --text-secondary:#475569;
+      --text-muted:   #94A3B8;
+      --nav-bg:       #FFFFFF;
+
+      --primary:      #1E7B4B;
+      --primary-dark: #0B4F2E;
+      --primary-light:#4CAF7C;
+      --primary-soft: #E8F5E9;
+
+      --success:#10B981; --warning:#F59E0B; --error:#EF4444; --info:#3B82F6;
+      --purple:#8B5CF6;
+
+      --whatsapp:#25D366; --telegram:#0088cc; --facebook:#1877f2;
+      --twitter:#1da1f2;  --instagram:#e4405f; --messenger:#34b7f1;
+      --gmail:#ea4335;
+
+      --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,0.08);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,0.08);
+      --shadow-xl:0 20px 25px -5px rgba(0,0,0,0.1);
+
+      --toggle-bg:    #E2E8F0;
+      --toggle-thumb: #FFFFFF;
+    }
+
+    [data-theme="dark"] {
+      --bg:           #0A0F0A;
+      --bg-2:         #111811;
+      --bg-card:      #161E16;
+      --bg-card-2:    #1E281E;
+      --bg-item:      #1E281E;
+      --border:       #2A3A2A;
+      --border-soft:  #1E281E;
+      --text-primary: #F0FDF4;
+      --text-secondary:#A7C3A7;
+      --text-muted:   #5A7A5A;
+      --nav-bg:       #111811;
+
+      --primary:      #2DD47A;
+      --primary-dark: #1E7B4B;
+      --primary-light:#4CAF7C;
+      --primary-soft: rgba(45,212,122,0.12);
+
+      --shadow-sm:0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,0.4);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,0.4);
+      --shadow-xl:0 20px 25px -5px rgba(0,0,0,0.5);
+
+      --toggle-bg:    #2A3A2A;
+      --toggle-thumb: #0A0F0A;
+    }
+
+    body {
+      font-family:'Plus Jakarta Sans',sans-serif;
+      background:var(--bg);
+      color:var(--text-primary);
+      min-height:100vh;
+      padding-bottom:95px;
+      overflow-x:hidden;
+      transition:background 0.35s ease, color 0.35s ease;
+    }
+
+    /* ── TOAST ── */
+    .toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+    @media(max-width:480px){.toast-container{top:16px;right:16px;left:16px;}}
+    .toast{background:var(--bg-card);border-radius:16px;padding:14px 18px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:12px;max-width:380px;transform:translateX(120%);transition:transform 0.3s cubic-bezier(0.68,-0.55,0.265,1.55);border-left:4px solid;pointer-events:auto;}
+    @media(max-width:480px){.toast{max-width:100%;}}
+    .toast.show{transform:translateX(0);}
+    .toast.success{border-left-color:var(--success);}.toast.success .ti{color:var(--success);background:rgba(16,185,129,0.12);}
+    .toast.error{border-left-color:var(--error);}.toast.error .ti{color:var(--error);background:rgba(239,68,68,0.12);}
+    .toast.warning{border-left-color:var(--warning);}.toast.warning .ti{color:var(--warning);background:rgba(245,158,11,0.12);}
+    .toast.info{border-left-color:var(--primary);}.toast.info .ti{color:var(--primary);background:rgba(30,123,75,0.12);}
+    .ti{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .tc{flex:1;}.tt{font-weight:700;font-size:14px;color:var(--text-primary);margin-bottom:2px;}.tm{font-size:12px;color:var(--text-muted);line-height:1.4;}
+    .tclose{color:var(--text-muted);cursor:pointer;padding:4px;font-size:14px;}
+
+    /* ── HEADER ── */
+    .header{height:70px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:var(--nav-bg);border-bottom:1px solid var(--border-soft);position:sticky;top:0;z-index:100;transition:background 0.35s ease;}
+    .header-left{display:flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;}
+    .logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;}
+    .brand{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--text-primary);}
+    .brand span{color:var(--primary);}
+    .header-right{display:flex;align-items:center;gap:10px;}
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle{position:relative;width:58px;height:30px;cursor:pointer;flex-shrink:0;}
+    .theme-toggle input{opacity:0;width:0;height:0;position:absolute;}
+    .toggle-track{position:absolute;inset:0;background:var(--toggle-bg);border-radius:15px;transition:background 0.35s ease;display:flex;align-items:center;padding:0 5px;justify-content:space-between;}
+    .toggle-icon-sun{font-size:12px;color:#F59E0B;}
+    .toggle-icon-moon{font-size:12px;color:#C4B5FD;}
+    .toggle-thumb{position:absolute;top:3px;left:3px;width:24px;height:24px;background:var(--toggle-thumb);border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.25);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),background 0.35s ease;}
+    [data-theme="dark"] .toggle-thumb{transform:translateX(28px);}
+
+    .profile-btn{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none;}
+
+    /* ── LAYOUT ── */
+    .container{max-width:800px;margin:0 auto;padding:20px;}
+
+    .page-title{margin-bottom:24px;}
+    .page-title h1{font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;color:var(--text-primary);margin-bottom:6px;}
+    .page-title p{font-size:15px;color:var(--text-muted);}
+
+    /* ── REFERRAL HERO CARD ── */
+    .referral-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:24px;padding:24px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden;}
+    .referral-card::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,0.08);border-radius:50%;}
+    .referral-card::after{content:'';position:absolute;bottom:-50px;left:-50px;width:150px;height:150px;background:rgba(255,255,255,0.08);border-radius:50%;}
+    .referral-title{font-size:13px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;position:relative;z-index:2;}
+    .qr-section{display:flex;align-items:center;gap:20px;margin-bottom:20px;flex-wrap:wrap;position:relative;z-index:2;}
+    .qr-code{background:#fff;padding:10px;border-radius:16px;width:116px;height:116px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .qr-code canvas{display:block;max-width:100%;max-height:100%;}
+    .qr-info{flex:1;}
+    .qr-info h3{font-size:18px;font-weight:700;margin-bottom:4px;}
+    .qr-info p{font-size:13px;color:rgba(255,255,255,0.78);margin-bottom:12px;}
+    .referral-link-box{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.2);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:18px;position:relative;z-index:2;}
+    .referral-link-text{flex:1;font-size:13px;font-weight:500;color:rgba(255,255,255,0.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .copy-btn{background:#fff;border:none;border-radius:10px;padding:8px 16px;color:var(--primary);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s;flex-shrink:0;}
+    .copy-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,0.2);}
+    .referral-stats-mini{display:flex;gap:28px;position:relative;z-index:2;}
+    .stat-mini-item{text-align:center;}
+    .stat-mini-value{font-size:22px;font-weight:700;margin-bottom:2px;}
+    .stat-mini-label{font-size:11px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.3px;}
+
+    /* ── SUMMARY CARDS ── */
+    .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+    @media(max-width:480px){.summary-grid{grid-template-columns:1fr;}}
+    .summary-card{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:20px;padding:18px 14px;box-shadow:var(--shadow-sm);text-align:center;transition:background 0.35s ease;}
+    .summary-icon{width:40px;height:40px;background:var(--primary-soft);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:18px;margin:0 auto 12px;transition:background 0.35s ease;}
+    .summary-value{font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
+    .summary-label{font-size:12px;color:var(--text-muted);}
+
+    /* ── SECTION CARD ── */
+    .section-card{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:24px;padding:24px;margin-bottom:22px;transition:background 0.35s ease;}
+    .section-title{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--text-primary);margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+    .section-title i{color:var(--primary);}
+
+    /* ── COMMISSION ── */
+    .commission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+    .commission-item{text-align:center;padding:16px 10px;background:var(--bg-item);border-radius:14px;transition:background 0.35s ease;}
+    .commission-badge{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-weight:700;font-size:17px;}
+    .badge-a{background:rgba(245,158,11,0.15);color:#F59E0B;border:2px solid #F59E0B;}
+    .badge-b{background:rgba(148,163,184,0.15);color:#94A3B8;border:2px solid #94A3B8;}
+    .badge-c{background:rgba(205,127,50,0.15);color:#CD7F32;border:2px solid #CD7F32;}
+    .commission-percent{font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:3px;}
+    .commission-label{font-size:12px;color:var(--text-muted);}
+
+    /* ── SHARE GRID ── */
+    .share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+    @media(max-width:600px){.share-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:400px){.share-grid{grid-template-columns:repeat(2,1fr);}}
+    .share-option{background:var(--bg-item);border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;transition:all 0.2s;border:1.5px solid transparent;}
+    .share-option:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--primary-light);background:var(--primary-soft);}
+    .share-icon{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px;color:#fff;}
+    .icon-wa{background:#25D366;} .icon-tg{background:#0088cc;} .icon-fb{background:#1877f2;}
+    .icon-tw{background:#1da1f2;} .icon-ig{background:#e4405f;} .icon-msg{background:#34b7f1;}
+    .icon-mail{background:#ea4335;} .icon-copy{background:#475569;}
+    .share-label{font-size:12px;font-weight:700;color:var(--text-primary);}
+
+    /* ── CONTACTS ── */
+    .contacts-btn{width:100%;padding:15px;background:var(--primary);border:none;border-radius:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;font-family:inherit;}
+    .contacts-btn:hover{background:var(--primary-dark);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .contacts-note{text-align:center;font-size:12px;color:var(--text-muted);margin-top:10px;}
+
+    /* ── SAMPLE MESSAGES ── */
+    .message-item{background:var(--bg-item);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;border:1.5px solid transparent;margin-bottom:10px;}
+    .message-item:last-child{margin-bottom:0;}
+    .message-item:hover{background:var(--primary-soft);border-color:var(--primary-light);}
+    .message-text{font-size:14px;color:var(--text-secondary);margin-bottom:10px;line-height:1.55;white-space:pre-line;}
+    .message-footer{display:flex;align-items:center;justify-content:space-between;}
+    .message-type{font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;}
+    .copy-msg-btn{padding:4px 12px;background:transparent;border:1px solid var(--border);border-radius:50px;color:var(--text-muted);font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+    .copy-msg-btn:hover{background:var(--primary);border-color:var(--primary);color:#fff;}
+
+    /* ── TIPS ── */
+    .tip-item{display:flex;gap:12px;margin-bottom:16px;}
+    .tip-item:last-child{margin-bottom:0;}
+    .tip-number{width:28px;height:28px;background:var(--primary-soft);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);font-size:13px;flex-shrink:0;transition:background 0.35s ease;}
+    .tip-content h4{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:3px;}
+    .tip-content p{font-size:13px;color:var(--text-muted);line-height:1.5;}
+
+    /* ── HISTORY ── */
+    .history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+    .view-all{color:var(--primary);font-size:13px;font-weight:700;text-decoration:none;}
+    .history-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg-item);border-radius:14px;margin-bottom:10px;transition:background 0.35s ease;}
+    .history-item:last-child{margin-bottom:0;}
+    .history-info{display:flex;align-items:center;gap:12px;}
+    .history-avatar{width:40px;height:40px;background:var(--primary-soft);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700;font-size:16px;flex-shrink:0;transition:background 0.35s ease;}
+    .history-details h4{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:2px;}
+    .history-details p{font-size:11px;color:var(--text-muted);}
+    .history-status{text-align:right;}
+    .status-badge{display:inline-block;padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;}
+    .status-joined{background:rgba(16,185,129,0.1);color:var(--success);}
+    .earned-amount{font-size:13px;font-weight:700;color:var(--primary);margin-top:3px;}
+
+    /* ── EMPTY STATE ── */
+    .empty-state{text-align:center;padding:28px 20px;color:var(--text-muted);}
+    .empty-state i{font-size:28px;margin-bottom:10px;opacity:0.4;display:block;}
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:75px;background:var(--nav-bg);border-top:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-around;padding:0 8px;z-index:100;transition:background 0.35s ease;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;border-radius:14px;flex:1;max-width:64px;color:var(--text-muted);font-size:10px;font-weight:600;}
+    .nav-item i{font-size:18px;}
+    .nav-item.active{color:var(--primary);background:var(--primary-soft);}
+    .nav-center{width:50px;height:50px;background:linear-gradient(145deg,var(--primary),var(--primary-dark));border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;transform:translateY(-8px);box-shadow:0 4px 14px rgba(30,123,75,0.4);text-decoration:none;}
+
+    /* spinner */
+    .spinner{width:18px;height:18px;border:2.5px solid rgba(30,123,75,0.2);border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .page-end{height:20px;}
+  </style>
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <header class="header">
+    <a href="home.html" class="header-left">
+      <div class="logo"><i class="fas fa-chart-line"></i></div>
+      <div class="brand">Prime<span>vest</span></div>
+    </a>
+    <div class="header-right">
+      <label class="theme-toggle" title="Toggle dark / light mode">
+        <input type="checkbox" id="themeToggle" onchange="toggleTheme(this.checked)">
+        <div class="toggle-track">
+          <span class="toggle-icon-sun"><i class="fas fa-sun"></i></span>
+          <span class="toggle-icon-moon"><i class="fas fa-moon"></i></span>
+        </div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <a href="profile.html" class="profile-btn" id="profileInitial">P</a>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="page-title">
+      <h1>📤 Share & Earn</h1>
+      <p>Invite friends and earn commission on every task package they activate</p>
+    </div>
+
+    <!-- Referral Card -->
+    <div class="referral-card">
+      <div class="referral-title"><i class="fas fa-link"></i> YOUR REFERRAL LINK</div>
+
+      <div class="qr-section">
+        <div class="qr-code" id="qrCode">
+          <div class="spinner"></div>
+        </div>
+        <div class="qr-info">
+          <h3>Scan to Join</h3>
+          <p>Friends scan this to sign up with your link</p>
+        </div>
+      </div>
+
+      <div class="referral-link-box">
+        <span class="referral-link-text" id="referralLink">Loading…</span>
+        <button class="copy-btn" onclick="copyReferralLink()">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+      </div>
+
+      <div class="referral-stats-mini">
+        <div class="stat-mini-item">
+          <div class="stat-mini-value" id="totalSignups">0</div>
+          <div class="stat-mini-label">Signups</div>
+        </div>
+        <div class="stat-mini-item">
+          <div class="stat-mini-value" id="totalActivated">₦0</div>
+          <div class="stat-mini-label">Team Activated</div>
+        </div>
+        <div class="stat-mini-item">
+          <div class="stat-mini-value" id="totalEarnedHero">₦0</div>
+          <div class="stat-mini-label">You Earned</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon"><i class="fas fa-users"></i></div>
+        <div class="summary-value" id="totalReferrals">0</div>
+        <div class="summary-label">Total Referrals</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon"><i class="fas fa-coins"></i></div>
+        <div class="summary-value" id="totalEarned">₦0</div>
+        <div class="summary-label">Commission Earned</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="summary-value" id="activeReferrals">0</div>
+        <div class="summary-label">Active Referrals</div>
+      </div>
+    </div>
+
+    <!-- Commission Structure -->
+    <div class="section-card">
+      <div class="section-title"><i class="fas fa-chart-pie"></i> Commission Structure</div>
+      <div class="commission-grid">
+        <div class="commission-item">
+          <div class="commission-badge badge-a">L1</div>
+          <div class="commission-percent" id="commA">15%</div>
+          <div class="commission-label">Level 1 — Direct</div>
+        </div>
+        <div class="commission-item">
+          <div class="commission-badge badge-b">L2</div>
+          <div class="commission-percent" id="commB">3%</div>
+          <div class="commission-label">Level 2</div>
+        </div>
+        <div class="commission-item">
+          <div class="commission-badge badge-c">L3</div>
+          <div class="commission-percent" id="commC">1%</div>
+          <div class="commission-label">Level 3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Platforms -->
+    <div class="section-card">
+      <div class="section-title"><i class="fas fa-share-alt"></i> Share Via</div>
+      <div class="share-grid">
+        <div class="share-option" onclick="shareVia('whatsapp')">
+          <div class="share-icon icon-wa"><i class="fab fa-whatsapp"></i></div>
+          <span class="share-label">WhatsApp</span>
+        </div>
+        <div class="share-option" onclick="shareVia('telegram')">
+          <div class="share-icon icon-tg"><i class="fab fa-telegram-plane"></i></div>
+          <span class="share-label">Telegram</span>
+        </div>
+        <div class="share-option" onclick="shareVia('facebook')">
+          <div class="share-icon icon-fb"><i class="fab fa-facebook-f"></i></div>
+          <span class="share-label">Facebook</span>
+        </div>
+        <div class="share-option" onclick="shareVia('twitter')">
+          <div class="share-icon icon-tw"><i class="fab fa-twitter"></i></div>
+          <span class="share-label">Twitter</span>
+        </div>
+        <div class="share-option" onclick="shareVia('instagram')">
+          <div class="share-icon icon-ig"><i class="fab fa-instagram"></i></div>
+          <span class="share-label">Instagram</span>
+        </div>
+        <div class="share-option" onclick="shareVia('messenger')">
+          <div class="share-icon icon-msg"><i class="fab fa-facebook-messenger"></i></div>
+          <span class="share-label">Messenger</span>
+        </div>
+        <div class="share-option" onclick="shareVia('email')">
+          <div class="share-icon icon-mail"><i class="fas fa-envelope"></i></div>
+          <span class="share-label">Email</span>
+        </div>
+        <div class="share-option" onclick="copyReferralLink()">
+          <div class="share-icon icon-copy"><i class="fas fa-copy"></i></div>
+          <span class="share-label">Copy Link</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite from Contacts -->
+    <div class="section-card">
+      <div class="section-title"><i class="fas fa-address-book"></i> Invite from Contacts</div>
+      <button class="contacts-btn" onclick="inviteContacts()">
+        <i class="fas fa-phone-alt"></i> Share via Contacts
+      </button>
+      <p class="contacts-note"><i class="fas fa-lock"></i> We respect your privacy. Contacts are used only for sending invites.</p>
+    </div>
+
+    <!-- Sample Messages -->
+    <div class="section-card">
+      <div class="section-title"><i class="fas fa-comment-dots"></i> Sample Messages</div>
+
+      <div class="message-item" onclick="copyMessage('personal')">
+        <div class="message-text">"Hey! I've been earning daily by completing simple tasks on Primevest. Join using my link and let's earn together! 💰"</div>
+        <div class="message-footer">
+          <span class="message-type">Personal</span>
+          <button class="copy-msg-btn" onclick="event.stopPropagation();copyMessage('personal')"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+      </div>
+
+      <div class="message-item" onclick="copyMessage('group')">
+        <div class="message-text">📋 EARN DAILY WITH PRIMEVEST TASKS! 📋
+
+Complete simple daily tasks and earn consistent returns. Activate a task package starting from just ₦5,000. Join thousands already earning!
+
+Use my referral link to get started:</div>
+        <div class="message-footer">
+          <span class="message-type">Group / Channel</span>
+          <button class="copy-msg-btn" onclick="event.stopPropagation();copyMessage('group')"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+      </div>
+
+      <div class="message-item" onclick="copyMessage('social')">
+        <div class="message-text">💰 Looking for legit daily income? I found Primevest!
+
+✅ Complete simple tasks daily
+✅ 15%-3%-1% referral bonuses
+✅ Instant task rewards
+✅ Packages from ₦5,000
+
+Join now via my link:</div>
+        <div class="message-footer">
+          <span class="message-type">Social Media</span>
+          <button class="copy-msg-btn" onclick="event.stopPropagation();copyMessage('social')"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pro Tips -->
+    <div class="section-card">
+      <div class="section-title"><i class="fas fa-lightbulb"></i> Pro Tips to Earn More</div>
+      <div class="tip-item">
+        <div class="tip-number">1</div>
+        <div class="tip-content"><h4>Share Your Earnings Proof</h4><p>Screenshots of your daily task rewards build trust and convince others to join.</p></div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-number">2</div>
+        <div class="tip-content"><h4>Join Online Communities</h4><p>Share your link in WhatsApp, Telegram and Facebook groups focused on making money online.</p></div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-number">3</div>
+        <div class="tip-content"><h4>Follow Up with Interested People</h4><p>When someone clicks your link, send them a message to answer their questions.</p></div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-number">4</div>
+        <div class="tip-content"><h4>Post Daily Updates</h4><p>Regular updates about your task earnings keep you top-of-mind with potential referrals.</p></div>
+      </div>
+    </div>
+
+    <!-- Recent Invites -->
+    <div class="section-card">
+      <div class="history-header">
+        <div class="section-title" style="margin-bottom:0;"><i class="fas fa-history"></i> Recent Invites</div>
+        <a href="referrals.html" class="view-all">View All <i class="fas fa-chevron-right"></i></a>
+      </div>
+      <div id="inviteHistory">
+        <div class="empty-state"><i class="fas fa-user-plus"></i><p>No invites yet. Start sharing your link!</p></div>
+      </div>
+    </div>
+
+    <div class="page-end"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="home.html"        class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="plans.html"       class="nav-item"><i class="fas fa-chart-pie"></i><span>Packages</span></a>
+    <a href="investments.html" class="nav-center"><i class="fas fa-tasks"></i></a>
+    <a href="referrals.html"   class="nav-item active"><i class="fas fa-users"></i><span>Refer</span></a>
+    <a href="profile.html"     class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+  </nav>
+
+  <script>
+    const firebaseConfig = {
+      apiKey:            "AIzaSyAi8lV4LUb57ele6K1wo73vc13mGz1v9B0",
+      authDomain:        "primevest-5208c.firebaseapp.com",
+      projectId:         "primevest-5208c",
+      storageBucket:     "primevest-5208c.firebasestorage.app",
+      messagingSenderId: "76160486147",
+      appId:             "1:76160486147:web:5b5853f9772503daa7b736"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+
+    let currentUser  = null;
+    let userData     = null;
+    let referralLink = '';
+
+    const BASE_URL = (window.location.origin && window.location.origin !== 'null')
+      ? window.location.origin
+      : 'https://primevest.netlify.app';
+
+    const fmt = n => '₦' + Number(n||0).toLocaleString('en-NG');
+
+    // ── Theme ──────────────────────────────────
+    const THEME_KEY = 'primevest_theme';
+    function applyTheme(dark) {
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      const t = document.getElementById('themeToggle');
+      if (t) t.checked = dark;
+    }
+    function toggleTheme(dark) {
+      localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
+      applyTheme(dark);
+    }
+    applyTheme(localStorage.getItem(THEME_KEY) === 'dark');
+
+    // ── Toast ──────────────────────────────────
+    function showToast({ type='info', title, message, duration=4500 }) {
+      const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.innerHTML = `<div class="ti"><i class="fas ${icons[type]}"></i></div><div class="tc"><div class="tt">${title}</div><div class="tm">${message}</div></div><div class="tclose" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></div>`;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => el.classList.add('show'), 10);
+      if (duration) setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, duration);
+    }
+
+    // ── QR Code ─────────────────────────────────
+    function generateQRCode(text) {
+      const el = document.getElementById('qrCode');
+      el.innerHTML = '';
+      QRCode.toCanvas(text, { width: 96, margin: 1, color: { dark:'#000000', light:'#ffffff' } }, (err, canvas) => {
+        if (err) { el.innerHTML = '<i class="fas fa-qrcode" style="font-size:40px;opacity:0.4;"></i>'; return; }
+        canvas.style.display = 'block';
+        el.appendChild(canvas);
+      });
+    }
+
+    // ── Copy referral link ──────────────────────
+    async function copyReferralLink() {
+      if (!referralLink) return;
+      try {
+        await navigator.clipboard.writeText(referralLink);
+      } catch {
+        const t = document.createElement('textarea');
+        t.value = referralLink; document.body.appendChild(t); t.select();
+        document.execCommand('copy'); document.body.removeChild(t);
+      }
+      showToast({ type:'success', title:'Copied!', message:'Referral link copied to clipboard' });
+    }
+
+    // ── Share platform ──────────────────────────
+    function shareVia(platform) {
+      const text = encodeURIComponent(`Join Primevest and earn daily from simple tasks! Use my referral link: ${referralLink}`);
+      const url  = encodeURIComponent(referralLink);
+      const links = {
+        whatsapp:  `https://wa.me/?text=${text}`,
+        telegram:  `https://t.me/share/url?url=${url}&text=${text}`,
+        facebook:  `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+        twitter:   `https://twitter.com/intent/tweet?text=${text}`,
+        messenger: `fb-messenger://share?link=${url}`,
+        email:     `mailto:?subject=Join%20Primevest%20Tasks&body=${text}`
+      };
+      if (platform === 'instagram') {
+        copyReferralLink();
+        showToast({ type:'info', title:'Instagram', message:'Link copied — paste it in your Instagram DM or story' });
+        return;
+      }
+      if (links[platform]) window.open(links[platform], '_blank');
+    }
+
+    // ── Web Share API ───────────────────────────
+    function inviteContacts() {
+      if (navigator.share) {
+        navigator.share({ title:'Join Primevest Tasks', text:`Earn daily from simple tasks! Use my referral link: ${referralLink}`, url: referralLink })
+          .catch(() => copyReferralLink());
+      } else {
+        copyReferralLink();
+        showToast({ type:'info', title:'Link Copied', message:'Paste it to share with your contacts' });
+      }
+    }
+
+    // ── Copy sample message ─────────────────────
+    async function copyMessage(type) {
+      const msgs = {
+        personal: `Hey! I've been earning daily by completing simple tasks on Primevest. Join using my link and let's earn together! 💰\n\n${referralLink}`,
+        group:    `📋 EARN DAILY WITH PRIMEVEST TASKS! 📋\n\nComplete simple daily tasks and earn consistent returns. Activate a task package starting from just ₦5,000. Join thousands already earning!\n\nUse my referral link to get started:\n${referralLink}`,
+        social:   `💰 Looking for legit daily income? I found Primevest!\n\n✅ Complete simple tasks daily\n✅ 15%-3%-1% referral bonuses\n✅ Instant task rewards\n✅ Packages from ₦5,000\n\nJoin now via my link:\n${referralLink}`
+      };
+      try { await navigator.clipboard.writeText(msgs[type]); } catch {
+        const t = document.createElement('textarea');
+        t.value = msgs[type]; document.body.appendChild(t); t.select();
+        document.execCommand('copy'); document.body.removeChild(t);
+      }
+      showToast({ type:'success', title:'Message Copied!', message:'Paste it anywhere to share' });
+    }
+
+    // ── Load commission rates ───────────────────
+    async function loadCommissionRates() {
+      try {
+        const snap = await db.collection('settings').doc('platform').get();
+        if (snap.exists) {
+          const s = snap.data();
+          if (s.levelACommission != null) document.getElementById('commA').textContent = s.levelACommission + '%';
+          if (s.levelBCommission != null) document.getElementById('commB').textContent = s.levelBCommission + '%';
+          if (s.levelCCommission != null) document.getElementById('commC').textContent = s.levelCCommission + '%';
+        }
+      } catch (e) { console.warn('[share] commission rates:', e.message); }
+    }
+
+    // ── Fetch referral IDs ──────────────────────
+    async function fetchReferralIds(uid) {
+      const fields = ['referrerUid', 'referredBy', 'referredByUid'];
+      const seen = new Set();
+      const ids  = [];
+      for (const field of fields) {
+        try {
+          const snap = await db.collection('users').where(field, '==', uid).get();
+          snap.forEach(doc => { if (!seen.has(doc.id)) { seen.add(doc.id); ids.push({ id:doc.id, ...doc.data() }); } });
+        } catch (e) { console.warn(`[share] field ${field}:`, e.message); }
+      }
+      return ids;
+    }
+
+    // ── Load referral data ──────────────────────
+    async function loadReferralData() {
+      if (!currentUser || !userData) return;
+      try {
+        const refCode = userData.referralCode || userData.username || currentUser.uid.slice(0,8);
+        referralLink  = `${BASE_URL}/signup.html?ref=${refCode}`;
+        document.getElementById('referralLink').textContent = referralLink;
+        generateQRCode(referralLink);
+
+        const referrals = await fetchReferralIds(currentUser.uid);
+        const totalReferrals = referrals.length;
+        document.getElementById('totalReferrals').textContent = totalReferrals;
+        document.getElementById('totalSignups').textContent   = totalReferrals;
+
+        const referralIds = referrals.map(r => r.id);
+        let activeCount = 0;
+        let teamActivated = 0;
+
+        if (referralIds.length > 0) {
+          const chunks = [];
+          for (let i = 0; i < referralIds.length; i += 10) chunks.push(referralIds.slice(i, i+10));
+          await Promise.all(chunks.map(async chunk => {
+            try {
+              const snap = await db.collection('investments').where('userId','in',chunk).where('planType','==','task').get();
+              const seen = new Set();
+              snap.forEach(doc => {
+                const d = doc.data();
+                if (!seen.has(d.userId)) { seen.add(d.userId); activeCount++; }
+                teamActivated += Number(d.amount || 0);
+              });
+            } catch(e) { console.warn('[share] investments chunk:', e.message); }
+          }));
+        }
+
+        document.getElementById('activeReferrals').textContent = activeCount;
+        document.getElementById('totalActivated').textContent   = fmt(teamActivated);
+
+        let totalEarned = 0;
+        try {
+          const txSnap = await db.collection('transactions')
+            .where('userId','==', currentUser.uid)
+            .get();
+          txSnap.forEach(doc => {
+            const d = doc.data();
+            if ((d.type || '').includes('referral') || (d.type || '').includes('bonus')) {
+              totalEarned += Number(d.amount || 0);
+            }
+          });
+        } catch(e) {
+          totalEarned = Number(userData.totalRefEarnings || 0);
+        }
+
+        document.getElementById('totalEarned').textContent    = fmt(totalEarned);
+        document.getElementById('totalEarnedHero').textContent = fmt(totalEarned);
+
+        loadInviteHistory(referrals);
+
+      } catch (err) {
+        console.error('[share] loadReferralData:', err);
+      }
+    }
+
+    // ── Load invite history ─────────────────────
+    async function loadInviteHistory(referrals) {
+      const el = document.getElementById('inviteHistory');
+      if (!referrals || !referrals.length) {
+        el.innerHTML = `<div class="empty-state"><i class="fas fa-user-plus"></i><p>No invites yet. Start sharing your link!</p></div>`;
+        return;
+      }
+
+      const sorted = [...referrals].sort((a, b) => {
+        const ta = a.createdAt?.toDate?.()?.getTime() || 0;
+        const tb = b.createdAt?.toDate?.()?.getTime() || 0;
+        return tb - ta;
+      }).slice(0, 6);
+
+      const earnedMap = {};
+      try {
+        const txSnap = await db.collection('transactions')
+          .where('userId','==', currentUser.uid)
+          .get();
+        txSnap.forEach(doc => {
+          const d = doc.data();
+          if (d.referralUserId && (d.type||'').includes('referral')) {
+            earnedMap[d.referralUserId] = (earnedMap[d.referralUserId] || 0) + Number(d.amount||0);
+          }
+        });
+      } catch(e) { console.warn('[share] earned map:', e.message); }
+
+      el.innerHTML = sorted.map(ref => {
+        const name    = ref.fullName || ref.username || 'Friend';
+        const initial = name.charAt(0).toUpperCase();
+        const date    = ref.createdAt?.toDate?.() || new Date();
+        const dateStr = date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+        const earned  = earnedMap[ref.id] || 0;
+
+        return `
+          <div class="history-item">
+            <div class="history-info">
+              <div class="history-avatar">${initial}</div>
+              <div class="history-details">
+                <h4>${name}</h4>
+                <p>Joined ${dateStr}</p>
+              </div>
+            </div>
+            <div class="history-status">
+              <span class="status-badge status-joined">Joined</span>
+              ${earned > 0 ? `<div class="earned-amount">+${fmt(earned)}</div>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Load user data ──────────────────────────
+    async function loadUserData(user) {
+      try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        if (!doc.exists) { await auth.signOut(); window.location.href = 'login.html'; return; }
+        userData = doc.data();
+        document.getElementById('profileInitial').textContent =
+          (userData.fullName || 'P').charAt(0).toUpperCase();
+        await Promise.all([loadReferralData(), loadCommissionRates()]);
+      } catch (err) {
+        console.error('[share] loadUserData:', err);
+      }
+    }
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      currentUser = user;
+      await loadUserData(user);
+    });
+
+    window.copyReferralLink = copyReferralLink;
+    window.shareVia         = shareVia;
+    window.inviteContacts   = inviteContacts;
+    window.copyMessage      = copyMessage;
+    window.toggleTheme      = toggleTheme;
+  </script>
+</body>
+</html>
