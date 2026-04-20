@@ -238,7 +238,7 @@
   <div class="modal-card">
     <div class="modal-icon"><i class="fab fa-telegram"></i></div>
     <h3 class="modal-title">Join Our Community! 🎉</h3>
-    <p class="modal-text">1,526+ investors sharing daily task tips, alerts and support.</p>
+    <p class="modal-text">Join investors sharing daily task tips, alerts and support.</p>
     <div class="modal-benefits">
       <div class="benefit-row"><div class="benefit-check"><i class="fas fa-bell"></i></div><div class="benefit-text">Daily task & earning alerts</div></div>
       <div class="benefit-row"><div class="benefit-check"><i class="fas fa-headset"></i></div><div class="benefit-text">24/7 community support</div></div>
@@ -275,7 +275,7 @@
   </div>
 
   <div class="stats-grid">
-    <div class="stat-card"><div class="stat-icon"><i class="fas fa-tasks"></i></div><div class="stat-value" id="statPlans">0</div><div class="stat-label">Active Plans</div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-tasks"></i></div><div class="stat-value" id="statPlans">0</div><div class="stat-label">Active Tasks</div></div>
     <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-value" id="statReferrals">0</div><div class="stat-label">Referrals</div></div>
     <div class="stat-card"><div class="stat-icon"><i class="fas fa-coins"></i></div><div class="stat-value" id="statEarnings">₦0</div><div class="stat-label">Total Earned</div></div>
   </div>
@@ -284,7 +284,7 @@
     <div class="bal-label">Available Balance</div>
     <div class="bal-amount"><span class="cur">₦</span><span id="balanceAmount">0</span></div>
     <div class="bal-actions">
-      <a href="deposit.html"    class="act-btn dep"><i class="fas fa-plus"></i> Deposit</a>
+      <a href="deposit.html"    class="act-btn dep"><i class="fas fa-plus"></i> Recharge</a>
       <a href="withdrawal.html" class="act-btn wit"><i class="fas fa-arrow-up"></i> Withdraw</a>
     </div>
   </div>
@@ -296,7 +296,7 @@
   <div id="taskWidgetContainer"></div>
 
   <div class="sec-hdr">
-    <h2><i class="fas fa-fire" style="color:var(--primary);margin-right:6px"></i>Popular Plans</h2>
+    <h2><i class="fas fa-fire" style="color:var(--primary);margin-right:6px"></i>Popular Task</h2>
     <a href="plans.html" class="sec-link">View all <i class="fas fa-arrow-right"></i></a>
   </div>
   <div class="plans-scroll" id="plansContainer"></div>
@@ -315,13 +315,13 @@
 
   <a href="https://t.me/+05Kwm_tmrABlMjA0" target="_blank" rel="noopener noreferrer" class="community-card">
     <div class="cc-ico"><i class="fab fa-telegram"></i></div>
-    <div class="cc-body"><div class="cc-title">Join Our Telegram Group</div><div class="cc-sub">1,526+ members · Daily task alerts &amp; tips</div></div>
+    <div class="cc-body"><div class="cc-title">Join Our Telegram Group</div><div class="cc-sub">Daily task alerts &amp; tips</div></div>
     <div class="cc-arrow"><i class="fas fa-chevron-right"></i></div>
   </a>
 
   <div class="cta-banner">
     <h3>Start Earning More Today 🚀</h3>
-    <p>Browse plans and start completing daily tasks to grow your wealth.</p>
+    <p>Browse Task and start completing daily tasks to grow your wealth.</p>
     <a href="plans.html" class="cta-btn"><i class="fas fa-layer-group"></i> Browse Plans</a>
   </div>
 
@@ -329,7 +329,7 @@
 
 <nav class="bottom-nav">
   <a href="home.html"        class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
-  <a href="plans.html"       class="nav-item"><i class="fas fa-chart-pie"></i><span>Plans</span></a>
+  <a href="plans.html"       class="nav-item"><i class="fas fa-chart-pie"></i><span>Task</span></a>
   <a href="investments.html" class="nav-center"><i class="fas fa-wallet"></i></a>
   <a href="referrals.html"   class="nav-item"><i class="fas fa-users"></i><span>Refer</span></a>
   <a href="profile.html"     class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
@@ -348,13 +348,12 @@
   let currentUser=null,activeInv=null,slotTimers={};
 
   const POPULAR_PLANS=[
-    {id:'t1',name:'Starter', amount:5000,  daily:170,  tasks:2,icon:'💼'},
-    {id:'t5',name:'Gold',    amount:30000, daily:1000, tasks:5,icon:'🥇'},
-    {id:'t7',name:'Premium', amount:50000, daily:1500, tasks:6,icon:'💎'},
-    {id:'t9',name:'Advanced',amount:100000,daily:2600, tasks:6,icon:'📈'},
-    {id:'t11',name:'Master', amount:200000,daily:4500, tasks:8,icon:'🏆'},
+    {id:'t1',name:'Task package 1', amount:5000,  daily:170,  tasks:2},
+    {id:'t5',name:'Task Package 5',    amount:30000, daily:1000, tasks:5},
+    {id:'t7',name:'Task package 7', amount:50000, daily:1500, tasks:6},
+    {id:'t9',name:'Task package 9',amount:100000,daily:2600, tasks:6},
+    {id:'t11',name:'Task package 11', amount:200000,daily:4500, tasks:8},
   ];
-  const PLAN_ICONS={t1:'💼',t2:'📊',t3:'🥉',t4:'🥈',t5:'🥇',t6:'✨',t7:'💎',t8:'🚀',t9:'📈',t10:'👑',t11:'🏆',t12:'🔥',t13:'💠'};
 
   const fmt=n=>Number(n||0).toLocaleString('en-NG');
   function toDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();if(v instanceof Date)return v;return new Date(v);}
